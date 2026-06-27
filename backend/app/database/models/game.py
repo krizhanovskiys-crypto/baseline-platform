@@ -1,0 +1,101 @@
+"""Game and GamePlayer ORM models."""
+import enum
+from datetime import date, datetime, time
+
+from sqlalchemy import (
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Time,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
+
+from backend.app.database.base import Base
+
+
+class MatchType(str, enum.Enum):
+    SINGLES = "singles"
+    DOUBLES = "doubles"
+
+
+class GameStatus(str, enum.Enum):
+    OPEN = "open"
+    FULL = "full"
+    CANCELLED = "cancelled"
+    COMPLETED = "completed"
+
+
+class GamePlayerStatus(str, enum.Enum):
+    INVITED = "invited"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+    CONFIRMED = "confirmed"
+
+
+class Game(Base):
+    """A tennis game/match session."""
+
+    __tablename__ = "games"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    creator_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("players.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Location & schedule
+    court: Mapped[str] = mapped_column(String(256), nullable=False)
+    area: Mapped[str] = mapped_column(String(64), nullable=False)
+    date: Mapped[date] = mapped_column(Date, nullable=False)
+    time: Mapped[time] = mapped_column(Time, nullable=False)
+
+    # Match details
+    match_type: Mapped[MatchType] = mapped_column(
+        Enum(MatchType), default=MatchType.SINGLES, nullable=False
+    )
+    required_level: Mapped[float | None] = mapped_column(Float, nullable=True)
+    status: Mapped[GameStatus] = mapped_column(
+        Enum(GameStatus), default=GameStatus.OPEN, nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    # Relationships
+    creator: Mapped["Player"] = relationship(  # noqa: F821
+        "Player", back_populates="created_games", foreign_keys=[creator_id]
+    )
+    participants: Mapped[list["GamePlayer"]] = relationship(
+        "GamePlayer", back_populates="game", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        return f"<Game id={self.id} area={self.area!r} date={self.date} status={self.status}>"
+
+
+class GamePlayer(Base):
+    """Association between a Game and a Player (many-to-many with status)."""
+
+    __tablename__ = "game_players"
+
+    game_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("games.id", ondelete="CASCADE"), primary_key=True
+    )
+    player_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("players.id", ondelete="CASCADE"), primary_key=True
+    )
+    status: Mapped[GamePlayerStatus] = mapped_column(
+        Enum(GamePlayerStatus), default=GamePlayerStatus.INVITED, nullable=False
+    )
+
+    # Relationships
+    game: Mapped["Game"] = relationship("Game", back_populates="participants")
+    player: Mapped["Player"] = relationship("Player", back_populates="game_participations")
+
+    def __repr__(self) -> str:
+        return f"<GamePlayer game_id={self.game_id} player_id={self.player_id} status={self.status}>"
