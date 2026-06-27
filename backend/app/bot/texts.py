@@ -94,11 +94,9 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_self_rated": "✅ Self Rated",
         "level_source_card_coach_verified": "🏆 Coach Verified",
         "no_partners_friendly": (
-            "🎾 We couldn't find a suitable partner yet.\n\n"
-            "Try:\n"
-            "• changing your area\n"
-            "• updating your level\n"
-            "• inviting more players to Baseline"
+            "🎾 We haven't found your ideal tennis partner yet.\n\n"
+            "🌱 You're one of the first members of the Baseline community.\n\n"
+            "As more players join, we'll be able to find an even better match for you. 💚"
         ),
         "btn_contact": "💬 Contact",
         "btn_next": "➡ Next",
@@ -170,11 +168,9 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_self_rated": "✅ Самооцінка",
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
         "no_partners_friendly": (
-            "🎾 На жаль, підходящих партнерів поки не знайдено.\n\n"
-            "Спробуйте:\n"
-            "• змінити район\n"
-            "• оновити рівень\n"
-            "• запросити більше гравців до Baseline"
+            "🎾 Поки що ми не знайшли для вас ідеального партнера.\n\n"
+            "🌱 Ви серед перших учасників спільноти Baseline.\n\n"
+            "Чим більше гравців приєднається, тим швидше ми знайдемо для вас чудовий матч. 💚"
         ),
         "btn_contact": "💬 Зв'язатися",
         "btn_next": "➡ Далі",
@@ -246,11 +242,9 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_self_rated": "✅ Самооценка",
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
         "no_partners_friendly": (
-            "🎾 К сожалению, подходящих партнёров пока не найдено.\n\n"
-            "Попробуйте:\n"
-            "• изменить район\n"
-            "• обновить уровень\n"
-            "• пригласить больше игроков в Baseline"
+            "🎾 Пока мы не нашли для вас идеального партнёра.\n\n"
+            "🌱 Вы один из первых участников сообщества Baseline.\n\n"
+            "Чем больше игроков присоединится, тем быстрее мы найдём для вас отличный матч. 💚"
         ),
         "btn_contact": "💬 Связаться",
         "btn_next": "➡ Далее",
