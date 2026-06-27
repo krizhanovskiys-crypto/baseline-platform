@@ -30,10 +30,11 @@ async def test_get_by_telegram_id_not_found(session: AsyncSession) -> None:
 async def test_find_partners(session: AsyncSession) -> None:
     repo = PlayerRepository(session)
 
-    alice = Player(telegram_id=1, first_name="Alice", skill_level=3.0, home_area="Downtown")
-    bob = Player(telegram_id=2, first_name="Bob", skill_level=3.5, home_area="Downtown")
-    carol = Player(telegram_id=3, first_name="Carol", skill_level=5.0, home_area="Downtown")
-    dave = Player(telegram_id=4, first_name="Dave", skill_level=3.0, home_area="North York")
+    _courts = '["High Park"]'
+    alice = Player(telegram_id=1, first_name="Alice", skill_level=3.0, home_area="Downtown", language="en", preferred_courts=_courts)
+    bob = Player(telegram_id=2, first_name="Bob", skill_level=3.5, home_area="Downtown", language="en", preferred_courts=_courts)
+    carol = Player(telegram_id=3, first_name="Carol", skill_level=5.0, home_area="Downtown", language="en", preferred_courts=_courts)
+    dave = Player(telegram_id=4, first_name="Dave", skill_level=3.0, home_area="North York", language="en", preferred_courts=_courts)
 
     for p in [alice, bob, carol, dave]:
         await repo.add(p)

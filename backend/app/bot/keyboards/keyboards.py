@@ -109,6 +109,32 @@ def partner_actions_keyboard(lang: str, partner_telegram_id: int) -> InlineKeybo
 
 
 # ---------------------------------------------------------------------------
+# Find Partner
+# ---------------------------------------------------------------------------
+
+def partner_card_keyboard(
+    lang: str,
+    username: str | None,
+    show_next: bool,
+) -> InlineKeyboardMarkup:
+    """Keyboard shown under each partner card.
+
+    Row 1: Contact (URL if username, else popup) + Next (if more players)
+    Row 2: Menu
+    """
+    builder = InlineKeyboardBuilder()
+    if username:
+        builder.button(text=t("btn_contact", lang), url=f"https://t.me/{username}")
+    else:
+        builder.button(text=t("btn_contact", lang), callback_data="fp:no_contact")
+    if show_next:
+        builder.button(text=t("btn_next", lang), callback_data="fp:next")
+    builder.button(text=t("btn_menu_home", lang), callback_data="fp:menu")
+    builder.adjust(2 if show_next else 1, 1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
 # Settings
 # ---------------------------------------------------------------------------
 

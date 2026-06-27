@@ -104,16 +104,33 @@ class PlayerService:
         telegram_id: int,
         area: str,
         skill_level: float,
+        my_courts: list[str] | None = None,
         level_tolerance: float = 0.5,
     ) -> list[PlayerRead]:
-        """Find matching partners for a player."""
+        """Find and rank compatible partners.
+
+        Sort order:
+          1. Shared favourite courts (descending)
+          2. Absolute skill difference (ascending)
+          3. Most recently active (descending)
+        """
         players = await self._repo.find_partners(
             area=area,
             skill_level=skill_level,
             exclude_telegram_id=telegram_id,
             level_tolerance=level_tolerance,
         )
-        return [_player_to_schema(p) for p in players]
+        partners = [_player_to_schema(p) for p in players]
+
+        my_courts_set = set(my_courts or [])
+        partners.sort(
+            key=lambda p: (
+                -len(my_courts_set & set(p.preferred_courts or [])),
+                abs((p.skill_level or 0.0) - skill_level),
+                -(p.updated_at.timestamp() if p.updated_at else 0),
+            )
+        )
+        return partners
 
     async def set_available_now(self, telegram_id: int) -> PlayerRead | None:
         """Mark player as available for the next 2 hours."""

@@ -23,6 +23,12 @@ class CreateGameStates(StatesGroup):
     confirm = State()
 
 
+class FindPartnerStates(StatesGroup):
+    """Find-partner browsing flow."""
+
+    browsing = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings flow."""
 

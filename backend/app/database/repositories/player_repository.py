@@ -23,7 +23,11 @@ class PlayerRepository(BaseRepository[Player]):
         exclude_telegram_id: int,
         level_tolerance: float = 0.5,
     ) -> list[Player]:
-        """Return players in the same area within ±level_tolerance of skill_level."""
+        """Return complete-profile players in the same area within ±level_tolerance.
+
+        Completeness is enforced here to keep service-layer sorting cheap.
+        Final ranking (shared courts, skill diff, recency) is done in the service.
+        """
         stmt = (
             select(Player)
             .where(
@@ -32,9 +36,10 @@ class PlayerRepository(BaseRepository[Player]):
                     Player.skill_level >= skill_level - level_tolerance,
                     Player.skill_level <= skill_level + level_tolerance,
                     Player.telegram_id != exclude_telegram_id,
+                    Player.language.is_not(None),
+                    Player.preferred_courts.is_not(None),
                 )
             )
-            .order_by(Player.rating.desc())
         )
         result = await self._session.execute(stmt)
         return list(result.scalars().all())

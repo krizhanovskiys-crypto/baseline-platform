@@ -83,6 +83,27 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Cancelled.",
         "error_generic": "⚠️ Something went wrong. Please try again.",
         "profile_not_complete_action": "⚠️ Please complete your profile first.",
+        # Find Partner
+        "partner_card_v2": (
+            "👤 *{name}*\n\n"
+            "🎾 NTRP {level}\n"
+            "{level_source_line}\n\n"
+            "📍 {area}\n\n"
+            "🏟 {courts}"
+        ),
+        "level_source_card_self_rated": "✅ Self Rated",
+        "level_source_card_coach_verified": "🏆 Coach Verified",
+        "no_partners_friendly": (
+            "🎾 We couldn't find a suitable partner yet.\n\n"
+            "Try:\n"
+            "• changing your area\n"
+            "• updating your level\n"
+            "• inviting more players to Baseline"
+        ),
+        "btn_contact": "💬 Contact",
+        "btn_next": "➡ Next",
+        "btn_menu_home": "🏠 Menu",
+        "no_contact_available": "This player has no public username yet. Try creating a game instead!",
     },
     "uk": {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
@@ -138,6 +159,27 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Скасовано.",
         "error_generic": "⚠️ Щось пішло не так. Спробуйте ще раз.",
         "profile_not_complete_action": "⚠️ Будь ласка, спочатку заповніть профіль.",
+        # Find Partner
+        "partner_card_v2": (
+            "👤 *{name}*\n\n"
+            "🎾 NTRP {level}\n"
+            "{level_source_line}\n\n"
+            "📍 {area}\n\n"
+            "🏟 {courts}"
+        ),
+        "level_source_card_self_rated": "✅ Самооцінка",
+        "level_source_card_coach_verified": "🏆 Підтверджено тренером",
+        "no_partners_friendly": (
+            "🎾 На жаль, підходящих партнерів поки не знайдено.\n\n"
+            "Спробуйте:\n"
+            "• змінити район\n"
+            "• оновити рівень\n"
+            "• запросити більше гравців до Baseline"
+        ),
+        "btn_contact": "💬 Зв'язатися",
+        "btn_next": "➡ Далі",
+        "btn_menu_home": "🏠 Меню",
+        "no_contact_available": "У цього гравця ще немає публічного username. Спробуйте створити гру!",
     },
     "ru": {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
@@ -193,6 +235,27 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Отменено.",
         "error_generic": "⚠️ Что-то пошло не так. Попробуйте ещё раз.",
         "profile_not_complete_action": "⚠️ Пожалуйста, сначала заполните профиль.",
+        # Find Partner
+        "partner_card_v2": (
+            "👤 *{name}*\n\n"
+            "🎾 NTRP {level}\n"
+            "{level_source_line}\n\n"
+            "📍 {area}\n\n"
+            "🏟 {courts}"
+        ),
+        "level_source_card_self_rated": "✅ Самооценка",
+        "level_source_card_coach_verified": "🏆 Подтверждено тренером",
+        "no_partners_friendly": (
+            "🎾 К сожалению, подходящих партнёров пока не найдено.\n\n"
+            "Попробуйте:\n"
+            "• изменить район\n"
+            "• обновить уровень\n"
+            "• пригласить больше игроков в Baseline"
+        ),
+        "btn_contact": "💬 Связаться",
+        "btn_next": "➡ Далее",
+        "btn_menu_home": "🏠 Меню",
+        "no_contact_available": "У этого игрока нет публичного username. Попробуйте создать игру!",
     },
 }
 
