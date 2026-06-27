@@ -34,6 +34,7 @@ def _player_to_schema(player: Player) -> PlayerRead:
         "first_name": player.first_name,
         "language": player.language,
         "skill_level": player.skill_level,
+        "level_source": player.level_source,
         "home_area": player.home_area,
         "preferred_courts": _parse_courts(player),
         "available_now": player.available_now,
@@ -86,6 +87,9 @@ class PlayerService:
         update_dict = data.model_dump(exclude_unset=True)
         if "preferred_courts" in update_dict and update_dict["preferred_courts"] is not None:
             update_dict["preferred_courts"] = json.dumps(update_dict["preferred_courts"])
+        if "skill_level" in update_dict and update_dict["skill_level"] is not None:
+            if not update_dict.get("level_source") and player.level_source is None:
+                update_dict["level_source"] = "self_rated"
 
         for field, value in update_dict.items():
             setattr(player, field, value)

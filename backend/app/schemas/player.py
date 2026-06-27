@@ -19,6 +19,7 @@ class PlayerUpdate(BaseModel):
     first_name: str | None = None
     language: str | None = None
     skill_level: float | None = Field(default=None, ge=2.0, le=7.0)
+    level_source: str | None = None
     home_area: str | None = None
     preferred_courts: list[str] | None = None
 
@@ -34,6 +35,7 @@ class PlayerRead(BaseModel):
     first_name: str
     language: str | None
     skill_level: float | None
+    level_source: str | None = None
     home_area: str | None
     preferred_courts: list[str] | None = None
     available_now: bool

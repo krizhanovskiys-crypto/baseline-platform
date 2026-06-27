@@ -63,7 +63,7 @@ def courts_keyboard(lang: str, selected: list[str] | None = None) -> InlineKeybo
         label = f"✅ {court}" if court in selected else court
         builder.button(text=label, callback_data=f"court_toggle:{court}")
     builder.button(text=t("btn_done", lang), callback_data="courts_done")
-    builder.adjust(2, last_row_width=1)
+    builder.adjust(2, 2, 2, 2, 1)
     return builder.as_markup()
 
 
@@ -84,7 +84,7 @@ def game_level_keyboard(lang: str) -> InlineKeyboardMarkup:
     for level in SKILL_LEVELS:
         builder.button(text=level, callback_data=f"game_level:{level}")
     builder.button(text=t("btn_skip", lang), callback_data="game_level:skip")
-    builder.adjust(3, last_row_width=1)
+    builder.adjust(3, 3, 1)
     return builder.as_markup()
 
 
@@ -119,6 +119,12 @@ def settings_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder.button(text=t("btn_change_level", lang), callback_data="settings:level")
     builder.button(text=t("btn_change_courts", lang), callback_data="settings:courts")
     builder.adjust(2)
+    return builder.as_markup()
+
+
+def profile_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("btn_edit_profile", lang), callback_data="profile:edit")
     return builder.as_markup()
 
 

@@ -63,11 +63,14 @@ _TEXTS: dict[str, dict[str, str]] = {
             "👤 *Your Profile*\n\n"
             "Name: {name}\n"
             "Level: {level}\n"
+            "Level Source: {level_source}\n"
             "Area: {area}\n"
             "Courts: {courts}\n"
-            "Rating: {rating:.0f}\n"
             "Matches: {matches}"
         ),
+        "level_source_self_rated": "Self Rated",
+        "level_source_coach_verified": "Coach Verified",
+        "btn_edit_profile": "✏️ Edit Profile",
         "profile_incomplete": "⚠️ Profile incomplete. Starting onboarding...",
         # Settings
         "settings_header": "⚙️ *Settings* — what would you like to change?",
@@ -121,7 +124,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
-        "profile_header": "👤 *Ваш профіль*\n\nІм'я: {name}\nРівень: {level}\nРайон: {area}\nКорти: {courts}\nРейтинг: {rating:.0f}\nМатчів: {matches}",
+        "profile_header": "👤 *Ваш профіль*\n\nІм'я: {name}\nРівень: {level}\nДжерело рівня: {level_source}\nРайон: {area}\nКорти: {courts}\nМатчів: {matches}",
+        "level_source_self_rated": "Самооцінка",
+        "level_source_coach_verified": "Підтверджено тренером",
+        "btn_edit_profile": "✏️ Редагувати профіль",
         "profile_incomplete": "⚠️ Профіль не заповнено. Починаємо реєстрацію...",
         "settings_header": "⚙️ *Налаштування* — що змінити?",
         "btn_change_language": "🌍 Мова",
@@ -173,7 +179,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
-        "profile_header": "👤 *Ваш профиль*\n\nИмя: {name}\nУровень: {level}\nРайон: {area}\nКорты: {courts}\nРейтинг: {rating:.0f}\nМатчей: {matches}",
+        "profile_header": "👤 *Ваш профиль*\n\nИмя: {name}\nУровень: {level}\nИсточник уровня: {level_source}\nРайон: {area}\nКорты: {courts}\nМатчей: {matches}",
+        "level_source_self_rated": "Самооценка",
+        "level_source_coach_verified": "Подтверждено тренером",
+        "btn_edit_profile": "✏️ Редактировать профиль",
         "profile_incomplete": "⚠️ Профиль не заполнен. Запускаем регистрацию...",
         "settings_header": "⚙️ *Настройки* — что изменить?",
         "btn_change_language": "🌍 Язык",

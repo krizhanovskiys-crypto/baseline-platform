@@ -11,6 +11,7 @@ from backend.app.bot.keyboards.keyboards import (
     area_keyboard,
     courts_keyboard,
     language_keyboard,
+    profile_keyboard,
     settings_keyboard,
     skill_level_keyboard,
 )
@@ -37,19 +38,38 @@ async def show_profile(message: Message, session: AsyncSession) -> None:
         return
 
     courts = ", ".join(player.preferred_courts or []) or "—"
+    level_source_key = f"level_source_{player.level_source or 'self_rated'}"
+    level_source_display = t(level_source_key, lang)
     await message.answer(
         t(
             "profile_header",
             lang,
             name=player.first_name,
             level=player.skill_level,
+            level_source=level_source_display,
             area=player.home_area or "—",
             courts=courts,
-            rating=player.rating,
             matches=player.matches_played,
         ),
+        reply_markup=profile_keyboard(lang),
         parse_mode="Markdown",
     )
+
+
+# ── Edit Profile (from profile card) ─────────────────────────────────────────
+
+@router.callback_query(F.data == "profile:edit")
+async def edit_profile(callback: CallbackQuery, session: AsyncSession) -> None:
+    user = callback.from_user
+    service = PlayerService(session)
+    player = await service.get_by_telegram_id(user.id)  # type: ignore[union-attr]
+    lang = get_player_lang(player)
+    await callback.message.answer(  # type: ignore[union-attr]
+        t("settings_header", lang),
+        reply_markup=settings_keyboard(lang),
+        parse_mode="Markdown",
+    )
+    await callback.answer()
 
 
 # ── Settings ─────────────────────────────────────────────────────────────────
