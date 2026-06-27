@@ -24,6 +24,17 @@ class Settings(BaseSettings):
     # ── Database ─────────────────────────────────────────────────────────────
     database_url: str = "sqlite+aiosqlite:///./baseline.db"
 
+    # ── Developer ────────────────────────────────────────────────────────────
+    # Comma-separated Telegram user IDs, e.g. DEVELOPER_IDS=123456789,987654321
+    # Stored as a raw string to avoid pydantic-settings JSON-parsing a list field.
+    developer_ids: str = ""
+
+    @property
+    def developer_ids_list(self) -> list[int]:
+        if not self.developer_ids.strip():
+            return []
+        return [int(x.strip()) for x in self.developer_ids.split(",") if x.strip()]
+
     # ── Application ──────────────────────────────────────────────────────────
     app_env: str = "development"
     app_host: str = "0.0.0.0"

@@ -11,7 +11,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from backend.app.bot.handlers import available_now, create_game, find_partner, profile, start
+from backend.app.bot.handlers import available_now, create_game, dev, find_partner, profile, start
 from backend.app.bot.middlewares.database import DatabaseMiddleware
 from backend.app.core.config import get_settings
 from backend.app.core.logging import setup_logging
@@ -28,6 +28,7 @@ def build_dispatcher() -> Dispatcher:
     dp.update.middleware(DatabaseMiddleware())
 
     # Register all routers
+    dp.include_router(dev.router)
     dp.include_router(start.router)
     dp.include_router(profile.router)
     dp.include_router(find_partner.router)

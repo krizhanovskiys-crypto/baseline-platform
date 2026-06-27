@@ -154,6 +154,16 @@ def profile_keyboard(lang: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def dev_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("dev_btn_create_players", lang), callback_data="dev:create_players")
+    builder.button(text=t("dev_btn_reset_data", lang), callback_data="dev:reset_data")
+    builder.button(text=t("dev_btn_stats", lang), callback_data="dev:stats")
+    builder.button(text=t("dev_btn_exit", lang), callback_data="dev:exit")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def back_to_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("btn_back_menu", lang), callback_data="menu:main")

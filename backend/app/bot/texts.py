@@ -106,6 +106,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Next",
         "btn_menu_home": "🏠 Menu",
         "no_contact_available": "This player has no public username yet. Try creating a game instead!",
+        # Developer Mode
+        "dev_menu_header": "🛠 *Developer Menu*",
+        "dev_btn_create_players": "👥 Create Test Players",
+        "dev_btn_reset_data": "🗑 Reset Test Data",
+        "dev_btn_stats": "📊 Database Statistics",
+        "dev_btn_exit": "🚪 Exit Developer Mode",
+        "dev_players_created": "✅ Created {count} test player(s).",
+        "dev_players_already_exist": "ℹ️ All test players already exist.",
+        "dev_data_reset": "✅ Deleted {count} test player(s).",
+        "dev_nothing_to_reset": "ℹ️ No test data found.",
+        "dev_stats": (
+            "📊 *Database Statistics*\n\n"
+            "👥 Players: {players}\n"
+            "✅ Complete profiles: {complete}\n"
+            "🎾 Games: {games}\n"
+            "🔥 Available now: {available}"
+        ),
     },
     "uk": {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
@@ -184,6 +201,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Далі",
         "btn_menu_home": "🏠 Меню",
         "no_contact_available": "У цього гравця ще немає публічного username. Спробуйте створити гру!",
+        # Developer Mode
+        "dev_menu_header": "🛠 *Меню розробника*",
+        "dev_btn_create_players": "👥 Створити тестових гравців",
+        "dev_btn_reset_data": "🗑 Скинути тестові дані",
+        "dev_btn_stats": "📊 Статистика бази даних",
+        "dev_btn_exit": "🚪 Вийти з режиму розробника",
+        "dev_players_created": "✅ Створено {count} тестовий(-их) гравець(-ів).",
+        "dev_players_already_exist": "ℹ️ Усі тестові гравці вже існують.",
+        "dev_data_reset": "✅ Видалено {count} тестовий(-их) гравець(-ів).",
+        "dev_nothing_to_reset": "ℹ️ Тестових даних не знайдено.",
+        "dev_stats": (
+            "📊 *Статистика бази даних*\n\n"
+            "👥 Гравці: {players}\n"
+            "✅ Повні профілі: {complete}\n"
+            "🎾 Ігри: {games}\n"
+            "🔥 Доступні зараз: {available}"
+        ),
     },
     "ru": {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
@@ -262,6 +296,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Далее",
         "btn_menu_home": "🏠 Меню",
         "no_contact_available": "У этого игрока нет публичного username. Попробуйте создать игру!",
+        # Developer Mode
+        "dev_menu_header": "🛠 *Меню разработчика*",
+        "dev_btn_create_players": "👥 Создать тестовых игроков",
+        "dev_btn_reset_data": "🗑 Сбросить тестовые данные",
+        "dev_btn_stats": "📊 Статистика базы данных",
+        "dev_btn_exit": "🚪 Выйти из режима разработчика",
+        "dev_players_created": "✅ Создано {count} тестовый(-ых) игрок(-ов).",
+        "dev_players_already_exist": "ℹ️ Все тестовые игроки уже существуют.",
+        "dev_data_reset": "✅ Удалено {count} тестовый(-ых) игрок(-ов).",
+        "dev_nothing_to_reset": "ℹ️ Тестовые данные не найдены.",
+        "dev_stats": (
+            "📊 *Статистика базы данных*\n\n"
+            "👥 Игроки: {players}\n"
+            "✅ Полные профили: {complete}\n"
+            "🎾 Игры: {games}\n"
+            "🔥 Доступны сейчас: {available}"
+        ),
     },
 }
 
