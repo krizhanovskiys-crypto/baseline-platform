@@ -22,7 +22,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_settings": "⚙️ Settings",
         # Find partner
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
-        "no_partners": "😔 No partners found in your area right now. Try again later!",
+        "no_partners": (
+            "🎾 We haven't found your ideal tennis partner yet.\n\n"
+            "🌱 The Baseline community is growing every day.\n\n"
+            "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
+        ),
         "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}\nRating: {rating:.0f}",
         "btn_invite": "✉️ Invite",
         "btn_view_profile": "👀 View Profile",
@@ -95,8 +99,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_coach_verified": "🏆 Coach Verified",
         "no_partners_friendly": (
             "🎾 We haven't found your ideal tennis partner yet.\n\n"
-            "🌱 You're one of the first members of the Baseline community.\n\n"
-            "As more players join, we'll be able to find an even better match for you. 💚"
+            "🌱 The Baseline community is growing every day.\n\n"
+            "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
         ),
         "btn_contact": "💬 Contact",
         "btn_next": "➡ Next",
@@ -118,7 +122,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_my_profile": "👤 Мій профіль",
         "btn_settings": "⚙️ Налаштування",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
-        "no_partners": "😔 Партнерів у вашому районі не знайдено.",
+        "no_partners": (
+            "🎾 Поки що ми не знайшли для вас ідеального партнера.\n\n"
+            "🌱 Спільнота Baseline постійно зростає.\n\n"
+            "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
+        ),
         "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}\nРейтинг: {rating:.0f}",
         "btn_invite": "✉️ Запросити",
         "btn_view_profile": "👀 Профіль",
@@ -169,8 +177,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
         "no_partners_friendly": (
             "🎾 Поки що ми не знайшли для вас ідеального партнера.\n\n"
-            "🌱 Ви серед перших учасників спільноти Baseline.\n\n"
-            "Чим більше гравців приєднається, тим швидше ми знайдемо для вас чудовий матч. 💚"
+            "🌱 Спільнота Baseline постійно зростає.\n\n"
+            "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
         ),
         "btn_contact": "💬 Зв'язатися",
         "btn_next": "➡ Далі",
@@ -192,7 +200,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_my_profile": "👤 Мой профиль",
         "btn_settings": "⚙️ Настройки",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
-        "no_partners": "😔 Партнёров в вашем районе не найдено.",
+        "no_partners": (
+            "🎾 Пока мы не нашли для вас идеального партнёра.\n\n"
+            "🌱 Сообщество Baseline постоянно растёт.\n\n"
+            "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
+        ),
         "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}\nРейтинг: {rating:.0f}",
         "btn_invite": "✉️ Пригласить",
         "btn_view_profile": "👀 Профиль",
@@ -243,8 +255,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
         "no_partners_friendly": (
             "🎾 Пока мы не нашли для вас идеального партнёра.\n\n"
-            "🌱 Вы один из первых участников сообщества Baseline.\n\n"
-            "Чем больше игроков присоединится, тем быстрее мы найдём для вас отличный матч. 💚"
+            "🌱 Сообщество Baseline постоянно растёт.\n\n"
+            "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
         ),
         "btn_contact": "💬 Связаться",
         "btn_next": "➡ Далее",
