@@ -317,7 +317,7 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         players=players,
         match_type=t(match_type_key, lang),
     )
-    await callback.message.answer(text, reply_markup=om_success_keyboard(lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    await callback.message.answer(text, reply_markup=om_success_keyboard(lang, game.id), parse_mode="Markdown")  # type: ignore[union-attr]
     logger.info("Match created id=%s by telegram_id=%s", game.id, user.id)
     await callback.answer()
 
@@ -333,13 +333,6 @@ async def om_cancel(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 # ── Success screen callbacks ──────────────────────────────────────────────────
-
-@router.callback_query(F.data == "om:find_players")
-async def om_find_players_soon(callback: CallbackQuery, session: AsyncSession) -> None:
-    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
-    lang = get_player_lang(player)
-    await callback.answer(t("om_find_players_soon", lang), show_alert=True)
-
 
 @router.callback_query(F.data == "om:my_matches")
 async def om_my_matches(callback: CallbackQuery, session: AsyncSession) -> None:

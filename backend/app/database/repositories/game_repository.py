@@ -29,6 +29,12 @@ class GamePlayerRepository(BaseRepository[GamePlayer]):
 
     model = GamePlayer
 
+    async def get_participant_player_ids(self, game_id: int) -> list[int]:
+        """Return the player IDs of all participants in the given game."""
+        stmt = select(GamePlayer.player_id).where(GamePlayer.game_id == game_id)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_participation(self, game_id: int, player_id: int) -> GamePlayer | None:
         """Return participation record or None."""
         return await self._first(

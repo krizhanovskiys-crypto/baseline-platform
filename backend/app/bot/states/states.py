@@ -33,6 +33,12 @@ class FindPartnerStates(StatesGroup):
     browsing = State()
 
 
+class FindPlayersForMatchStates(StatesGroup):
+    """Find-players-for-match browsing flow."""
+
+    browsing = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings flow."""
 

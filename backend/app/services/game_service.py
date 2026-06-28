@@ -7,6 +7,8 @@ from backend.app.database.models.game import Game, GamePlayerStatus
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
 from backend.app.schemas.game import GameCreate, GameRead
+from backend.app.schemas.player import PlayerRead  # used as return type annotation
+from backend.app.services.player_service import _player_to_schema as _player_to_read
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +75,30 @@ class GameService:
             return []
         games = await self._game_repo.get_games_by_creator(player.id)
         return [_game_to_schema(g) for g in games]
+
+    async def find_players_for_match(
+        self, game_id: int, organizer_telegram_id: int
+    ) -> list[PlayerRead]:
+        """Return candidate players who qualify for this match.
+
+        Excludes the organizer and any existing participants.
+        Filters by same area and skill level ±0.5.
+        """
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return []
+        organizer = await self._player_repo.get_by_telegram_id(organizer_telegram_id)
+        if not organizer:
+            return []
+        participant_ids = await self._gp_repo.get_participant_player_ids(game_id)
+        exclude_ids = set(participant_ids) | {organizer.id}
+        level = float(game.required_level) if game.required_level is not None else 3.0
+        candidates = await self._player_repo.find_players_for_match(
+            area=game.area,
+            level=level,
+            exclude_player_ids=exclude_ids,
+        )
+        return [_player_to_read(p) for p in candidates]
 
     async def invite_player(
         self, game_id: int, invitee_telegram_id: int

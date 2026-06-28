@@ -190,12 +190,62 @@ def om_confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def om_success_keyboard(lang: str) -> InlineKeyboardMarkup:
+def om_success_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text=t("om_btn_find_players", lang), callback_data="om:find_players")
+    builder.button(text=t("om_btn_find_players", lang), callback_data=f"fpm:start:{game_id}")
     builder.button(text=t("om_btn_my_matches", lang), callback_data="om:my_matches")
     builder.button(text=t("btn_menu_home", lang), callback_data="om:menu")
     builder.adjust(2, 1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
+# Find Players for Match
+# ---------------------------------------------------------------------------
+
+def fpm_card_keyboard(
+    lang: str,
+    player_id: int,
+    show_prev: bool,
+    show_next: bool,
+) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("fpm_btn_select", lang), callback_data=f"fpm:select:{player_id}")
+    if show_prev:
+        builder.button(text=t("fpm_btn_prev", lang), callback_data="fpm:prev")
+    if show_next:
+        builder.button(text=t("fpm_btn_next", lang), callback_data="fpm:next")
+    builder.button(text=t("btn_menu_home", lang), callback_data="fpm:menu")
+    nav_count = (1 if show_prev else 0) + (1 if show_next else 0)
+    if nav_count == 2:
+        builder.adjust(1, 2, 1)
+    elif nav_count == 1:
+        builder.adjust(1, 1, 1)
+    else:
+        builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def fpm_after_select_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("fpm_btn_continue", lang), callback_data="fpm:continue")
+    builder.button(text=t("fpm_btn_view_selected", lang), callback_data="fpm:view_selected")
+    builder.button(text=t("btn_menu_home", lang), callback_data="fpm:menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def fpm_selected_list_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("fpm_btn_back", lang), callback_data="fpm:back")
+    builder.button(text=t("btn_menu_home", lang), callback_data="fpm:menu")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def fpm_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("btn_menu_home", lang), callback_data="fpm:menu")
     return builder.as_markup()
 
 

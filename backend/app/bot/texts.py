@@ -124,8 +124,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "om_btn_find_players": "🔍 Find Players",
         "om_btn_my_matches": "📋 My Matches",
-        "om_find_players_soon": "🚧 Find Players for your match will be available in the next Sprint.",
         "om_my_matches_header": "📋 *Your Matches:*",
+        # Find Players for Match
+        "fpm_found": "🎾 We found *{total}* suitable players",
+        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_not_found": (
+            "🎾 We couldn't find suitable players right now.\n\n"
+            "The Baseline community is growing — new players will appear soon."
+        ),
+        "fpm_btn_select": "📨 Invite",
+        "fpm_btn_prev": "⬅️ Previous",
+        "fpm_btn_next": "➡️ Next",
+        "fpm_selected_count": "✅ Invited: {count}",
+        "fpm_btn_continue": "➕ Continue selecting",
+        "fpm_btn_view_selected": "📋 Invited players",
+        "fpm_selected_header": "*Invited players*",
+        "fpm_selected_item": "• {name}",
+        "fpm_btn_back": "⬅️ Back",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
@@ -251,8 +266,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "om_btn_find_players": "🔍 Знайти гравців",
         "om_btn_my_matches": "📋 Мої матчі",
-        "om_find_players_soon": "🚧 Пошук гравців для матчу буде доступний у наступному спринті.",
         "om_my_matches_header": "📋 *Ваші матчі:*",
+        # Find Players for Match
+        "fpm_found": "🎾 Ми знайшли *{total}* гравців для вашого матчу",
+        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_not_found": (
+            "🎾 Наразі ми не знайшли підходящих гравців.\n\n"
+            "Спільнота Baseline постійно зростає — нові гравці з'являться незабаром."
+        ),
+        "fpm_btn_select": "📨 Запросити",
+        "fpm_btn_prev": "⬅️ Попередній",
+        "fpm_btn_next": "➡️ Наступний",
+        "fpm_selected_count": "✅ Запрошено: {count}",
+        "fpm_btn_continue": "➕ Продовжити вибір",
+        "fpm_btn_view_selected": "📋 Запрошені гравці",
+        "fpm_selected_header": "*Запрошені гравці*",
+        "fpm_selected_item": "• {name}",
+        "fpm_btn_back": "⬅️ Назад",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
@@ -378,8 +408,23 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "om_btn_find_players": "🔍 Найти игроков",
         "om_btn_my_matches": "📋 Мои матчи",
-        "om_find_players_soon": "🚧 Поиск игроков для матча будет доступен в следующем спринте.",
         "om_my_matches_header": "📋 *Ваши матчи:*",
+        # Find Players for Match
+        "fpm_found": "🎾 Мы нашли *{total}* игроков для вашего матча",
+        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_not_found": (
+            "🎾 Сейчас мы не нашли подходящих игроков.\n\n"
+            "Сообщество Baseline постоянно растёт — новые игроки появятся совсем скоро."
+        ),
+        "fpm_btn_select": "📨 Пригласить",
+        "fpm_btn_prev": "⬅️ Предыдущий",
+        "fpm_btn_next": "➡️ Следующий",
+        "fpm_selected_count": "✅ Приглашено: {count}",
+        "fpm_btn_continue": "➕ Продолжить выбор",
+        "fpm_btn_view_selected": "📋 Приглашённые игроки",
+        "fpm_selected_header": "*Приглашённые игроки*",
+        "fpm_selected_item": "• {name}",
+        "fpm_btn_back": "⬅️ Назад",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode

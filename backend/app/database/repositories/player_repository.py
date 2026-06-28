@@ -60,6 +60,30 @@ class PlayerRepository(BaseRepository[Player]):
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
+    async def find_players_for_match(
+        self,
+        area: str,
+        level: float,
+        exclude_player_ids: set[int],
+        level_tolerance: float = 0.5,
+    ) -> list[Player]:
+        """Return complete-profile players matching area and level ±tolerance.
+
+        Excludes players whose IDs are in exclude_player_ids.
+        """
+        conditions = [
+            Player.home_area == area,
+            Player.skill_level >= level - level_tolerance,
+            Player.skill_level <= level + level_tolerance,
+            Player.language.is_not(None),
+            Player.preferred_courts.is_not(None),
+        ]
+        if exclude_player_ids:
+            conditions.append(Player.id.not_in(list(exclude_player_ids)))
+        stmt = select(Player).where(and_(*conditions)).order_by(Player.rating.desc())
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def set_available(self, player_id: int, available_until: datetime) -> None:
         """Mark player as available until the given datetime."""
         stmt = (
