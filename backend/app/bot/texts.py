@@ -26,7 +26,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🌱 The Baseline community is growing every day.\n\n"
             "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
         ),
-        "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}\nRating: {rating:.0f}",
+        "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}",
         "btn_invite": "✉️ Invite",
         "btn_view_profile": "👀 View Profile",
         "invite_sent": "✉️ Invitation sent to {name}!",
@@ -199,7 +199,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🌱 Спільнота Baseline постійно зростає.\n\n"
             "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
         ),
-        "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}\nРейтинг: {rating:.0f}",
+        "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}",
         "btn_invite": "✉️ Запросити",
         "btn_view_profile": "👀 Профіль",
         "invite_sent": "✉️ Запрошення надіслано {name}!",
@@ -360,7 +360,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🌱 Сообщество Baseline постоянно растёт.\n\n"
             "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
         ),
-        "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}\nРейтинг: {rating:.0f}",
+        "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}",
         "btn_invite": "✉️ Пригласить",
         "btn_view_profile": "👀 Профиль",
         "invite_sent": "✉️ Приглашение отправлено {name}!",

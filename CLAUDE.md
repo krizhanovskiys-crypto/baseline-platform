@@ -25,6 +25,29 @@ alembic revision --autogenerate -m "describe change"
 alembic upgrade head
 ```
 
+## Product Principles
+
+Every feature must solve a real user problem.
+
+Always prefer the shortest user flow.
+
+If a feature can be postponed without reducing MVP value, postpone it.
+
+Use language that feels natural to users, not internal technical terminology.
+
+Every feature should improve one of these goals:
+
+- Find the right tennis partner.
+- Make organizing a game easier.
+- Encourage players to return.
+- Keep the interface simple.
+
+Avoid exposing future concepts before they are implemented (rating, reputation, etc.).
+
+Users **organize matches** and **invite players** — use that language in UI strings.
+
+---
+
 ## Architecture
 
 This is a tennis matchmaking platform. The Telegram bot is the primary client, with a REST API sharing the same service layer. The key constraint: **handlers never contain business logic** — they call a service and return a response.
@@ -41,11 +64,20 @@ backend/app/
 │   └── v1/       # Versioned routers (players, games)
 ├── services/     # Business logic — transport-agnostic, fully testable
 ├── database/
-│   ├── models/   # SQLAlchemy 2.x ORM (Player, Game, GamePlayer)
+│   ├── models/   # SQLAlchemy 2.x ORM (Player, Game, GamePlayer, Invitation)
 │   └── repositories/ # Data access layer; services talk only to repos
 ├── schemas/      # Pydantic v2 input/output schemas
 └── core/         # Settings (pydantic-settings) and logging setup
 ```
+
+All new domains must follow the same four-layer structure:
+
+1. **Model** — ORM definition in `database/models/`
+2. **Repository** — data access only in `database/repositories/`
+3. **Service** — all business logic in `services/`
+4. **Handler** — Telegram callbacks/messages in `bot/handlers/`
+
+Handlers never access repositories directly. Business logic belongs only in services. Repositories only access data. Texts stay in `texts.py`. Keyboard builders stay in `keyboards.py`.
 
 ### Session flow
 
@@ -55,19 +87,23 @@ Services are instantiated per-request by handlers/routers: `PlayerService(sessio
 
 ### Data model highlights
 
-- `Player.preferred_courts` is stored as a JSON string in a `Text` column. `PlayerService` handles serialization/deserialization.
+- `Player.preferred_courts` is stored as a JSON string in a `Text` column. Always use `_player_to_schema()` from `player_service.py` to convert Player ORM → `PlayerRead` — never call `PlayerRead.model_validate(player)` directly, as it will fail to deserialize `preferred_courts`.
 - `Player.level_source` is a `String(32)` column (`"self_rated"`, `"coach_verified"`). Defaults to `"self_rated"` automatically when `skill_level` is first set via `update_profile`.
 - `Player.is_profile_complete` property checks that `language`, `skill_level`, `home_area`, and `preferred_courts` are all set — guards entry to all features.
 - Partner matching filters by same `home_area` and `skill_level` within ±0.5 NTRP, sorted by shared courts → skill diff → recency.
 - `available_now` expires after 2 hours (`available_until` timestamp); no background job yet — expiry is checked at query time in the repository.
+- `Invitation` has status `PENDING / ACCEPTED / DECLINED`. Accepting an invitation also adds the player to `GamePlayer`.
 
 ### Bot FSM
 
 Multi-step wizards use `aiogram.fsm.state.StatesGroup`. All state classes live in `backend/app/bot/states/states.py`:
 - `OnboardingStates` — 4 steps: language → level → area → courts
 - `FindPartnerStates` — browsing (one-at-a-time pagination)
-- `CreateGameStates` — 7 steps including confirm
+- `OrganizeMatchStates` — 7 steps including confirm
+- `FindPlayersForMatchStates` — browsing candidates after match creation
 - `SettingsStates` — main + 4 change sub-states
+
+FSM state is stored in `MemoryStorage` and is lost on bot restart.
 
 ### Localization
 
@@ -79,42 +115,39 @@ Multi-step wizards use `aiogram.fsm.state.StatesGroup`. All state classes live i
 
 `list[int]` fields must not be used directly in `Settings` — pydantic-settings tries to JSON-decode them from env. Use `str` with a `@property` parser instead (see `developer_ids` / `developer_ids_list`).
 
-### Tests
+---
+
+## Database
+
+All schema changes must use Alembic migrations (`alembic revision --autogenerate`). Apply with `alembic upgrade head`.
+
+Never rely solely on `create_all_tables()` for schema changes in a live database — it creates missing tables but never alters existing ones. Use it only as a safety net on first startup.
+
+Register every new model in `backend/app/database/models/__init__.py` so Alembic detects it during autogenerate.
 
 Tests hit a real in-memory SQLite database — no mocking of the DB layer. Each test gets a fresh `engine` and `session` fixture from `tests/conftest.py`. `pytest-asyncio` is configured with `asyncio_mode = auto`.
 
-### Migrations
-
-The bot calls `create_all_tables()` on startup (creates missing tables, never alters existing ones). For column additions, always create an Alembic migration — `alembic revision --autogenerate` compares live DB against models and generates the diff. Apply with `alembic upgrade head`.
-
 ---
 
-## Documentation
+## UX
 
-Update documentation whenever architecture or workflow changes.
+Prefer simple, conversational wording.
 
-Keep `PRODUCT.md` and `CLAUDE.md` consistent with the current project.
+Never add catch-all or generic fallback handlers. Unknown messages must remain unhandled during development — silence exposes routing bugs; a catch-all hides them. If a message is not reaching the right handler, fix the router registration or state filter, not the symptom.
 
-Never leave documentation outdated.
+Telegram `ReplyKeyboardMarkup` caching is not a routing bug. The keyboard refreshes when the bot sends a new one (e.g. via `/start` or Main Menu). Refresh it through explicit UX flows, never through a fallback handler.
 
----
-
-## Product Mindset
-
-Baseline is not just a Telegram bot.
-
-Every feature should improve one of these goals:
-
-- Find the right tennis partner.
-- Make organizing a game easier.
-- Encourage players to return.
-- Keep the interface simple.
-
-Prefer better UX over adding more features.
+Do not surface internal field names, numeric IDs, or future concepts (rating, reputation scores) in user-facing messages.
 
 ---
 
 ## Development Workflow
+
+Before implementing any feature, answer:
+
+1. What user problem does this solve?
+2. What is the shortest flow?
+3. What can wait until a later sprint?
 
 Always follow this order:
 
@@ -144,27 +177,13 @@ One task = one commit.
 
 ---
 
-## Architecture Rules
-
-Business logic belongs in Services.
-
-Repositories only access the database.
-
-Handlers contain no business logic.
-
-Texts stay in `texts.py`.
-
-Keyboard builders stay in `keyboards.py`.
-
----
-
 ## Testing
 
-Run `pytest` only once after all changes.
+Every completed feature must include:
 
-If startup verification is needed, run it once after tests.
-
-Avoid running repeated verification commands.
+- `pytest` (run once after all changes)
+- bot startup verification (`python -m backend.app.bot.main` or dispatcher build check)
+- manual Telegram verification when user interaction changes
 
 ---
 

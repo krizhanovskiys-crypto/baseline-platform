@@ -52,7 +52,6 @@ async def available_now_menu(message: Message, session: AsyncSession) -> None:
                 name=p.first_name,
                 level=p.skill_level,
                 area=p.home_area or "—",
-                rating=p.rating,
             ),
             parse_mode="Markdown",
         )
