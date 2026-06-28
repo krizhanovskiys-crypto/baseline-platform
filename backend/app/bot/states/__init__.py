@@ -1,4 +1,4 @@
 """FSM states package."""
-from backend.app.bot.states.states import CreateGameStates, OnboardingStates, SettingsStates
+from backend.app.bot.states.states import FindPartnerStates, OnboardingStates, OrganizeMatchStates, SettingsStates
 
-__all__ = ["OnboardingStates", "CreateGameStates", "SettingsStates"]
+__all__ = ["OnboardingStates", "OrganizeMatchStates", "FindPartnerStates", "SettingsStates"]

@@ -100,29 +100,33 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_btn_use_my_level": "✅ Use my level (NTRP {level})",
         "om_btn_change_level": "✏️ Change level",
         "om_choose_players": "👥 *Number of players*",
+        "om_match_type_singles": "🎾 Singles",
+        "om_match_type_doubles": "🎾 Doubles",
         "om_confirm": (
             "✅ *Confirm Match*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Level {level}\n"
+            "{match_type}\n"
             "👥 {players} players\n\n"
-            "Create this match?"
+            "Create match?"
         ),
         "om_btn_confirm": "✅ Create Match",
         "om_success": (
-            "🎾 *Your Match*\n\n"
+            "✅ *Match Created*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Level {level}\n"
-            "👥 1 / {players} Players"
+            "{match_type}\n"
+            "👥 1/{players} players"
         ),
         "om_btn_find_players": "🔍 Find Players",
         "om_btn_my_matches": "📋 My Matches",
         "om_find_players_soon": "🚧 Find Players for your match will be available in the next Sprint.",
         "om_my_matches_header": "📋 *Your Matches:*",
-        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
         "dev_menu_header": "🛠 *Developer Menu*",
@@ -223,29 +227,33 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_btn_use_my_level": "✅ Мій рівень (NTRP {level})",
         "om_btn_change_level": "✏️ Змінити рівень",
         "om_choose_players": "👥 *Кількість гравців*",
+        "om_match_type_singles": "🎾 Одиночний матч",
+        "om_match_type_doubles": "🎾 Парний матч",
         "om_confirm": (
             "✅ *Підтвердити матч*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Рівень {level}\n"
+            "{match_type}\n"
             "👥 {players} гравців\n\n"
-            "Створити цей матч?"
+            "Створити матч?"
         ),
         "om_btn_confirm": "✅ Створити матч",
         "om_success": (
-            "🎾 *Ваш матч*\n\n"
+            "✅ *Матч створено*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Рівень {level}\n"
-            "👥 1 / {players} Гравців"
+            "{match_type}\n"
+            "👥 1/{players} гравців"
         ),
         "om_btn_find_players": "🔍 Знайти гравців",
         "om_btn_my_matches": "📋 Мої матчі",
         "om_find_players_soon": "🚧 Пошук гравців для матчу буде доступний у наступному спринті.",
         "om_my_matches_header": "📋 *Ваші матчі:*",
-        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
         "dev_menu_header": "🛠 *Меню розробника*",
@@ -346,29 +354,33 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_btn_use_my_level": "✅ Мой уровень (NTRP {level})",
         "om_btn_change_level": "✏️ Изменить уровень",
         "om_choose_players": "👥 *Количество игроков*",
+        "om_match_type_singles": "🎾 Одиночный матч",
+        "om_match_type_doubles": "🎾 Парный матч",
         "om_confirm": (
             "✅ *Подтвердить матч*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Уровень {level}\n"
+            "{match_type}\n"
             "👥 {players} игроков\n\n"
-            "Создать этот матч?"
+            "Создать матч?"
         ),
         "om_btn_confirm": "✅ Создать матч",
         "om_success": (
-            "🎾 *Ваш матч*\n\n"
+            "✅ *Матч создан*\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
             "🎾 Уровень {level}\n"
-            "👥 1 / {players} Игроков"
+            "{match_type}\n"
+            "👥 1/{players} игроков"
         ),
         "om_btn_find_players": "🔍 Найти игроков",
         "om_btn_my_matches": "📋 Мои матчи",
         "om_find_players_soon": "🚧 Поиск игроков для матча будет доступен в следующем спринте.",
         "om_my_matches_header": "📋 *Ваши матчи:*",
-        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode
         "dev_menu_header": "🛠 *Меню разработчика*",

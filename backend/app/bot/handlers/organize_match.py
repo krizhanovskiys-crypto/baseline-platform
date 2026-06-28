@@ -66,6 +66,8 @@ async def _go_to_players(target: Message, state: FSMContext, lang: str) -> None:
 async def _go_to_confirm(target: Message, state: FSMContext, lang: str) -> None:
     await state.set_state(OrganizeMatchStates.confirm)
     data = await state.get_data()
+    players = int(data.get("players", 2))
+    match_type_key = "om_match_type_singles" if players == 2 else "om_match_type_doubles"
     text = t(
         "om_confirm",
         lang,
@@ -73,7 +75,8 @@ async def _go_to_confirm(target: Message, state: FSMContext, lang: str) -> None:
         time=data.get("time_str", ""),
         court=data.get("court", ""),
         level=data.get("level", ""),
-        players=data.get("players", 2),
+        players=players,
+        match_type=t(match_type_key, lang),
     )
     await target.answer(text, reply_markup=om_confirm_keyboard(lang), parse_mode="Markdown")
 
@@ -303,6 +306,7 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         await callback.answer()
         return
 
+    match_type_key = "om_match_type_singles" if players == 2 else "om_match_type_doubles"
     text = t(
         "om_success",
         lang,
@@ -311,6 +315,7 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         court=data.get("court", ""),
         level=data.get("level", ""),
         players=players,
+        match_type=t(match_type_key, lang),
     )
     await callback.message.answer(text, reply_markup=om_success_keyboard(lang), parse_mode="Markdown")  # type: ignore[union-attr]
     logger.info("Match created id=%s by telegram_id=%s", game.id, user.id)
@@ -348,16 +353,28 @@ async def om_my_matches(callback: CallbackQuery, session: AsyncSession) -> None:
         await callback.answer()
         return
 
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+
     lines = [t("om_my_matches_header", lang)]
     for match in matches:
+        if match.date == today:
+            date_label = t("om_btn_today", lang)
+        elif match.date == tomorrow:
+            date_label = t("om_btn_tomorrow", lang)
+        else:
+            date_label = match.date.strftime("%d.%m.%Y")
+        players_total = 4 if match.match_type == MatchType.DOUBLES else 2
         lines.append(t(
             "om_match_item",
             lang,
-            date=match.date.strftime("%d.%m.%Y"),
+            date_label=date_label,
             time=match.time.strftime("%H:%M"),
             court=match.court,
+            players_joined=1,
+            players_total=players_total,
         ))
-    await callback.message.answer("\n".join(lines), parse_mode="Markdown")  # type: ignore[union-attr]
+    await callback.message.answer("\n\n".join(lines), parse_mode="Markdown")  # type: ignore[union-attr]
     await callback.answer()
 
 
