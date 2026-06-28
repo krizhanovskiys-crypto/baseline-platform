@@ -24,10 +24,15 @@ class MatchType(str, enum.Enum):
 
 
 class GameStatus(str, enum.Enum):
+    DRAFT = "draft"
     OPEN = "open"
+    PARTIALLY_FILLED = "partially_filled"
     FULL = "full"
-    CANCELLED = "cancelled"
+    CONFIRMED = "confirmed"
+    IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    EXPIRED = "expired"
 
 
 class GamePlayerStatus(str, enum.Enum):

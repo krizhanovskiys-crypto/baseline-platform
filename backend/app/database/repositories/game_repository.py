@@ -1,5 +1,5 @@
 """Game-specific database queries."""
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, update
 
 from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus
 from backend.app.database.repositories.base import BaseRepository
@@ -22,6 +22,13 @@ class GameRepository(BaseRepository[Game]):
     async def get_games_by_creator(self, creator_id: int) -> list[Game]:
         """Return all games created by this player."""
         return await self._all(Game.creator_id == creator_id)
+
+    async def update_status(self, game_id: int, status: GameStatus) -> Game | None:
+        """Persist a new status for the given game. Returns the updated Game or None."""
+        stmt = update(Game).where(Game.id == game_id).values(status=status)
+        await self._session.execute(stmt)
+        await self._session.flush()
+        return await self.get_by_id(game_id)
 
 
 class GamePlayerRepository(BaseRepository[GamePlayer]):

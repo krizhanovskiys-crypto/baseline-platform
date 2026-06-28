@@ -3,7 +3,7 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database.models.game import Game, GamePlayerStatus
+from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
 from backend.app.schemas.game import GameCreate, GameRead
@@ -40,6 +40,7 @@ class GameService:
             time=data.time,
             match_type=data.match_type,
             required_level=data.required_level,
+            status=GameStatus.DRAFT,
         )
         game = await self._game_repo.add(game)
 
