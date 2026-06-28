@@ -16,7 +16,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Main menu
         "main_menu": "🎾 *Main Menu*\nWhat would you like to do?",
         "btn_find_partner": "🎾 Find Partner",
-        "btn_create_game": "📅 Create Game",
         "btn_available_now": "🔥 Available Now",
         "btn_my_profile": "👤 My Profile",
         "btn_settings": "⚙️ Settings",
@@ -31,31 +30,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_invite": "✉️ Invite",
         "btn_view_profile": "👀 View Profile",
         "invite_sent": "✉️ Invitation sent to {name}!",
-        # Create game
-        "cg_enter_court": "🏟 *Step 1/5* — Enter court name or address:",
-        "cg_enter_area": "📍 *Step 2/5* — Choose the area:",
-        "cg_enter_date": "📅 *Step 3/5* — Enter the date (DD.MM.YYYY):",
-        "cg_enter_time": "🕐 *Step 4/5* — Enter the time (HH:MM):",
-        "cg_choose_type": "🎾 *Step 5a/5* — Singles or Doubles?",
-        "cg_choose_level": "📊 *Step 5b/5* — Required level (or skip):",
-        "cg_confirm": (
-            "✅ *Confirm Game*\n\n"
-            "🏟 Court: {court}\n"
-            "📍 Area: {area}\n"
-            "📅 Date: {date}\n"
-            "🕐 Time: {time}\n"
-            "🎾 Type: {match_type}\n"
-            "📊 Level: {level}\n\n"
-            "Create this game?"
-        ),
-        "cg_created": "🎉 Game created! ID: #{game_id}",
-        "cg_error_date": "❌ Invalid date. Please use DD.MM.YYYY format.",
-        "cg_error_time": "❌ Invalid time. Please use HH:MM format.",
-        "btn_singles": "1️⃣ Singles",
-        "btn_doubles": "2️⃣ Doubles",
-        "btn_confirm": "✅ Confirm",
         "btn_cancel": "❌ Cancel",
-        "btn_skip": "⏭ Skip",
         "btn_done": "✅ Done",
         "btn_back_menu": "🔙 Main Menu",
         # Available now
@@ -106,6 +81,49 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Next",
         "btn_menu_home": "🏠 Menu",
         "no_contact_available": "This player has no public username yet. Try creating a game instead!",
+        # Organize Match
+        "btn_organize_match": "🎾 Organize Match",
+        "om_choose_date": "📅 *Choose date*",
+        "om_btn_today": "Today",
+        "om_btn_tomorrow": "Tomorrow",
+        "om_btn_other_date": "📅 Other Date",
+        "om_enter_date": "Enter the date (DD.MM.YYYY):",
+        "om_error_date": "❌ Invalid date. Use DD.MM.YYYY format.",
+        "om_choose_time": "🕒 *Choose time*",
+        "om_btn_other_time": "🕒 Other Time",
+        "om_enter_time": "Enter the time (HH:MM):",
+        "om_error_time": "❌ Invalid time. Use HH:MM format.",
+        "om_choose_court": "📍 *Choose court*",
+        "om_btn_other_court": "➕ Other Court",
+        "om_enter_court": "Enter court name or address:",
+        "om_choose_level": "🎾 *Skill Level*\n\nYour profile level: NTRP *{level}*",
+        "om_btn_use_my_level": "✅ Use my level (NTRP {level})",
+        "om_btn_change_level": "✏️ Change level",
+        "om_choose_players": "👥 *Number of players*",
+        "om_confirm": (
+            "✅ *Confirm Match*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Level {level}\n"
+            "👥 {players} players\n\n"
+            "Create this match?"
+        ),
+        "om_btn_confirm": "✅ Create Match",
+        "om_success": (
+            "🎾 *Your Match*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Level {level}\n"
+            "👥 1 / {players} Players"
+        ),
+        "om_btn_find_players": "🔍 Find Players",
+        "om_btn_my_matches": "📋 My Matches",
+        "om_find_players_soon": "🚧 Find Players for your match will be available in the next Sprint.",
+        "om_my_matches_header": "📋 *Your Matches:*",
+        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
         "dev_menu_header": "🛠 *Developer Menu*",
         "dev_btn_create_players": "👥 Create Test Players",
@@ -134,7 +152,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "profile_complete": "✅ Профіль заповнено! Ласкаво просимо до Baseline.",
         "main_menu": "🎾 *Головне меню*\nЩо ви хочете зробити?",
         "btn_find_partner": "🎾 Знайти партнера",
-        "btn_create_game": "📅 Створити гру",
         "btn_available_now": "🔥 Доступний зараз",
         "btn_my_profile": "👤 Мій профіль",
         "btn_settings": "⚙️ Налаштування",
@@ -148,21 +165,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_invite": "✉️ Запросити",
         "btn_view_profile": "👀 Профіль",
         "invite_sent": "✉️ Запрошення надіслано {name}!",
-        "cg_enter_court": "🏟 *Крок 1/5* — Введіть назву або адресу корту:",
-        "cg_enter_area": "📍 *Крок 2/5* — Оберіть район:",
-        "cg_enter_date": "📅 *Крок 3/5* — Введіть дату (ДД.ММ.РРРР):",
-        "cg_enter_time": "🕐 *Крок 4/5* — Введіть час (ГГ:ХХ):",
-        "cg_choose_type": "🎾 *Крок 5а/5* — Одиночна чи парна?",
-        "cg_choose_level": "📊 *Крок 5б/5* — Потрібний рівень (або пропустіть):",
-        "cg_confirm": "✅ *Підтвердити гру*\n\n🏟 Корт: {court}\n📍 Район: {area}\n📅 Дата: {date}\n🕐 Час: {time}\n🎾 Тип: {match_type}\n📊 Рівень: {level}\n\nСтворити цю гру?",
-        "cg_created": "🎉 Гру створено! ID: #{game_id}",
-        "cg_error_date": "❌ Невірна дата. Використайте формат ДД.ММ.РРРР.",
-        "cg_error_time": "❌ Невірний час. Використайте формат ГГ:ХХ.",
-        "btn_singles": "1️⃣ Одиночна",
-        "btn_doubles": "2️⃣ Парна",
-        "btn_confirm": "✅ Підтвердити",
         "btn_cancel": "❌ Скасувати",
-        "btn_skip": "⏭ Пропустити",
         "btn_done": "✅ Готово",
         "btn_back_menu": "🔙 Головне меню",
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
@@ -201,6 +204,49 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Далі",
         "btn_menu_home": "🏠 Меню",
         "no_contact_available": "У цього гравця ще немає публічного username. Спробуйте створити гру!",
+        # Organize Match
+        "btn_organize_match": "🎾 Організувати матч",
+        "om_choose_date": "📅 *Оберіть дату*",
+        "om_btn_today": "Сьогодні",
+        "om_btn_tomorrow": "Завтра",
+        "om_btn_other_date": "📅 Інша дата",
+        "om_enter_date": "Введіть дату (ДД.ММ.РРРР):",
+        "om_error_date": "❌ Невірна дата. Використайте формат ДД.ММ.РРРР.",
+        "om_choose_time": "🕒 *Оберіть час*",
+        "om_btn_other_time": "🕒 Інший час",
+        "om_enter_time": "Введіть час (ГГ:ХХ):",
+        "om_error_time": "❌ Невірний час. Використайте формат ГГ:ХХ.",
+        "om_choose_court": "📍 *Оберіть корт*",
+        "om_btn_other_court": "➕ Інший корт",
+        "om_enter_court": "Введіть назву або адресу корту:",
+        "om_choose_level": "🎾 *Рівень гри*\n\nВаш рівень: NTRP *{level}*",
+        "om_btn_use_my_level": "✅ Мій рівень (NTRP {level})",
+        "om_btn_change_level": "✏️ Змінити рівень",
+        "om_choose_players": "👥 *Кількість гравців*",
+        "om_confirm": (
+            "✅ *Підтвердити матч*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Рівень {level}\n"
+            "👥 {players} гравців\n\n"
+            "Створити цей матч?"
+        ),
+        "om_btn_confirm": "✅ Створити матч",
+        "om_success": (
+            "🎾 *Ваш матч*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Рівень {level}\n"
+            "👥 1 / {players} Гравців"
+        ),
+        "om_btn_find_players": "🔍 Знайти гравців",
+        "om_btn_my_matches": "📋 Мої матчі",
+        "om_find_players_soon": "🚧 Пошук гравців для матчу буде доступний у наступному спринті.",
+        "om_my_matches_header": "📋 *Ваші матчі:*",
+        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
         "dev_menu_header": "🛠 *Меню розробника*",
         "dev_btn_create_players": "👥 Створити тестових гравців",
@@ -229,7 +275,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "profile_complete": "✅ Профиль заполнен! Добро пожаловать в Baseline.",
         "main_menu": "🎾 *Главное меню*\nЧто вы хотите сделать?",
         "btn_find_partner": "🎾 Найти партнёра",
-        "btn_create_game": "📅 Создать игру",
         "btn_available_now": "🔥 Доступен сейчас",
         "btn_my_profile": "👤 Мой профиль",
         "btn_settings": "⚙️ Настройки",
@@ -243,21 +288,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_invite": "✉️ Пригласить",
         "btn_view_profile": "👀 Профиль",
         "invite_sent": "✉️ Приглашение отправлено {name}!",
-        "cg_enter_court": "🏟 *Шаг 1/5* — Введите название или адрес корта:",
-        "cg_enter_area": "📍 *Шаг 2/5* — Выберите район:",
-        "cg_enter_date": "📅 *Шаг 3/5* — Введите дату (ДД.ММ.ГГГГ):",
-        "cg_enter_time": "🕐 *Шаг 4/5* — Введите время (ЧЧ:ММ):",
-        "cg_choose_type": "🎾 *Шаг 5а/5* — Одиночная или парная?",
-        "cg_choose_level": "📊 *Шаг 5б/5* — Нужный уровень (или пропустите):",
-        "cg_confirm": "✅ *Подтвердить игру*\n\n🏟 Корт: {court}\n📍 Район: {area}\n📅 Дата: {date}\n🕐 Время: {time}\n🎾 Тип: {match_type}\n📊 Уровень: {level}\n\nСоздать эту игру?",
-        "cg_created": "🎉 Игра создана! ID: #{game_id}",
-        "cg_error_date": "❌ Неверная дата. Используйте формат ДД.ММ.ГГГГ.",
-        "cg_error_time": "❌ Неверное время. Используйте формат ЧЧ:ММ.",
-        "btn_singles": "1️⃣ Одиночная",
-        "btn_doubles": "2️⃣ Парная",
-        "btn_confirm": "✅ Подтвердить",
         "btn_cancel": "❌ Отмена",
-        "btn_skip": "⏭ Пропустить",
         "btn_done": "✅ Готово",
         "btn_back_menu": "🔙 Главное меню",
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
@@ -296,6 +327,49 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_next": "➡ Далее",
         "btn_menu_home": "🏠 Меню",
         "no_contact_available": "У этого игрока нет публичного username. Попробуйте создать игру!",
+        # Organize Match
+        "btn_organize_match": "🎾 Организовать матч",
+        "om_choose_date": "📅 *Выберите дату*",
+        "om_btn_today": "Сегодня",
+        "om_btn_tomorrow": "Завтра",
+        "om_btn_other_date": "📅 Другая дата",
+        "om_enter_date": "Введите дату (ДД.ММ.ГГГГ):",
+        "om_error_date": "❌ Неверная дата. Используйте формат ДД.ММ.ГГГГ.",
+        "om_choose_time": "🕒 *Выберите время*",
+        "om_btn_other_time": "🕒 Другое время",
+        "om_enter_time": "Введите время (ЧЧ:ММ):",
+        "om_error_time": "❌ Неверное время. Используйте формат ЧЧ:ММ.",
+        "om_choose_court": "📍 *Выберите корт*",
+        "om_btn_other_court": "➕ Другой корт",
+        "om_enter_court": "Введите название или адрес корта:",
+        "om_choose_level": "🎾 *Уровень игры*\n\nВаш уровень: NTRP *{level}*",
+        "om_btn_use_my_level": "✅ Мой уровень (NTRP {level})",
+        "om_btn_change_level": "✏️ Изменить уровень",
+        "om_choose_players": "👥 *Количество игроков*",
+        "om_confirm": (
+            "✅ *Подтвердить матч*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Уровень {level}\n"
+            "👥 {players} игроков\n\n"
+            "Создать этот матч?"
+        ),
+        "om_btn_confirm": "✅ Создать матч",
+        "om_success": (
+            "🎾 *Ваш матч*\n\n"
+            "📅 {date_label}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Уровень {level}\n"
+            "👥 1 / {players} Игроков"
+        ),
+        "om_btn_find_players": "🔍 Найти игроков",
+        "om_btn_my_matches": "📋 Мои матчи",
+        "om_find_players_soon": "🚧 Поиск игроков для матча будет доступен в следующем спринте.",
+        "om_my_matches_header": "📋 *Ваши матчи:*",
+        "om_match_item": "📅 {date} 🕒 {time} 📍 {court}",
+        "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode
         "dev_menu_header": "🛠 *Меню разработчика*",
         "dev_btn_create_players": "👥 Создать тестовых игроков",

@@ -18,7 +18,7 @@ from backend.app.bot.texts import AREAS, COURTS, SKILL_LEVELS, t
 def main_menu_keyboard(lang: str) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     builder.button(text=t("btn_find_partner", lang))
-    builder.button(text=t("btn_create_game", lang))
+    builder.button(text=t("btn_organize_match", lang))
     builder.button(text=t("btn_available_now", lang))
     builder.button(text=t("btn_my_profile", lang))
     builder.button(text=t("btn_settings", lang))
@@ -64,35 +64,6 @@ def courts_keyboard(lang: str, selected: list[str] | None = None) -> InlineKeybo
         builder.button(text=label, callback_data=f"court_toggle:{court}")
     builder.button(text=t("btn_done", lang), callback_data="courts_done")
     builder.adjust(2, 2, 2, 2, 1)
-    return builder.as_markup()
-
-
-# ---------------------------------------------------------------------------
-# Create Game
-# ---------------------------------------------------------------------------
-
-def match_type_keyboard(lang: str) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    builder.button(text=t("btn_singles", lang), callback_data="match_type:singles")
-    builder.button(text=t("btn_doubles", lang), callback_data="match_type:doubles")
-    builder.adjust(2)
-    return builder.as_markup()
-
-
-def game_level_keyboard(lang: str) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    for level in SKILL_LEVELS:
-        builder.button(text=level, callback_data=f"game_level:{level}")
-    builder.button(text=t("btn_skip", lang), callback_data="game_level:skip")
-    builder.adjust(3, 3, 1)
-    return builder.as_markup()
-
-
-def confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    builder.button(text=t("btn_confirm", lang), callback_data="game_confirm:yes")
-    builder.button(text=t("btn_cancel", lang), callback_data="game_confirm:no")
-    builder.adjust(2)
     return builder.as_markup()
 
 
@@ -161,6 +132,70 @@ def dev_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder.button(text=t("dev_btn_stats", lang), callback_data="dev:stats")
     builder.button(text=t("dev_btn_exit", lang), callback_data="dev:exit")
     builder.adjust(1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
+# Organize Match
+# ---------------------------------------------------------------------------
+
+def om_date_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("om_btn_today", lang), callback_data="om_date:today")
+    builder.button(text=t("om_btn_tomorrow", lang), callback_data="om_date:tomorrow")
+    builder.button(text=t("om_btn_other_date", lang), callback_data="om_date:other")
+    builder.adjust(2, 1)
+    return builder.as_markup()
+
+
+def om_time_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for hour in ["18:00", "19:00", "20:00"]:
+        builder.button(text=hour, callback_data=f"om_time:{hour}")
+    builder.button(text=t("om_btn_other_time", lang), callback_data="om_time:other")
+    builder.adjust(3, 1)
+    return builder.as_markup()
+
+
+def om_court_keyboard(lang: str, courts: list[str]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for i, court in enumerate(courts):
+        builder.button(text=court, callback_data=f"om_court:{i}")
+    builder.button(text=t("om_btn_other_court", lang), callback_data="om:court_custom")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def om_level_keyboard(lang: str, current_level: float) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("om_btn_use_my_level", lang, level=current_level), callback_data="om_level:use_mine")
+    builder.button(text=t("om_btn_change_level", lang), callback_data="om_level:change")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def om_players_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="2", callback_data="om_players:2")
+    builder.button(text="4", callback_data="om_players:4")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def om_confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("om_btn_confirm", lang), callback_data="om:confirm")
+    builder.button(text=t("btn_cancel", lang), callback_data="om:cancel")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def om_success_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("om_btn_find_players", lang), callback_data="om:find_players")
+    builder.button(text=t("om_btn_my_matches", lang), callback_data="om:my_matches")
+    builder.button(text=t("btn_menu_home", lang), callback_data="om:menu")
+    builder.adjust(2, 1)
     return builder.as_markup()
 
 

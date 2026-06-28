@@ -66,6 +66,14 @@ class GameService:
         games = await self._game_repo.get_all()
         return [_game_to_schema(g) for g in games]
 
+    async def get_my_matches(self, telegram_id: int) -> list[GameRead]:
+        """Return all games created by this player, ordered by creation time."""
+        player = await self._player_repo.get_by_telegram_id(telegram_id)
+        if not player:
+            return []
+        games = await self._game_repo.get_games_by_creator(player.id)
+        return [_game_to_schema(g) for g in games]
+
     async def invite_player(
         self, game_id: int, invitee_telegram_id: int
     ) -> bool:

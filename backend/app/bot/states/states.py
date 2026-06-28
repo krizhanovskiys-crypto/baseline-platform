@@ -11,15 +11,19 @@ class OnboardingStates(StatesGroup):
     choose_courts = State()
 
 
-class CreateGameStates(StatesGroup):
-    """Create-game wizard."""
 
-    enter_court = State()
-    choose_area = State()
-    enter_date = State()
-    enter_time = State()
-    choose_type = State()
+class OrganizeMatchStates(StatesGroup):
+    """Organize-match guided wizard."""
+
+    choose_date = State()
+    enter_custom_date = State()
+    choose_time = State()
+    enter_custom_time = State()
+    choose_court = State()
+    enter_custom_court = State()
     choose_level = State()
+    enter_custom_level = State()
+    choose_players = State()
     confirm = State()
 
 
