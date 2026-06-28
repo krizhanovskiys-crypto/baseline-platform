@@ -249,6 +249,18 @@ def fpm_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+# ---------------------------------------------------------------------------
+# Invitations
+# ---------------------------------------------------------------------------
+
+def invitation_keyboard(lang: str, invitation_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("inv_btn_accept", lang), callback_data=f"inv:accept:{invitation_id}")
+    builder.button(text=t("inv_btn_decline", lang), callback_data=f"inv:decline:{invitation_id}")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
 def back_to_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("btn_back_menu", lang), callback_data="menu:main")

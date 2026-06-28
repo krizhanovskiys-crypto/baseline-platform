@@ -12,10 +12,12 @@ from backend.app.bot.keyboards.keyboards import (
     fpm_card_keyboard,
     fpm_empty_keyboard,
     fpm_selected_list_keyboard,
+    invitation_keyboard,
 )
 from backend.app.bot.states.states import FindPlayersForMatchStates
 from backend.app.bot.texts import t
 from backend.app.services.game_service import GameService
+from backend.app.services.invitation_service import InvitationService
 from backend.app.services.player_service import PlayerService
 
 logger = logging.getLogger(__name__)
@@ -48,6 +50,13 @@ def _get_name(candidates: list[dict], player_id: int) -> str:
     return "?"
 
 
+def _get_telegram_id(candidates: list[dict], player_id: int) -> int | None:
+    for c in candidates:
+        if c["id"] == player_id:
+            return c.get("telegram_id")
+    return None
+
+
 # ── Entry: fpm:start:{game_id} ────────────────────────────────────────────────
 
 @router.callback_query(F.data.startswith("fpm:start:"))
@@ -66,6 +75,7 @@ async def fpm_start(callback: CallbackQuery, state: FSMContext, session: AsyncSe
     candidates = [
         {
             "id": c.id,
+            "telegram_id": c.telegram_id,
             "first_name": c.first_name,
             "skill_level": float(c.skill_level or 0),
             "home_area": c.home_area or "—",
@@ -145,17 +155,49 @@ async def fpm_prev(callback: CallbackQuery, state: FSMContext) -> None:
 # ── Select ────────────────────────────────────────────────────────────────────
 
 @router.callback_query(FindPlayersForMatchStates.browsing, F.data.startswith("fpm:select:"))
-async def fpm_select(callback: CallbackQuery, state: FSMContext) -> None:
+async def fpm_select(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
     if not callback.data or not callback.message:
         return
     data = await state.get_data()
     lang = data.get("lang", "en")
+    game_id: int = data.get("game_id")
+    candidates: list[dict] = data.get("candidates", [])
     player_id = int(callback.data.split(":")[-1])
     selected_ids: list[int] = data.get("selected_ids", [])
 
     if player_id in selected_ids:
         await callback.answer(t("fpm_selected_count", lang, count=len(selected_ids)), show_alert=False)
         return
+
+    invitation = await InvitationService(session).create_invitation(game_id, player_id)
+    if invitation is None:
+        await callback.answer(t("inv_duplicate", lang), show_alert=False)
+        return
+
+    invitee_telegram_id = _get_telegram_id(candidates, player_id)
+    if invitee_telegram_id:
+        game = await GameService(session).get_game(game_id)
+        invitee = await PlayerService(session).get_by_id(player_id)
+        invitee_lang = invitee.language if invitee else "en"
+        if game:
+            inv_text = t(
+                "inv_message",
+                invitee_lang,
+                date=game.date.strftime("%d.%m.%Y") if game.date else "—",
+                time=game.time.strftime("%H:%M") if game.time else "—",
+                court=game.court or "—",
+                level=game.required_level or "—",
+                organizer=callback.from_user.first_name or "Organizer",
+            )
+            try:
+                await callback.bot.send_message(
+                    invitee_telegram_id,
+                    inv_text,
+                    reply_markup=invitation_keyboard(invitee_lang, invitation.id),
+                    parse_mode="Markdown",
+                )
+            except Exception:
+                logger.warning("Could not send invitation to telegram_id=%s", invitee_telegram_id)
 
     selected_ids.append(player_id)
     await state.update_data(selected_ids=selected_ids)

@@ -141,6 +141,25 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_selected_header": "*Invited players*",
         "fpm_selected_item": "• {name}",
         "fpm_btn_back": "⬅️ Back",
+        # Invitations
+        "inv_message": (
+            "🎾 *You have been invited to a match*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Level {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_btn_accept": "✅ Accept",
+        "inv_btn_decline": "❌ Decline",
+        "inv_player_accepted": "✅ You joined the match! See you on the court. 🎾",
+        "inv_player_declined": "❌ Invitation declined.",
+        "inv_organizer_accepted": "✅ *{name}* accepted your invitation!",
+        "inv_organizer_declined": "❌ *{name}* declined your invitation.",
+        "inv_already_responded": "You have already responded to this invitation.",
+        "inv_not_found": "Invitation not found.",
+        "inv_not_yours": "This invitation is not for you.",
+        "inv_duplicate": "Already invited.",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
@@ -283,6 +302,25 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_selected_header": "*Запрошені гравці*",
         "fpm_selected_item": "• {name}",
         "fpm_btn_back": "⬅️ Назад",
+        # Invitations
+        "inv_message": (
+            "🎾 *Вас запрошено на матч*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Рівень {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_btn_accept": "✅ Прийняти",
+        "inv_btn_decline": "❌ Відхилити",
+        "inv_player_accepted": "✅ Ви приєдналися до матчу! До зустрічі на корті. 🎾",
+        "inv_player_declined": "❌ Запрошення відхилено.",
+        "inv_organizer_accepted": "✅ *{name}* прийняв ваше запрошення!",
+        "inv_organizer_declined": "❌ *{name}* відхилив ваше запрошення.",
+        "inv_already_responded": "Ви вже відповіли на це запрошення.",
+        "inv_not_found": "Запрошення не знайдено.",
+        "inv_not_yours": "Це запрошення не для вас.",
+        "inv_duplicate": "Вже запрошено.",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
@@ -425,6 +463,25 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_selected_header": "*Приглашённые игроки*",
         "fpm_selected_item": "• {name}",
         "fpm_btn_back": "⬅️ Назад",
+        # Invitations
+        "inv_message": (
+            "🎾 *Вас приглашают на матч*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Уровень {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_btn_accept": "✅ Принять",
+        "inv_btn_decline": "❌ Отклонить",
+        "inv_player_accepted": "✅ Вы присоединились к матчу! Увидимся на корте. 🎾",
+        "inv_player_declined": "❌ Приглашение отклонено.",
+        "inv_organizer_accepted": "✅ *{name}* принял ваше приглашение!",
+        "inv_organizer_declined": "❌ *{name}* отклонил ваше приглашение.",
+        "inv_already_responded": "Вы уже ответили на это приглашение.",
+        "inv_not_found": "Приглашение не найдено.",
+        "inv_not_yours": "Это приглашение не для вас.",
+        "inv_duplicate": "Уже приглашён.",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode
