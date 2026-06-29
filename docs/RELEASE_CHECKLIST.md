@@ -130,3 +130,13 @@ Run one complete real-world flow before every release.
 ---
 
 > A feature is considered complete only after it passes both automated verification and real Telegram testing.
+
+---
+
+## Related documents
+
+| Document | Purpose |
+|---|---|
+| [`docs/TECH_DEBT.md`](TECH_DEBT.md) | Open technical debt items — consult before marking Section 8 complete |
+| [`docs/telegram_conflict_error.md`](telegram_conflict_error.md) | Runbook for TelegramConflictError during manual bot testing |
+| [`CLAUDE.md`](../CLAUDE.md) | Engineering rules, commit workflow, architecture constraints |

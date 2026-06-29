@@ -247,3 +247,13 @@ When finished, always provide:
 Do not ask for confirmation between implementation steps.
 
 Only ask before potentially destructive operations or git commits.
+
+---
+
+## Engineering documentation
+
+| Document | Purpose |
+|---|---|
+| `docs/RELEASE_CHECKLIST.md` | Mandatory pre-commit gate for user-facing features |
+| `docs/TECH_DEBT.md` | Known technical debt — consult before scoping a fix |
+| `docs/telegram_conflict_error.md` | Runbook for TelegramConflictError (duplicate polling instance) |
