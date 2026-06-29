@@ -2,6 +2,7 @@
 import logging
 
 from aiogram import F, Router
+from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -174,6 +175,12 @@ async def fpm_select(callback: CallbackQuery, state: FSMContext, session: AsyncS
         await callback.answer(t("inv_duplicate", lang), show_alert=False)
         return
 
+    # Invitation is committed — track it regardless of Telegram delivery outcome.
+    selected_ids.append(player_id)
+    await state.update_data(selected_ids=selected_ids)
+    count = len(selected_ids)
+
+    delivery_ok = False
     invitee_telegram_id = _get_telegram_id(candidates, player_id)
     if invitee_telegram_id:
         game = await GameService(session).get_game(game_id)
@@ -196,19 +203,19 @@ async def fpm_select(callback: CallbackQuery, state: FSMContext, session: AsyncS
                     reply_markup=invitation_keyboard(invitee_lang, invitation.id),
                     parse_mode="Markdown",
                 )
-            except Exception:
-                logger.warning("Could not send invitation to telegram_id=%s", invitee_telegram_id)
+                delivery_ok = True
+            except TelegramAPIError:
+                logger.warning("Could not deliver invitation to telegram_id=%s", invitee_telegram_id)
 
-    selected_ids.append(player_id)
-    await state.update_data(selected_ids=selected_ids)
-
-    count = len(selected_ids)
     await callback.message.edit_text(
         t("fpm_selected_count", lang, count=count),
         reply_markup=fpm_after_select_keyboard(lang),
         parse_mode="Markdown",
     )
-    await callback.answer()
+    if delivery_ok:
+        await callback.answer()
+    else:
+        await callback.answer(t("inv_delivery_failed", lang), show_alert=True)
 
 
 # ── Post-select actions ───────────────────────────────────────────────────────

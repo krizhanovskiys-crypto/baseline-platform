@@ -191,6 +191,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Invitation not found.",
         "inv_not_yours": "This invitation is not for you.",
         "inv_duplicate": "Already invited.",
+        "inv_delivery_failed": "⚠ Unfortunately, we couldn't send the invitation to this player.",
         # Game full notification (sent to organizer)
         "game_full_notification": "🎉 Your match is full!\n\nReview your roster before confirming.",
         "game_full_btn_confirm": "✅ Confirm Match",
@@ -414,6 +415,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Запрошення не знайдено.",
         "inv_not_yours": "Це запрошення не для вас.",
         "inv_duplicate": "Вже запрошено.",
+        "inv_delivery_failed": "⚠ На жаль, ми не змогли надіслати запрошення цьому гравцю.",
         # Game full notification (sent to organizer)
         "game_full_notification": "🎉 Ваш матч укомплектований!\n\nПеревірте склад перед підтвердженням.",
         "game_full_btn_confirm": "✅ Підтвердити матч",
@@ -637,6 +639,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Приглашение не найдено.",
         "inv_not_yours": "Это приглашение не для вас.",
         "inv_duplicate": "Уже приглашён.",
+        "inv_delivery_failed": "⚠ К сожалению, нам не удалось отправить приглашение этому игроку.",
         # Game full notification (sent to organizer)
         "game_full_notification": "🎉 Ваш матч укомплектован!\n\nПроверьте состав перед подтверждением.",
         "game_full_btn_confirm": "✅ Подтвердить матч",

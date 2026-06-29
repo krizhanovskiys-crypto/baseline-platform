@@ -20,9 +20,10 @@ from backend.app.bot.keyboards.keyboards import (
 )
 from backend.app.bot.states.states import OrganizeMatchStates
 from backend.app.bot.texts import t
-from backend.app.database.models.game import MatchType
+from backend.app.database.models.game import GameStatus, MatchType
 from backend.app.schemas.game import GameCreate
 from backend.app.services.game_service import GameService
+from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 logger = logging.getLogger(__name__)
@@ -305,6 +306,8 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         await callback.message.answer(t("error_generic", lang), parse_mode="Markdown")  # type: ignore[union-attr]
         await callback.answer()
         return
+
+    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
 
     match_type_key = "om_match_type_singles" if players == 2 else "om_match_type_doubles"
     text = t(
