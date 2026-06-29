@@ -120,3 +120,11 @@ class GamePlayerRepository(BaseRepository[GamePlayer]):
         )
         result = await self._session.execute(stmt)
         return result.scalar_one()
+
+    async def remove_player_from_game(self, game_id: int, player_id: int) -> bool:
+        """Delete the participation row for a player. Returns True if a row was found and deleted."""
+        gp = await self.get_participation(game_id, player_id)
+        if gp is None:
+            return False
+        await self.delete(gp)
+        return True

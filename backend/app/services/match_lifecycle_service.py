@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 _VALID_TRANSITIONS: dict[GameStatus, frozenset[GameStatus]] = {
     GameStatus.DRAFT:            frozenset({GameStatus.OPEN, GameStatus.CANCELLED}),
     GameStatus.OPEN:             frozenset({GameStatus.PARTIALLY_FILLED, GameStatus.CANCELLED, GameStatus.EXPIRED}),
-    GameStatus.PARTIALLY_FILLED: frozenset({GameStatus.FULL, GameStatus.CANCELLED, GameStatus.EXPIRED}),
-    GameStatus.FULL:             frozenset({GameStatus.CONFIRMED, GameStatus.CANCELLED}),
-    GameStatus.CONFIRMED:        frozenset({GameStatus.IN_PROGRESS, GameStatus.CANCELLED}),
+    GameStatus.PARTIALLY_FILLED: frozenset({GameStatus.FULL, GameStatus.OPEN, GameStatus.CANCELLED, GameStatus.EXPIRED}),
+    GameStatus.FULL:             frozenset({GameStatus.CONFIRMED, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED}),
+    GameStatus.CONFIRMED:        frozenset({GameStatus.IN_PROGRESS, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED}),
     GameStatus.IN_PROGRESS:      frozenset({GameStatus.COMPLETED}),
     # Terminal states — no outgoing transitions.
     GameStatus.COMPLETED:        frozenset(),

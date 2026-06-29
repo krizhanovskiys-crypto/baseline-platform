@@ -195,6 +195,23 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📊 Level {level}\n"
             "👤 {organizer}"
         ),
+        "inv_message_singles": (
+            "🎾 *You have been invited to a singles match.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Level {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_message_doubles": (
+            "🎾 *You have been invited to a doubles match.*\n"
+            "We are still looking for more players.\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Level {level}\n"
+            "👤 {organizer}"
+        ),
         "inv_btn_accept": "✅ Accept",
         "inv_btn_decline": "❌ Decline",
         "inv_player_accepted": "✅ You joined the match! See you on the court.",
@@ -235,6 +252,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancel_match_done": "❌ Match cancelled.",
         "cancel_match_not_yours": "Only the organizer can cancel this match.",
         "cancel_match_not_cancellable": "This match cannot be cancelled.",
+        # Leave match
+        "leave_match_done": "✅ You left the match.",
+        "leave_match_organizer": "⚠️ Organizer cannot leave. Use Cancel Match instead.",
+        "leave_match_not_participant": "⚠️ You are not a participant in this match.",
+        "leave_match_not_allowed": "⚠️ You cannot leave a match at this stage.",
+        "leave_match_notification": "👤 {name} left your match.",
         # View roster
         "view_roster_header": "👥 *Match Roster*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
@@ -433,6 +456,23 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📊 Рівень {level}\n"
             "👤 {organizer}"
         ),
+        "inv_message_singles": (
+            "🎾 *Вас запрошено на одиночний матч.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Рівень {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_message_doubles": (
+            "🎾 *Вас запрошено на парний матч.*\n"
+            "Ми ще шукаємо гравців.\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Рівень {level}\n"
+            "👤 {organizer}"
+        ),
         "inv_btn_accept": "✅ Прийняти",
         "inv_btn_decline": "❌ Відхилити",
         "inv_player_accepted": "✅ Ви приєдналися до матчу! До зустрічі на корті.",
@@ -473,6 +513,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancel_match_done": "❌ Матч скасовано.",
         "cancel_match_not_yours": "Тільки організатор може скасувати матч.",
         "cancel_match_not_cancellable": "Цей матч не можна скасувати.",
+        # Leave match
+        "leave_match_done": "✅ Ви покинули матч.",
+        "leave_match_organizer": "⚠️ Господар не може покинути матч. Скористайтесь скасуванням.",
+        "leave_match_not_participant": "⚠️ Ви не є учасником цього матчу.",
+        "leave_match_not_allowed": "⚠️ На цьому етапі покинути матч неможливо.",
+        "leave_match_notification": "👤 {name} покинув(-ла) ваш матч.",
         # View roster
         "view_roster_header": "👥 *Склад матчу*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
@@ -671,6 +717,23 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📊 Уровень {level}\n"
             "👤 {organizer}"
         ),
+        "inv_message_singles": (
+            "🎾 *Вас приглашают на одиночный матч.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Уровень {level}\n"
+            "👤 {organizer}"
+        ),
+        "inv_message_doubles": (
+            "🎾 *Вас приглашают на парный матч.*\n"
+            "Мы ещё ищем игроков.\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n"
+            "📊 Уровень {level}\n"
+            "👤 {organizer}"
+        ),
         "inv_btn_accept": "✅ Принять",
         "inv_btn_decline": "❌ Отклонить",
         "inv_player_accepted": "✅ Вы присоединились к матчу! Увидимся на корте.",
@@ -711,6 +774,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancel_match_done": "❌ Матч отменён.",
         "cancel_match_not_yours": "Только организатор может отменить матч.",
         "cancel_match_not_cancellable": "Этот матч нельзя отменить.",
+        # Leave match
+        "leave_match_done": "✅ Вы покинули матч.",
+        "leave_match_organizer": "⚠️ Хозяин не может покинуть матч. Используйте отмену матча.",
+        "leave_match_not_participant": "⚠️ Вы не являетесь участником этого матча.",
+        "leave_match_not_allowed": "⚠️ На этом этапе покинуть матч невозможно.",
+        "leave_match_notification": "👤 {name} покинул(-а) ваш матч.",
         # View roster
         "view_roster_header": "👥 *Состав матча*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",

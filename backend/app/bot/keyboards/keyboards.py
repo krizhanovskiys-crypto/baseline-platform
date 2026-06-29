@@ -296,6 +296,15 @@ def my_match_card_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def leave_match_done_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Keyboard shown after a player successfully leaves a match."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
 def match_details_keyboard(lang: str, role: str, game_id: int) -> InlineKeyboardMarkup:
     """Keyboard shown under the Match Details card. Role: 'organizer', 'participant', 'other'."""
     builder = InlineKeyboardBuilder()

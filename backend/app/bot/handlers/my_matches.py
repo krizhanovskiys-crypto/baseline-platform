@@ -7,8 +7,11 @@ from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.helpers import get_player_lang
+from aiogram.exceptions import TelegramAPIError
+
 from backend.app.bot.keyboards.keyboards import (
     back_to_menu_keyboard,
+    leave_match_done_keyboard,
     match_details_keyboard,
     my_match_card_keyboard,
 )
@@ -207,13 +210,47 @@ async def match_cancel_handler(callback: CallbackQuery, session: AsyncSession) -
     await callback.message.edit_text(t("cancel_match_done", lang), parse_mode="Markdown")
 
 
-# ── Match Details — leave (placeholder) ──────────────────────────────────────
+# ── Match Details — leave ─────────────────────────────────────────────────────
 
 @router.callback_query(F.data.regexp(r"^match:leave:\d+$"))
 async def match_leave_handler(callback: CallbackQuery, session: AsyncSession) -> None:
-    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
+    if not callback.data or not callback.message:
+        return
+    game_id = int(callback.data.split(":")[2])
+    user_tid = callback.from_user.id
+
+    player = await PlayerService(session).get_by_telegram_id(user_tid)
     lang = get_player_lang(player)
-    await callback.answer(t("feature_not_yet", lang), show_alert=True)
+
+    _, error_key = await GameService(session).leave_match(game_id, user_tid)
+    if error_key:
+        await callback.answer(t(error_key, lang), show_alert=True)
+        return
+
+    # Notify organizer (best-effort — delivery failure does not block the leave).
+    game = await GameService(session).get_game(game_id)
+    if game:
+        organizer = await PlayerService(session).get_by_id(game.creator_id)
+        if organizer and organizer.telegram_id != user_tid:
+            organizer_lang = organizer.language or "en"
+            leaver_name = player.first_name if player else "A player"
+            try:
+                await callback.bot.send_message(
+                    organizer.telegram_id,
+                    t("leave_match_notification", organizer_lang, name=leaver_name),
+                )
+            except TelegramAPIError:
+                logger.warning("Could not notify organizer telegram_id=%s", organizer.telegram_id)
+
+    await callback.answer()
+    try:
+        await callback.message.edit_text(
+            t("leave_match_done", lang),
+            reply_markup=leave_match_done_keyboard(lang),
+            parse_mode="Markdown",
+        )
+    except TelegramAPIError:
+        logger.warning("Could not edit leave confirmation for telegram_id=%s", user_tid)
 
 
 # ── Match Details — join (placeholder) ───────────────────────────────────────

@@ -17,6 +17,7 @@ from backend.app.bot.keyboards.keyboards import (
 )
 from backend.app.bot.states.states import FindPlayersForMatchStates
 from backend.app.bot.texts import t
+from backend.app.database.models.game import MatchType
 from backend.app.services.game_service import GameService
 from backend.app.services.invitation_service import InvitationService
 from backend.app.services.player_service import PlayerService
@@ -187,8 +188,9 @@ async def fpm_select(callback: CallbackQuery, state: FSMContext, session: AsyncS
         invitee = await PlayerService(session).get_by_id(player_id)
         invitee_lang = invitee.language if invitee else "en"
         if game:
+            inv_key = "inv_message_singles" if game.match_type == MatchType.SINGLES else "inv_message_doubles"
             inv_text = t(
-                "inv_message",
+                inv_key,
                 invitee_lang,
                 date=game.date.strftime("%d.%m.%Y") if game.date else "—",
                 time=game.time.strftime("%H:%M") if game.time else "—",

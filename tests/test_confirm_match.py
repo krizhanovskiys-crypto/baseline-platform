@@ -274,3 +274,103 @@ async def test_get_roster_excludes_invited_players(session):
 
     assert 15001 in tids   # organizer is CONFIRMED
     assert 15002 not in tids  # invited only, not committed
+
+
+# ── Cancel match at all pre-start statuses (Task 3) ──────────────────────────
+
+async def test_cancel_open_match_success(session):
+    """Organizer can cancel an OPEN match."""
+    await _make_player(session, 16001, "Organizer")
+    game_id = await _make_game_at_status(session, 16001, GameStatus.OPEN)
+
+    game, error = await GameService(session).cancel_match(game_id, 16001)
+
+    assert error == ""
+    assert game is not None
+    assert game.status == GameStatus.CANCELLED
+
+
+async def test_cancel_partially_filled_singles_success(session):
+    """Organizer can cancel a PARTIALLY_FILLED match (singles, direct lifecycle)."""
+    await _make_player(session, 17001, "Organizer")
+    game_id = await _make_game_at_status(session, 17001, GameStatus.PARTIALLY_FILLED)
+
+    game, error = await GameService(session).cancel_match(game_id, 17001)
+
+    assert error == ""
+    assert game is not None
+    assert game.status == GameStatus.CANCELLED
+
+
+async def test_cancel_partially_filled_doubles_success(session):
+    """Organizer can cancel a PARTIALLY_FILLED doubles match — the reported bug."""
+    await _make_player(session, 18001, "Organizer")
+    pid_a = await _make_player(session, 18002, "PlayerA")
+    game_id = await _make_game_at_status(session, 18001, GameStatus.PARTIALLY_FILLED, MatchType.DOUBLES)
+    await _add_accepted_player(session, game_id, pid_a)
+
+    game, error = await GameService(session).cancel_match(game_id, 18001)
+
+    assert error == ""
+    assert game is not None
+    assert game.status == GameStatus.CANCELLED
+
+
+async def test_cancel_in_progress_not_allowed(session):
+    """Cancellation is blocked once the match is IN_PROGRESS."""
+    await _make_player(session, 19001, "Organizer")
+    game_id = await _make_game_at_status(session, 19001, GameStatus.FULL)
+    lc = MatchLifecycleService(session)
+    await lc.transition(game_id, GameStatus.CONFIRMED)
+    await lc.transition(game_id, GameStatus.IN_PROGRESS)
+
+    _, error = await GameService(session).cancel_match(game_id, 19001)
+
+    assert error == "cancel_match_not_cancellable"
+
+
+# ── Invitation text split by match type (Task 1) ─────────────────────────────
+
+def test_inv_message_singles_en():
+    """Singles invitation contains 'singles' and not 'doubles'."""
+    from backend.app.bot.texts import t
+    text = t("inv_message_singles", "en", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "singles" in text.lower()
+    assert "doubles" not in text.lower()
+    assert "01.09.2026" in text
+    assert "High Park" in text
+
+
+def test_inv_message_doubles_en():
+    """Doubles invitation contains 'doubles' and looking-for-players line."""
+    from backend.app.bot.texts import t
+    text = t("inv_message_doubles", "en", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "doubles" in text.lower()
+    assert "looking for more players" in text.lower()
+    assert "01.09.2026" in text
+
+
+def test_inv_message_singles_uk():
+    from backend.app.bot.texts import t
+    text = t("inv_message_singles", "uk", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "одиночний" in text.lower()
+
+
+def test_inv_message_doubles_uk():
+    from backend.app.bot.texts import t
+    text = t("inv_message_doubles", "uk", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "парний" in text.lower()
+    assert "шукаємо" in text.lower()
+
+
+def test_inv_message_singles_ru():
+    from backend.app.bot.texts import t
+    text = t("inv_message_singles", "ru", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "одиночный" in text.lower()
+
+
+def test_inv_message_doubles_ru():
+    from backend.app.bot.texts import t
+    text = t("inv_message_doubles", "ru", date="01.09.2026", time="18:00", court="High Park", level=3.0, organizer="Alex")
+    assert "парный" in text.lower()
+    assert "ищем" in text.lower()

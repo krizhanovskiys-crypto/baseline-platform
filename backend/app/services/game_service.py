@@ -201,6 +201,49 @@ class GameService:
 
         return updated, ""
 
+    async def leave_match(
+        self, game_id: int, player_telegram_id: int
+    ) -> tuple[GameRead | None, str]:
+        """Remove a committed participant from a match and apply the reverse lifecycle transition.
+
+        Returns (updated_game, "") on success, (None, error_key) on failure.
+
+        Error keys:
+          leave_match_not_allowed      — game not found or status does not allow leaving
+          leave_match_organizer        — organizer cannot leave; must cancel instead
+          leave_match_not_participant  — player has no committed row in this game
+        """
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        _leavable = {GameStatus.OPEN, GameStatus.PARTIALLY_FILLED, GameStatus.FULL, GameStatus.CONFIRMED}
+
+        game = await self._game_repo.get_by_id(game_id)
+        if not game or game.status not in _leavable:
+            return None, "leave_match_not_allowed"
+
+        player = await self._player_repo.get_by_telegram_id(player_telegram_id)
+        if not player:
+            return None, "leave_match_not_participant"
+
+        if player.id == game.creator_id:
+            return None, "leave_match_organizer"
+
+        gp = await self._gp_repo.get_participation(game_id, player.id)
+        if gp is None or gp.status != GamePlayerStatus.ACCEPTED:
+            return None, "leave_match_not_participant"
+
+        await self._gp_repo.remove_player_from_game(game_id, player.id)
+
+        new_count = await self._gp_repo.count_committed_players(game_id)
+        target = GameStatus.OPEN if new_count <= 1 else GameStatus.PARTIALLY_FILLED
+
+        try:
+            updated = await MatchLifecycleService(self._session).transition(game_id, target)
+        except InvalidTransitionError:
+            updated = _game_to_schema(game)
+
+        return updated, ""
+
     async def get_roster(self, game_id: int) -> tuple[GameRead | None, list[PlayerRead]]:
         """Return game details and committed player roster for display."""
         game = await self._game_repo.get_by_id(game_id)

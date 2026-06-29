@@ -66,6 +66,18 @@ async def test_confirmed_to_in_progress(session):
     assert result.status == GameStatus.IN_PROGRESS
 
 
+async def test_confirmed_to_open(session):
+    game_id = await _make_game(session, GameStatus.CONFIRMED)
+    result = await MatchLifecycleService(session).transition(game_id, GameStatus.OPEN)
+    assert result.status == GameStatus.OPEN
+
+
+async def test_confirmed_to_partially_filled(session):
+    game_id = await _make_game(session, GameStatus.CONFIRMED)
+    result = await MatchLifecycleService(session).transition(game_id, GameStatus.PARTIALLY_FILLED)
+    assert result.status == GameStatus.PARTIALLY_FILLED
+
+
 async def test_in_progress_to_completed(session):
     game_id = await _make_game(session, GameStatus.IN_PROGRESS)
     result = await MatchLifecycleService(session).transition(game_id, GameStatus.COMPLETED)
@@ -216,11 +228,12 @@ async def test_transition_unknown_game_raises(session):
 # ── InvalidTransitionError carries context ────────────────────────────────────
 
 async def test_exception_carries_status_context(session):
+    # FULL → EXPIRED is not a valid transition; use it to verify exception carries status context.
     game_id = await _make_game(session, GameStatus.FULL)
     with pytest.raises(InvalidTransitionError) as exc_info:
-        await MatchLifecycleService(session).transition(game_id, GameStatus.OPEN)
+        await MatchLifecycleService(session).transition(game_id, GameStatus.EXPIRED)
     err = exc_info.value
     assert err.from_status == GameStatus.FULL
-    assert err.to_status == GameStatus.OPEN
+    assert err.to_status == GameStatus.EXPIRED
     assert "full" in str(err)
-    assert "open" in str(err)
+    assert "expired" in str(err)
