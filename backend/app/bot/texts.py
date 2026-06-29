@@ -160,6 +160,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Invitation not found.",
         "inv_not_yours": "This invitation is not for you.",
         "inv_duplicate": "Already invited.",
+        # Game full notification (sent to organizer)
+        "game_full_notification": "🎉 Your match is now full!\n\nReview your players and confirm the match.",
+        "game_full_btn_confirm": "✅ Confirm Match",
+        "game_full_btn_players": "📋 View Players",
+        "game_full_btn_menu": "🏠 Main Menu",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
@@ -321,6 +326,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Запрошення не знайдено.",
         "inv_not_yours": "Це запрошення не для вас.",
         "inv_duplicate": "Вже запрошено.",
+        # Game full notification (sent to organizer)
+        "game_full_notification": "🎉 Ваш матч повністю укомплектований!\n\nПерегляньте гравців та підтвердьте матч.",
+        "game_full_btn_confirm": "✅ Підтвердити матч",
+        "game_full_btn_players": "📋 Переглянути гравців",
+        "game_full_btn_menu": "🏠 Головне меню",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
@@ -482,6 +492,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_found": "Приглашение не найдено.",
         "inv_not_yours": "Это приглашение не для вас.",
         "inv_duplicate": "Уже приглашён.",
+        # Game full notification (sent to organizer)
+        "game_full_notification": "🎉 Ваш матч полностью укомплектован!\n\nПросмотрите игроков и подтвердите матч.",
+        "game_full_btn_confirm": "✅ Подтвердить матч",
+        "game_full_btn_players": "📋 Просмотреть игроков",
+        "game_full_btn_menu": "🏠 Главное меню",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode

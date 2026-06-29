@@ -40,11 +40,28 @@ class MatchLifecycleService:
         self._repo = GameRepository(session)
 
     async def transition(self, game_id: int, new_status: GameStatus) -> GameRead:
-        """Transition a game to a new status.
+        """Transition a game to a new status and return the updated GameRead.
+
+        Side effects: writes the new status to the database via GameRepository.
+        This is the only method in the codebase that may change Game.status.
 
         Raises:
             ValueError: if the game does not exist.
-            InvalidTransitionError: if the transition is not permitted.
+            InvalidTransitionError: if the transition is not permitted by _VALID_TRANSITIONS.
+
+        TOCTOU note — this method uses a read → check → write pattern, not an atomic
+        compare-and-swap. Two concurrent callers can both read the same current status,
+        both pass the check, and both execute the write. This is safe on SQLite + asyncio
+        (single-threaded event loop; SQLite write lock serialises the writes so the second
+        caller's re-read inside update_status sees the committed value). Before migrating
+        to PostgreSQL or any other concurrent database, replace with a conditional UPDATE:
+
+            UPDATE game SET status = :new WHERE id = :id AND status = :expected
+
+        and verify that exactly one row was affected. Zero affected rows means another
+        session won the race — raise InvalidTransitionError at that point.
+
+        # TODO: Replace read-check-write with conditional UPDATE before moving to PostgreSQL.
         """
         game = await self._repo.get_by_id(game_id)
         if game is None:

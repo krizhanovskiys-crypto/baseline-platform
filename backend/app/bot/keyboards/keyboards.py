@@ -250,6 +250,20 @@ def fpm_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
 
 
 # ---------------------------------------------------------------------------
+# Game-full organizer notification
+# ---------------------------------------------------------------------------
+
+def game_full_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard sent to the organizer when a match becomes full."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("game_full_btn_confirm", lang), callback_data=f"confirm_match:{game_id}")
+    builder.button(text=t("game_full_btn_players", lang), callback_data=f"view_game:{game_id}")
+    builder.button(text=t("game_full_btn_menu", lang), callback_data="fpm:menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
 # Invitations
 # ---------------------------------------------------------------------------
 

@@ -79,6 +79,11 @@ class Game(Base):
         "GamePlayer", back_populates="game", cascade="all, delete-orphan"
     )
 
+    @property
+    def required_players(self) -> int:
+        """Total players needed to fill this match (2 for singles, 4 for doubles)."""
+        return 4 if self.match_type == MatchType.DOUBLES else 2
+
     def __repr__(self) -> str:
         return f"<Game id={self.id} area={self.area!r} date={self.date} status={self.status}>"
 

@@ -1,5 +1,5 @@
 """Game-specific database queries."""
-from sqlalchemy import and_, select, update
+from sqlalchemy import and_, func, select, update
 
 from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus
 from backend.app.database.repositories.base import BaseRepository
@@ -55,3 +55,22 @@ class GamePlayerRepository(BaseRepository[GamePlayer]):
         """Create a new participation record."""
         gp = GamePlayer(game_id=game_id, player_id=player_id, status=status)
         return await self.add(gp)
+
+    async def count_committed_players(self, game_id: int) -> int:
+        """Count players who have committed to this game (status ACCEPTED or CONFIRMED).
+
+        Used by InvitationService to decide whether the game has reached required_players.
+        INVITED and DECLINED rows are excluded — only active participants count.
+        """
+        stmt = (
+            select(func.count())
+            .select_from(GamePlayer)
+            .where(
+                and_(
+                    GamePlayer.game_id == game_id,
+                    GamePlayer.status.in_([GamePlayerStatus.ACCEPTED, GamePlayerStatus.CONFIRMED]),
+                )
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one()

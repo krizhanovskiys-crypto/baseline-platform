@@ -7,6 +7,7 @@ from backend.app.bot.keyboards.keyboards import (
     fpm_card_keyboard,
     fpm_empty_keyboard,
     fpm_selected_list_keyboard,
+    game_full_keyboard,
     invitation_keyboard,
     language_keyboard,
     main_menu_keyboard,
@@ -43,4 +44,5 @@ __all__ = [
     "fpm_selected_list_keyboard",
     "fpm_empty_keyboard",
     "invitation_keyboard",
+    "game_full_keyboard",
 ]

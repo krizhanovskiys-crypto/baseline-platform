@@ -144,7 +144,7 @@ async def test_service_accept_success(session):
     svc = InvitationService(session)
     inv = await svc.create_invitation(game_id, inv_player_id)
 
-    updated, error = await svc.accept(inv.id, 1002)
+    updated, error, _ = await svc.accept(inv.id, 1002)
 
     assert error == ""
     assert updated is not None
@@ -176,7 +176,7 @@ async def test_service_accept_wrong_player_returns_error(session):
     svc = InvitationService(session)
     inv = await svc.create_invitation(game_id, inv_player_id)
 
-    result, error = await svc.accept(inv.id, 1003)
+    result, error, _ = await svc.accept(inv.id, 1003)
     assert result is None
     assert error == "inv_not_yours"
 
@@ -190,14 +190,14 @@ async def test_service_accept_already_accepted_returns_error(session):
     inv = await svc.create_invitation(game_id, inv_player_id)
     await svc.accept(inv.id, 1002)
 
-    result, error = await svc.accept(inv.id, 1002)
-    assert result is None
+    result, error, _ = await svc.accept(inv.id, 1002)
+    assert result is not None  # returns the invitation, not None
     assert error == "inv_already_responded"
 
 
 async def test_service_accept_nonexistent_invitation_returns_error(session):
     svc = InvitationService(session)
-    result, error = await svc.accept(99999, 1001)
+    result, error, _ = await svc.accept(99999, 1001)
     assert result is None
     assert error == "inv_not_found"
 
