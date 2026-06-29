@@ -258,8 +258,15 @@ def game_full_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("game_full_btn_confirm", lang), callback_data=f"confirm_match:{game_id}")
     builder.button(text=t("game_full_btn_players", lang), callback_data=f"view_game:{game_id}")
-    builder.button(text=t("game_full_btn_menu", lang), callback_data="fpm:menu")
+    builder.button(text=t("game_full_btn_cancel", lang), callback_data=f"cancel_match:{game_id}")
     builder.adjust(1)
+    return builder.as_markup()
+
+
+def confirm_note_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Keyboard shown when asking the organizer for an optional note."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("confirm_btn_skip", lang), callback_data="confirm_note:skip")
     return builder.as_markup()
 
 

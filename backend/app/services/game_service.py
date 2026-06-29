@@ -3,11 +3,12 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.core.exceptions import InvalidTransitionError
 from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
 from backend.app.schemas.game import GameCreate, GameRead
-from backend.app.schemas.player import PlayerRead  # used as return type annotation
+from backend.app.schemas.player import PlayerRead
 from backend.app.services.player_service import _player_to_schema as _player_to_read
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,7 @@ class GameService:
     """Handles all game-related use cases."""
 
     def __init__(self, session: AsyncSession) -> None:
+        self._session = session
         self._game_repo = GameRepository(session)
         self._gp_repo = GamePlayerRepository(session)
         self._player_repo = PlayerRepository(session)
@@ -100,6 +102,68 @@ class GameService:
             exclude_player_ids=exclude_ids,
         )
         return [_player_to_read(p) for p in candidates]
+
+    async def confirm_match(
+        self, game_id: int, organizer_telegram_id: int
+    ) -> tuple[GameRead | None, list[PlayerRead], str]:
+        """Transition a FULL match to CONFIRMED and return the committed player roster.
+
+        Returns (updated_game, all_committed_players, error_key).
+        all_committed_players includes the organizer — the handler decides who to notify.
+        error_key is "" on success.
+        """
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return None, [], "confirm_match_not_found"
+
+        organizer = await self._player_repo.get_by_telegram_id(organizer_telegram_id)
+        if not organizer or organizer.id != game.creator_id:
+            return None, [], "confirm_match_not_yours"
+
+        if game.status != GameStatus.FULL:
+            return None, [], "confirm_match_wrong_status"
+
+        try:
+            updated = await MatchLifecycleService(self._session).transition(game_id, GameStatus.CONFIRMED)
+        except InvalidTransitionError:
+            return None, [], "confirm_match_wrong_status"
+
+        committed = await self._gp_repo.get_committed_players(game_id)
+        return updated, [_player_to_read(p) for p in committed], ""
+
+    async def cancel_match(
+        self, game_id: int, organizer_telegram_id: int
+    ) -> tuple[GameRead | None, str]:
+        """Cancel a match at any cancellable status.
+
+        Returns (updated_game, "") on success, (None, error_key) on failure.
+        """
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return None, "cancel_match_not_found"
+
+        organizer = await self._player_repo.get_by_telegram_id(organizer_telegram_id)
+        if not organizer or organizer.id != game.creator_id:
+            return None, "cancel_match_not_yours"
+
+        try:
+            updated = await MatchLifecycleService(self._session).transition(game_id, GameStatus.CANCELLED)
+        except InvalidTransitionError:
+            return None, "cancel_match_not_cancellable"
+
+        return updated, ""
+
+    async def get_roster(self, game_id: int) -> tuple[GameRead | None, list[PlayerRead]]:
+        """Return game details and committed player roster for display."""
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return None, []
+        committed = await self._gp_repo.get_committed_players(game_id)
+        return _game_to_schema(game), [_player_to_read(p) for p in committed]
 
     async def invite_player(
         self, game_id: int, invitee_telegram_id: int

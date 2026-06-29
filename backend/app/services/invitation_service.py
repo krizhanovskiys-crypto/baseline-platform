@@ -30,8 +30,14 @@ class InvitationService:
     ) -> Invitation | None:
         """Create a PENDING invitation.
 
-        Returns None if the player is already invited or already in the game.
+        Returns None if:
+        - the game is not in an invitable state (must be OPEN or PARTIALLY_FILLED)
+        - the player is already invited
+        - the player is already in the game
         """
+        game = await self._game_repo.get_by_id(game_id)
+        if not game or game.status not in (GameStatus.OPEN, GameStatus.PARTIALLY_FILLED):
+            return None
         existing = await self._repo.get_by_game_and_player(game_id, invitee_player_id)
         if existing:
             logger.debug("Duplicate invitation game=%s player=%s", game_id, invitee_player_id)

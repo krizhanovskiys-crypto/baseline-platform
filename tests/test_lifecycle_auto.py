@@ -132,19 +132,21 @@ async def test_doubles_becomes_full_on_third_accept(session):
 # ── Transition happens exactly once ──────────────────────────────────────────
 
 async def test_full_transition_happens_only_once(session):
-    """A fifth player accepting for a doubles match does not re-trigger FULL."""
+    """Once FULL, create_invitation returns None — no second FULL signal possible."""
     await _make_player(session, 6001, "Organizer")
     for tid in [6002, 6003, 6004, 6005]:
         await _make_player(session, tid, f"Player{tid}")
     game_id = await _make_open_game(session, 6001, MatchType.DOUBLES)
 
-    # Fill the game
+    # Fill the game (organizer CONFIRMED + 3 accepts = 4 players)
     for tid in [6002, 6003, 6004]:
         await _invite_and_accept(session, game_id, tid)
 
-    # Fifth player (supernumerary) accepts
-    _, _, extra_status = await _invite_and_accept(session, game_id, 6005)
-    assert extra_status is None  # No second FULL signal
+    # After FULL, create_invitation is blocked by the status guard
+    from backend.app.services.player_service import PlayerService as PS
+    player5 = await PS(session).get_by_telegram_id(6005)
+    inv = await InvitationService(session).create_invitation(game_id, player5.id)
+    assert inv is None  # FULL game rejects new invitations
 
 
 # ── Duplicate ACCEPT ignored ──────────────────────────────────────────────────

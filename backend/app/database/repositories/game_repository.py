@@ -2,6 +2,7 @@
 from sqlalchemy import and_, func, select, update
 
 from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus
+from backend.app.database.models.player import Player
 from backend.app.database.repositories.base import BaseRepository
 
 
@@ -55,6 +56,24 @@ class GamePlayerRepository(BaseRepository[GamePlayer]):
         """Create a new participation record."""
         gp = GamePlayer(game_id=game_id, player_id=player_id, status=status)
         return await self.add(gp)
+
+    async def get_committed_players(self, game_id: int) -> list[Player]:
+        """Return Player objects for all committed participants (ACCEPTED or CONFIRMED status).
+
+        Used to build roster displays and dispatch confirmation notifications.
+        """
+        stmt = (
+            select(Player)
+            .join(GamePlayer, GamePlayer.player_id == Player.id)
+            .where(
+                and_(
+                    GamePlayer.game_id == game_id,
+                    GamePlayer.status.in_([GamePlayerStatus.ACCEPTED, GamePlayerStatus.CONFIRMED]),
+                )
+            )
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
 
     async def count_committed_players(self, game_id: int) -> int:
         """Count players who have committed to this game (status ACCEPTED or CONFIRMED).

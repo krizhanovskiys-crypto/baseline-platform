@@ -161,10 +161,36 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_yours": "This invitation is not for you.",
         "inv_duplicate": "Already invited.",
         # Game full notification (sent to organizer)
-        "game_full_notification": "🎉 Your match is now full!\n\nReview your players and confirm the match.",
+        "game_full_notification": "🎉 Your match is full!\n\nReview your roster before confirming.",
         "game_full_btn_confirm": "✅ Confirm Match",
-        "game_full_btn_players": "📋 View Players",
-        "game_full_btn_menu": "🏠 Main Menu",
+        "game_full_btn_players": "👥 View Players",
+        "game_full_btn_cancel": "❌ Cancel Match",
+        # Confirm match flow
+        "confirm_ask_note": (
+            "Would you like to add a note for your players?\n\n"
+            "For example: court number, parking, or what to bring.\n\n"
+            "Max 200 characters. Tap *Skip* to confirm without a note."
+        ),
+        "confirm_btn_skip": "Skip",
+        "confirm_note_too_long": "That note is too long ({length} chars). Please keep it under 200.",
+        "confirm_match_done": "✅ Match confirmed! All players have been notified.",
+        "confirm_match_not_yours": "Only the organizer can confirm this match.",
+        "confirm_match_wrong_status": "This match cannot be confirmed right now.",
+        # Player notification when match is CONFIRMED
+        "confirmed_player_notification": (
+            "🎾 *Your match is confirmed!*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "👥 *Players:*\n{players}"
+        ),
+        "confirmed_player_note_section": "\n\n*From the organizer:*\n{note}",
+        # Cancel match
+        "cancel_match_done": "❌ Match cancelled.",
+        "cancel_match_not_yours": "Only the organizer can cancel this match.",
+        "cancel_match_not_cancellable": "This match cannot be cancelled.",
+        # View roster
+        "view_roster_header": "👥 *Match Roster*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
@@ -327,10 +353,36 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_yours": "Це запрошення не для вас.",
         "inv_duplicate": "Вже запрошено.",
         # Game full notification (sent to organizer)
-        "game_full_notification": "🎉 Ваш матч повністю укомплектований!\n\nПерегляньте гравців та підтвердьте матч.",
+        "game_full_notification": "🎉 Ваш матч укомплектований!\n\nПеревірте склад перед підтвердженням.",
         "game_full_btn_confirm": "✅ Підтвердити матч",
-        "game_full_btn_players": "📋 Переглянути гравців",
-        "game_full_btn_menu": "🏠 Головне меню",
+        "game_full_btn_players": "👥 Переглянути гравців",
+        "game_full_btn_cancel": "❌ Скасувати матч",
+        # Confirm match flow
+        "confirm_ask_note": (
+            "Хочете додати повідомлення для гравців?\n\n"
+            "Наприклад: номер корту, парковка або що взяти з собою.\n\n"
+            "Максимум 200 символів. Натисніть *Пропустити*, щоб підтвердити без повідомлення."
+        ),
+        "confirm_btn_skip": "Пропустити",
+        "confirm_note_too_long": "Повідомлення занадто довге ({length} символів). Будь ласка, скоротіть до 200.",
+        "confirm_match_done": "✅ Матч підтверджено! Усіх гравців повідомлено.",
+        "confirm_match_not_yours": "Тільки організатор може підтвердити матч.",
+        "confirm_match_wrong_status": "Цей матч зараз не можна підтвердити.",
+        # Player notification when match is CONFIRMED
+        "confirmed_player_notification": (
+            "🎾 *Ваш матч підтверджено!*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "👥 *Гравці:*\n{players}"
+        ),
+        "confirmed_player_note_section": "\n\n*Від організатора:*\n{note}",
+        # Cancel match
+        "cancel_match_done": "❌ Матч скасовано.",
+        "cancel_match_not_yours": "Тільки організатор може скасувати матч.",
+        "cancel_match_not_cancellable": "Цей матч не можна скасувати.",
+        # View roster
+        "view_roster_header": "👥 *Склад матчу*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
@@ -493,10 +545,36 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_not_yours": "Это приглашение не для вас.",
         "inv_duplicate": "Уже приглашён.",
         # Game full notification (sent to organizer)
-        "game_full_notification": "🎉 Ваш матч полностью укомплектован!\n\nПросмотрите игроков и подтвердите матч.",
+        "game_full_notification": "🎉 Ваш матч укомплектован!\n\nПроверьте состав перед подтверждением.",
         "game_full_btn_confirm": "✅ Подтвердить матч",
-        "game_full_btn_players": "📋 Просмотреть игроков",
-        "game_full_btn_menu": "🏠 Главное меню",
+        "game_full_btn_players": "👥 Просмотреть игроков",
+        "game_full_btn_cancel": "❌ Отменить матч",
+        # Confirm match flow
+        "confirm_ask_note": (
+            "Хотите добавить сообщение для игроков?\n\n"
+            "Например: номер корта, парковка или что взять с собой.\n\n"
+            "Максимум 200 символов. Нажмите *Пропустить*, чтобы подтвердить без сообщения."
+        ),
+        "confirm_btn_skip": "Пропустить",
+        "confirm_note_too_long": "Сообщение слишком длинное ({length} символов). Пожалуйста, сократите до 200.",
+        "confirm_match_done": "✅ Матч подтверждён! Все игроки уведомлены.",
+        "confirm_match_not_yours": "Только организатор может подтвердить матч.",
+        "confirm_match_wrong_status": "Этот матч сейчас нельзя подтвердить.",
+        # Player notification when match is CONFIRMED
+        "confirmed_player_notification": (
+            "🎾 *Ваш матч подтверждён!*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "👥 *Игроки:*\n{players}"
+        ),
+        "confirmed_player_note_section": "\n\n*От организатора:*\n{note}",
+        # Cancel match
+        "cancel_match_done": "❌ Матч отменён.",
+        "cancel_match_not_yours": "Только организатор может отменить матч.",
+        "cancel_match_not_cancellable": "Этот матч нельзя отменить.",
+        # View roster
+        "view_roster_header": "👥 *Состав матча*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode

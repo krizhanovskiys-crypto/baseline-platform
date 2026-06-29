@@ -39,6 +39,12 @@ class FindPlayersForMatchStates(StatesGroup):
     browsing = State()
 
 
+class ConfirmMatchStates(StatesGroup):
+    """Confirm-match wizard — collects optional organizer note before confirming."""
+
+    enter_note = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings flow."""
 
