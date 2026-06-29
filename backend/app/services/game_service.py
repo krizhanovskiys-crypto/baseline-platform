@@ -103,6 +103,24 @@ class GameService:
         )
         return [_player_to_read(p) for p in candidates]
 
+    async def get_my_upcoming_matches(
+        self, telegram_id: int
+    ) -> list[tuple[GameRead, int]]:
+        """Return (game, committed_player_count) for all upcoming matches the player participates in.
+
+        Includes matches where the player is organizer (CONFIRMED GamePlayer status) or
+        accepted invitee (ACCEPTED GamePlayer status). Sorted by date/time ascending.
+        """
+        player = await self._player_repo.get_by_telegram_id(telegram_id)
+        if not player:
+            return []
+        games = await self._game_repo.get_upcoming_matches_for_player(player.id)
+        result = []
+        for game in games:
+            count = await self._gp_repo.count_committed_players(game.id)
+            result.append((_game_to_schema(game), count))
+        return result
+
     async def confirm_match(
         self, game_id: int, organizer_telegram_id: int
     ) -> tuple[GameRead | None, list[PlayerRead], str]:

@@ -20,9 +20,10 @@ def main_menu_keyboard(lang: str) -> ReplyKeyboardMarkup:
     builder.button(text=t("btn_find_partner", lang))
     builder.button(text=t("btn_organize_match", lang))
     builder.button(text=t("btn_available_now", lang))
+    builder.button(text=t("btn_my_matches", lang))
     builder.button(text=t("btn_my_profile", lang))
     builder.button(text=t("btn_settings", lang))
-    builder.adjust(2, 2, 1)
+    builder.adjust(2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -285,4 +286,11 @@ def invitation_keyboard(lang: str, invitation_id: int) -> InlineKeyboardMarkup:
 def back_to_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("btn_back_menu", lang), callback_data="menu:main")
+    return builder.as_markup()
+
+
+def my_match_card_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown under each upcoming match card."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("my_matches_btn_open", lang), callback_data=f"match:open:{game_id}")
     return builder.as_markup()

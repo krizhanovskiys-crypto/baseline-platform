@@ -31,6 +31,33 @@ class GameRepository(BaseRepository[Game]):
         await self._session.flush()
         return await self.get_by_id(game_id)
 
+    async def get_upcoming_matches_for_player(self, player_id: int) -> list[Game]:
+        """Return upcoming games where the player has committed participation (ACCEPTED or CONFIRMED).
+
+        Excludes COMPLETED, CANCELLED, EXPIRED, DRAFT, and IN_PROGRESS games.
+        Sorted by date and time ascending so the soonest match appears first.
+        INVITED-only rows are excluded — the player must have accepted.
+        """
+        stmt = (
+            select(Game)
+            .join(GamePlayer, GamePlayer.game_id == Game.id)
+            .where(
+                and_(
+                    GamePlayer.player_id == player_id,
+                    GamePlayer.status.in_([GamePlayerStatus.ACCEPTED, GamePlayerStatus.CONFIRMED]),
+                    Game.status.in_([
+                        GameStatus.OPEN,
+                        GameStatus.PARTIALLY_FILLED,
+                        GameStatus.FULL,
+                        GameStatus.CONFIRMED,
+                    ]),
+                )
+            )
+            .order_by(Game.date, Game.time)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
 
 class GamePlayerRepository(BaseRepository[GamePlayer]):
     """Async repository for GamePlayer (game-participation) entities."""

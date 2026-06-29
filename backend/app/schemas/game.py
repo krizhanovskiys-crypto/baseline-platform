@@ -32,3 +32,4 @@ class GameRead(BaseModel):
     required_level: float | None
     status: GameStatus
     created_at: datetime
+    required_players: int

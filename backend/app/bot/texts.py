@@ -17,8 +17,28 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Main Menu*\nWhat would you like to do?",
         "btn_find_partner": "🔍 Find Partner",
         "btn_available_now": "🔥 Available Now",
+        "btn_my_matches": "📅 My Matches",
         "btn_my_profile": "👤 My Profile",
         "btn_settings": "⚙️ Settings",
+        # My Matches
+        "my_matches_header": "📅 *My Matches*",
+        "my_matches_empty": (
+            "😔 You have no upcoming matches yet.\n\n"
+            "Organize a match or accept an invitation to see it here."
+        ),
+        "my_matches_card": (
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "my_matches_btn_open": "Open Match",
+        "match_details_placeholder": "Match details coming soon.",
+        "status_open": "Looking for players",
+        "status_partially_filled": "Filling up",
+        "status_full": "Full",
+        "status_confirmed": "Confirmed ✅",
         # Find partner
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
         "no_partners": (
@@ -222,8 +242,28 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Головне меню*\nЩо ви хочете зробити?",
         "btn_find_partner": "🔍 Знайти партнера",
         "btn_available_now": "🔥 Доступний зараз",
+        "btn_my_matches": "📅 Мої матчі",
         "btn_my_profile": "👤 Мій профіль",
         "btn_settings": "⚙️ Налаштування",
+        # My Matches
+        "my_matches_header": "📅 *Мої матчі*",
+        "my_matches_empty": (
+            "😔 Поки що у вас немає майбутніх матчів.\n\n"
+            "Організуйте матч або прийміть запрошення, щоб побачити його тут."
+        ),
+        "my_matches_card": (
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "my_matches_btn_open": "Відкрити матч",
+        "match_details_placeholder": "Деталі матчу незабаром.",
+        "status_open": "Шукаємо гравців",
+        "status_partially_filled": "Набираємо команду",
+        "status_full": "Команда зібрана",
+        "status_confirmed": "Підтверджено ✅",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
         "no_partners": (
             "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
@@ -414,8 +454,28 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Главное меню*\nЧто вы хотите сделать?",
         "btn_find_partner": "🔍 Найти партнёра",
         "btn_available_now": "🔥 Доступен сейчас",
+        "btn_my_matches": "📅 Мои матчи",
         "btn_my_profile": "👤 Мой профиль",
         "btn_settings": "⚙️ Настройки",
+        # My Matches
+        "my_matches_header": "📅 *Мои матчи*",
+        "my_matches_empty": (
+            "😔 У вас пока нет предстоящих матчей.\n\n"
+            "Организуйте матч или примите приглашение, чтобы увидеть его здесь."
+        ),
+        "my_matches_card": (
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "my_matches_btn_open": "Открыть матч",
+        "match_details_placeholder": "Детали матча скоро появятся.",
+        "status_open": "Набираем игроков",
+        "status_partially_filled": "Набираем команду",
+        "status_full": "Команда собрана",
+        "status_confirmed": "Подтверждено ✅",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
         "no_partners": (
             "😔 Пока мы не нашли для вас идеального партнёра.\n\n"
