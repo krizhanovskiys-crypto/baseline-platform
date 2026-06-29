@@ -16,7 +16,7 @@ from backend.app.services.player_service import PlayerService
 logger = logging.getLogger(__name__)
 router = Router(name="find_partner")
 
-_TRIGGER_TEXTS = {"🎾 Find Partner", "🎾 Знайти партнера", "🎾 Найти партнёра"}
+_TRIGGER_TEXTS = {"🔍 Find Partner", "🔍 Знайти партнера", "🔍 Найти партнёра"}
 
 
 def _build_card(partner: PlayerRead, lang: str, total: int) -> tuple[str, object]:
