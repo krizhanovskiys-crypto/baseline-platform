@@ -79,6 +79,21 @@ class GameService:
         games = await self._game_repo.get_games_by_creator(player.id)
         return [_game_to_schema(g) for g in games]
 
+    async def _expire_stale(self, game_id: int | None = None) -> None:
+        """Lazily expire pre-start matches whose scheduled datetime has passed.
+
+        If game_id is given, checks only that game. Otherwise checks all pre-start games.
+        Called at the entry point of any service method that reads or acts on match state.
+        """
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        lc = MatchLifecycleService(self._session)
+        if game_id is not None:
+            await lc.expire_if_stale(game_id)
+            return
+        for game in await self._game_repo.get_expirable_matches():
+            await lc.expire_if_stale(game.id)
+
     async def find_players_for_match(
         self, game_id: int, organizer_telegram_id: int
     ) -> list[PlayerRead]:
@@ -87,8 +102,9 @@ class GameService:
         Excludes the organizer and any existing participants.
         Filters by same area and skill level ±0.5.
         """
+        await self._expire_stale(game_id)
         game = await self._game_repo.get_by_id(game_id)
-        if not game:
+        if not game or game.status not in {GameStatus.OPEN, GameStatus.PARTIALLY_FILLED}:
             return []
         organizer = await self._player_repo.get_by_telegram_id(organizer_telegram_id)
         if not organizer:
@@ -109,6 +125,7 @@ class GameService:
         The organizer is always present in committed players (joined with CONFIRMED status
         on game creation), so organizer_name is derived from the player list — no extra query.
         """
+        await self._expire_stale(game_id)
         game = await self._game_repo.get_by_id(game_id)
         if not game:
             return None
@@ -140,6 +157,7 @@ class GameService:
         player = await self._player_repo.get_by_telegram_id(telegram_id)
         if not player:
             return []
+        await self._expire_stale()
         games = await self._game_repo.get_upcoming_matches_for_player(player.id)
         result = []
         for game in games:
@@ -158,6 +176,7 @@ class GameService:
         """
         from backend.app.services.match_lifecycle_service import MatchLifecycleService
 
+        await self._expire_stale(game_id)
         game = await self._game_repo.get_by_id(game_id)
         if not game:
             return None, [], "confirm_match_not_found"
@@ -186,6 +205,7 @@ class GameService:
         """
         from backend.app.services.match_lifecycle_service import MatchLifecycleService
 
+        await self._expire_stale(game_id)
         game = await self._game_repo.get_by_id(game_id)
         if not game:
             return None, "cancel_match_not_found"

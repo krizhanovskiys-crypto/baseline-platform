@@ -67,6 +67,12 @@ class InvitationService:
         player = await self._player_repo.get_by_telegram_id(player_telegram_id)
         if not player or player.id != inv.player_id:
             return None, "inv_not_yours", None
+
+        await self._lifecycle.expire_if_stale(inv.game_id)
+        game = await self._game_repo.get_by_id(inv.game_id)
+        if game and game.status == GameStatus.EXPIRED:
+            return None, "inv_game_expired", None
+
         if inv.status != InvitationStatus.PENDING:
             return inv, "inv_already_responded", None
 

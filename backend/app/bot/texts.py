@@ -221,6 +221,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_already_responded": "You have already responded to this invitation.",
         "inv_not_found": "Invitation not found.",
         "inv_not_yours": "This invitation is not for you.",
+        "inv_game_expired": "⚠️ This match has already expired and can no longer be joined.",
         "inv_duplicate": "Already invited.",
         "inv_delivery_failed": "⚠ Unfortunately, we couldn't send the invitation to this player.",
         # Game full notification (sent to organizer)
@@ -482,6 +483,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_already_responded": "Ви вже відповіли на це запрошення.",
         "inv_not_found": "Запрошення не знайдено.",
         "inv_not_yours": "Це запрошення не для вас.",
+        "inv_game_expired": "⚠️ Цей матч вже завершився і більше не приймає учасників.",
         "inv_duplicate": "Вже запрошено.",
         "inv_delivery_failed": "⚠ На жаль, ми не змогли надіслати запрошення цьому гравцю.",
         # Game full notification (sent to organizer)
@@ -743,6 +745,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "inv_already_responded": "Вы уже ответили на это приглашение.",
         "inv_not_found": "Приглашение не найдено.",
         "inv_not_yours": "Это приглашение не для вас.",
+        "inv_game_expired": "⚠️ Этот матч уже завершился и больше не принимает участников.",
         "inv_duplicate": "Уже приглашён.",
         "inv_delivery_failed": "⚠ К сожалению, нам не удалось отправить приглашение этому игроку.",
         # Game full notification (sent to organizer)

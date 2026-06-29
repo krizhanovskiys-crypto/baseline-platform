@@ -1,5 +1,6 @@
 """Match lifecycle service — the sole authority over game status transitions."""
 import logging
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,14 +16,22 @@ _VALID_TRANSITIONS: dict[GameStatus, frozenset[GameStatus]] = {
     GameStatus.DRAFT:            frozenset({GameStatus.OPEN, GameStatus.CANCELLED}),
     GameStatus.OPEN:             frozenset({GameStatus.PARTIALLY_FILLED, GameStatus.CANCELLED, GameStatus.EXPIRED}),
     GameStatus.PARTIALLY_FILLED: frozenset({GameStatus.FULL, GameStatus.OPEN, GameStatus.CANCELLED, GameStatus.EXPIRED}),
-    GameStatus.FULL:             frozenset({GameStatus.CONFIRMED, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED}),
-    GameStatus.CONFIRMED:        frozenset({GameStatus.IN_PROGRESS, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED}),
+    GameStatus.FULL:             frozenset({GameStatus.CONFIRMED, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED, GameStatus.EXPIRED}),
+    GameStatus.CONFIRMED:        frozenset({GameStatus.IN_PROGRESS, GameStatus.PARTIALLY_FILLED, GameStatus.OPEN, GameStatus.CANCELLED, GameStatus.EXPIRED}),
     GameStatus.IN_PROGRESS:      frozenset({GameStatus.COMPLETED}),
     # Terminal states — no outgoing transitions.
     GameStatus.COMPLETED:        frozenset(),
     GameStatus.CANCELLED:        frozenset(),
     GameStatus.EXPIRED:          frozenset(),
 }
+
+# Statuses eligible for lazy expiration — all pre-start statuses.
+_EXPIRABLE: frozenset[GameStatus] = frozenset({
+    GameStatus.OPEN,
+    GameStatus.PARTIALLY_FILLED,
+    GameStatus.FULL,
+    GameStatus.CONFIRMED,
+})
 
 
 def _game_to_schema(game) -> GameRead:
@@ -76,3 +85,20 @@ class MatchLifecycleService:
         updated = await self._repo.update_status(game_id, new_status)
         logger.info("Game %s transitioned %s → %s", game_id, current.value, new_status.value)
         return _game_to_schema(updated)
+
+    async def expire_if_stale(self, game_id: int) -> bool:
+        """Expire a single game if its scheduled datetime has passed and it is pre-start.
+
+        Returns True if the game was transitioned to EXPIRED, False otherwise.
+        Called at the beginning of any service method that reads match state.
+        """
+        game = await self._repo.get_by_id(game_id)
+        if not game or game.status not in _EXPIRABLE:
+            return False
+        if datetime.combine(game.date, game.time) >= datetime.now():
+            return False
+        try:
+            await self.transition(game_id, GameStatus.EXPIRED)
+            return True
+        except InvalidTransitionError:
+            return False

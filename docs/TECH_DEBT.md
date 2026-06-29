@@ -147,6 +147,29 @@ If the issue reappears, reproduce with the following instrumentation in place be
 
 ---
 
+## TECH-008
+
+**Title:** Optimize lazy expiration for large datasets
+
+**Problem:**
+`GameService.get_my_upcoming_matches()` calls `_expire_stale()` with no `game_id`, which queries all pre-start matches (OPEN, PARTIALLY_FILLED, FULL, CONFIRMED) and checks each one individually. As the match table grows this becomes a full table scan on every My Matches request.
+
+**Impact:**
+Acceptable at MVP scale. Will become a latency problem once the number of concurrent open matches is large.
+
+**Priority:** Low
+
+**Suggested solution:**
+Replace the global sweep in `get_my_upcoming_matches()` with one of:
+- A targeted query that adds a `date < today OR (date = today AND time < now)` filter directly in `get_expirable_matches()` to limit returned rows to genuinely stale games.
+- A background job (APScheduler, Celery beat) that runs the expiry sweep on a fixed interval (e.g. every 15 minutes), removing the per-request overhead entirely.
+
+The `expire_if_stale()` method on `MatchLifecycleService` remains the single transition point regardless of which approach is chosen.
+
+**Status:** Open
+
+---
+
 *Items without a source `TODO`/`FIXME` annotation are tracked here only. Items with a source annotation are listed under both the code comment and this register.*
 
 ---

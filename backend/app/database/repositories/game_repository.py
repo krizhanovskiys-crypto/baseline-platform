@@ -31,6 +31,23 @@ class GameRepository(BaseRepository[Game]):
         await self._session.flush()
         return await self.get_by_id(game_id)
 
+    async def get_expirable_matches(self) -> list[Game]:
+        """Return all games currently in a pre-start status.
+
+        The caller (MatchLifecycleService.expire_if_stale) applies the datetime
+        filter in Python so no SQLite datetime arithmetic is needed here.
+        """
+        stmt = select(Game).where(
+            Game.status.in_([
+                GameStatus.OPEN,
+                GameStatus.PARTIALLY_FILLED,
+                GameStatus.FULL,
+                GameStatus.CONFIRMED,
+            ])
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_upcoming_matches_for_player(self, player_id: int) -> list[Game]:
         """Return upcoming games where the player has committed participation (ACCEPTED or CONFIRMED).
 
