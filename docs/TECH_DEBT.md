@@ -124,6 +124,29 @@ Replace the read-check-write with a single conditional `UPDATE games SET status 
 
 ---
 
+## TECH-007
+
+**Title:** Investigate intermittent Cancel Match issue on newly created OPEN doubles matches
+
+**Problem:**
+During manual testing, pressing "Cancel Match" on a freshly created OPEN doubles match (organizer only, 1/4 players) produced the error "This match cannot be cancelled." The issue was observed once and is not currently reproducible. Service layer (`GameService.cancel_match`), lifecycle transitions (`OPEN → CANCELLED` is valid), and all 169 automated tests pass. Runtime debug logging was added but the repro attempt did not yield log output before the investigation was paused.
+
+**Impact:**
+Low — organizer cannot cancel a match. Workaround: none identified. Frequency: not confirmed; single observation.
+
+**Priority:** Low
+
+**Suggested solution:**
+If the issue reappears, reproduce with the following instrumentation in place before making any code changes:
+1. Add `logger.warning("[CANCEL_DEBUG] game_id=%s status=%s", game_id, game.status.value)` at `game_service.py` before `MatchLifecycleService.transition()`.
+2. Add `logger.warning("[LC_DEBUG] current=%r allowed=%s", current, [s.value for s in allowed])` at `match_lifecycle_service.py:70`.
+3. Confirm which handler fires: `match_cancel_handler` (`match:cancel:{id}`) in `my_matches.py` or `cancel_match` (`cancel_match:{id}`) in `confirm_match.py`.
+4. Check `game.status` raw DB value via `sqlite3 baseline.db "SELECT id, status FROM game WHERE id = <id>"`.
+
+**Status:** Investigate — observed once, not reproducible, no code changes until confirmed
+
+---
+
 *Items without a source `TODO`/`FIXME` annotation are tracked here only. Items with a source annotation are listed under both the code comment and this register.*
 
 ---
