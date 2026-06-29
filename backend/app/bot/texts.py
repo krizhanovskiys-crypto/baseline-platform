@@ -45,7 +45,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📖 Level Source: {level_source}\n"
             "📍 Area: {area}\n"
             "🎾 Courts: {courts}\n"
-            "📅 Matches: {matches}"
+            "📊 Matches: {matches}"
         ),
         "level_source_self_rated": "Self Rated",
         "level_source_coach_verified": "Coach Verified",
@@ -240,7 +240,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
-        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень: {level}\n📖 Джерело рівня: {level_source}\n📍 Район: {area}\n🎾 Корти: {courts}\n📅 Матчів: {matches}",
+        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень: {level}\n📖 Джерело рівня: {level_source}\n📍 Район: {area}\n🎾 Корти: {courts}\n📊 Матчів: {matches}",
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
@@ -432,7 +432,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
-        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень: {level}\n📖 Источник уровня: {level_source}\n📍 Район: {area}\n🎾 Корты: {courts}\n📅 Матчей: {matches}",
+        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень: {level}\n📖 Источник уровня: {level_source}\n📍 Район: {area}\n🎾 Корты: {courts}\n📊 Матчей: {matches}",
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",

@@ -151,7 +151,7 @@ One meaning per emoji — never reuse an emoji across different semantic roles.
 | 📋 | List | My matches, invited players list, game count in stats |
 | ➡️ | Forward | Next button (always with variation selector) |
 | ⬅️ | Back | Previous / back buttons |
-| 📅 | Date / activity | All dates; also matches-played count in profile |
+| 📅 | Date | All dates |
 | 🕒 | Time | All times |
 | 📍 | Location | Courts, areas |
 | ✅ | Success / done | Confirmations, "Done" button, positive outcomes |
@@ -167,7 +167,7 @@ One meaning per emoji — never reuse an emoji across different semantic roles.
 | 🏟 | Court venue | Court selection |
 | ✏️ | Edit | Edit profile, change level |
 | 🏆 | Verified | Coach-verified level badge |
-| 📊 | Statistics | Developer stats header only |
+| 📊 | Statistics | Developer stats header; matches-played count in profile |
 
 Never add catch-all or generic fallback handlers. Unknown messages must remain unhandled during development — silence exposes routing bugs; a catch-all hides them. If a message is not reaching the right handler, fix the router registration or state filter, not the symptom.
 
