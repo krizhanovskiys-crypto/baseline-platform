@@ -133,6 +133,40 @@ Tests hit a real in-memory SQLite database — no mocking of the DB layer. Each 
 
 Prefer simple, conversational wording.
 
+### Emoji System
+
+One meaning per emoji — never reuse an emoji across different semantic roles.
+
+| Emoji | Meaning | Use |
+|-------|---------|-----|
+| 🎾 | Tennis data | Skill level labels, match type (Singles/Doubles), NTRP values |
+| 🏠 | Home / menu | Main menu header and all "back to menu" buttons |
+| 🔍 | Search | Finding partners, finding players for a match |
+| 👥 | Group / players | Player counts, roster, "we found N players" |
+| 📨 | Invitation | Invitation received header |
+| 🎉 | Milestone | Match full, match confirmed — celebratory events |
+| 😔 | Empty state | No results found (partners, players) |
+| 📋 | List | My matches, invited players list, game count in stats |
+| ➡️ | Forward | Next button (always with variation selector) |
+| ⬅️ | Back | Previous / back buttons |
+| 📅 | Date | All dates |
+| 🕒 | Time | All times |
+| 📍 | Location | Courts, areas |
+| ✅ | Success / done | Confirmations, "Done" button, positive outcomes |
+| ❌ | Cancel / decline | Cancel actions, decline buttons, error messages |
+| ⚠️ | Warning | Incomplete profile, generic errors |
+| 🔥 | Urgency | Available Now feature |
+| 👤 | Profile | Single player / personal profile |
+| 💬 | Contact | Contact a player |
+| ✉️ | Sent | Invite sent confirmation |
+| 📨 | Invite action | Send invitation button (also invitation received header) |
+| 🌍 | Language | Language selection |
+| ⚙️ | Settings | Settings menu |
+| 🏟 | Court venue | Court selection |
+| ✏️ | Edit | Edit profile, change level |
+| 🏆 | Verified | Coach-verified level badge |
+| 📊 | Statistics | Developer stats header only |
+
 Never add catch-all or generic fallback handlers. Unknown messages must remain unhandled during development — silence exposes routing bugs; a catch-all hides them. If a message is not reaching the right handler, fix the router registration or state filter, not the symptom.
 
 Telegram `ReplyKeyboardMarkup` caching is not a routing bug. The keyboard refreshes when the bot sends a new one (e.g. via `/start` or Main Menu). Refresh it through explicit UX flows, never through a fallback handler.
