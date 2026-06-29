@@ -34,7 +34,18 @@ _TEXTS: dict[str, dict[str, str]] = {
             "{status}"
         ),
         "my_matches_btn_open": "Open Match",
-        "match_details_placeholder": "Match details coming soon.",
+        "match_details_card": (
+            "📋 *Match Details*\n\n"
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Level {level}\n"
+            "{status}\n\n"
+            "👤 Organizer: {organizer}\n\n"
+            "👥 Players ({count}/{total}):\n{players}"
+        ),
+        "match_details_btn_back": "⬅️ My Matches",
+        "match_not_found": "⚠️ Match not found.",
         "status_open": "Looking for players",
         "status_partially_filled": "Filling up",
         "status_full": "Full",
@@ -259,7 +270,18 @@ _TEXTS: dict[str, dict[str, str]] = {
             "{status}"
         ),
         "my_matches_btn_open": "Відкрити матч",
-        "match_details_placeholder": "Деталі матчу незабаром.",
+        "match_details_card": (
+            "📋 *Деталі матчу*\n\n"
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Рівень {level}\n"
+            "{status}\n\n"
+            "👤 Організатор: {organizer}\n\n"
+            "👥 Гравці ({count}/{total}):\n{players}"
+        ),
+        "match_details_btn_back": "⬅️ Мої матчі",
+        "match_not_found": "⚠️ Матч не знайдено.",
         "status_open": "Шукаємо гравців",
         "status_partially_filled": "Набираємо команду",
         "status_full": "Команда зібрана",
@@ -471,7 +493,18 @@ _TEXTS: dict[str, dict[str, str]] = {
             "{status}"
         ),
         "my_matches_btn_open": "Открыть матч",
-        "match_details_placeholder": "Детали матча скоро появятся.",
+        "match_details_card": (
+            "📋 *Детали матча*\n\n"
+            "{match_type}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {court}\n"
+            "🎾 Уровень {level}\n"
+            "{status}\n\n"
+            "👤 Организатор: {organizer}\n\n"
+            "👥 Игроки ({count}/{total}):\n{players}"
+        ),
+        "match_details_btn_back": "⬅️ Мои матчи",
+        "match_not_found": "⚠️ Матч не найден.",
         "status_open": "Набираем игроков",
         "status_partially_filled": "Набираем команду",
         "status_full": "Команда собрана",

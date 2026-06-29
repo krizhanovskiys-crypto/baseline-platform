@@ -33,3 +33,20 @@ class GameRead(BaseModel):
     status: GameStatus
     created_at: datetime
     required_players: int
+
+
+class PlayerSummary(BaseModel):
+    """Minimal player identity needed for match display and future extensions."""
+
+    name: str
+    telegram_id: int
+    is_organizer: bool
+
+
+class MatchDetails(BaseModel):
+    """Assembled view of a match for display — not tied to ORM structure."""
+
+    game: GameRead
+    organizer_name: str      # convenience: name of the player where is_organizer=True
+    players: list[PlayerSummary]
+    committed_count: int

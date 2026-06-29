@@ -294,3 +294,12 @@ def my_match_card_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("my_matches_btn_open", lang), callback_data=f"match:open:{game_id}")
     return builder.as_markup()
+
+
+def match_details_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Keyboard shown under the Match Details card."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1)
+    return builder.as_markup()

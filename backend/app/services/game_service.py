@@ -7,7 +7,7 @@ from backend.app.core.exceptions import InvalidTransitionError
 from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
-from backend.app.schemas.game import GameCreate, GameRead
+from backend.app.schemas.game import GameCreate, GameRead, MatchDetails, PlayerSummary
 from backend.app.schemas.player import PlayerRead
 from backend.app.services.player_service import _player_to_schema as _player_to_read
 
@@ -102,6 +102,32 @@ class GameService:
             exclude_player_ids=exclude_ids,
         )
         return [_player_to_read(p) for p in candidates]
+
+    async def get_match_details(self, game_id: int) -> MatchDetails | None:
+        """Return assembled match details for rendering. None if the game does not exist.
+
+        The organizer is always present in committed players (joined with CONFIRMED status
+        on game creation), so organizer_name is derived from the player list — no extra query.
+        """
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return None
+        committed = await self._gp_repo.get_committed_players(game.id)
+        players = [
+            PlayerSummary(
+                name=p.first_name,
+                telegram_id=p.telegram_id,
+                is_organizer=(p.id == game.creator_id),
+            )
+            for p in committed
+        ]
+        organizer_name = next((p.name for p in players if p.is_organizer), "—")
+        return MatchDetails(
+            game=_game_to_schema(game),
+            organizer_name=organizer_name,
+            players=players,
+            committed_count=len(players),
+        )
 
     async def get_my_upcoming_matches(
         self, telegram_id: int
