@@ -16,7 +16,7 @@ from backend.app.services.player_service import PlayerService
 logger = logging.getLogger(__name__)
 router = Router(name="my_matches")
 
-_TRIGGER_TEXTS = {"📅 My Matches", "📅 Мої матчі", "📅 Мои матчи"}
+_TRIGGER_TEXTS = {"📋 My Matches", "📋 Мої матчі", "📋 Мои матчи"}
 
 _STATUS_KEYS: dict[GameStatus, str] = {
     GameStatus.OPEN: "status_open",

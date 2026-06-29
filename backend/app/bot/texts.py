@@ -17,11 +17,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Main Menu*\nWhat would you like to do?",
         "btn_find_partner": "🔍 Find Partner",
         "btn_available_now": "🔥 Available Now",
-        "btn_my_matches": "📅 My Matches",
+        "btn_my_matches": "📋 My Matches",
         "btn_my_profile": "👤 My Profile",
         "btn_settings": "⚙️ Settings",
         # My Matches
-        "my_matches_header": "📅 *My Matches*",
+        "my_matches_header": "📋 *My Matches*",
         "my_matches_empty": (
             "😔 You have no upcoming matches yet.\n\n"
             "Organize a match or accept an invitation to see it here."
@@ -47,7 +47,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
         ),
         "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}",
-        "btn_invite": "✉️ Invite",
+        "btn_invite": "📨 Invite",
         "btn_view_profile": "👀 View Profile",
         "invite_sent": "✉️ Invitation sent to {name}!",
         "btn_cancel": "❌ Cancel",
@@ -149,7 +149,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_found": "👥 We found *{total}* suitable players",
         "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
         "fpm_not_found": (
-            "👥 We couldn't find suitable players right now.\n\n"
+            "😔 We couldn't find suitable players right now.\n\n"
             "The Baseline community is growing — new players will appear soon."
         ),
         "fpm_btn_select": "📨 Invite",
@@ -242,11 +242,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Головне меню*\nЩо ви хочете зробити?",
         "btn_find_partner": "🔍 Знайти партнера",
         "btn_available_now": "🔥 Доступний зараз",
-        "btn_my_matches": "📅 Мої матчі",
+        "btn_my_matches": "📋 Мої матчі",
         "btn_my_profile": "👤 Мій профіль",
         "btn_settings": "⚙️ Налаштування",
         # My Matches
-        "my_matches_header": "📅 *Мої матчі*",
+        "my_matches_header": "📋 *Мої матчі*",
         "my_matches_empty": (
             "😔 Поки що у вас немає майбутніх матчів.\n\n"
             "Організуйте матч або прийміть запрошення, щоб побачити його тут."
@@ -271,7 +271,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
         ),
         "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}",
-        "btn_invite": "✉️ Запросити",
+        "btn_invite": "📨 Запросити",
         "btn_view_profile": "👀 Профіль",
         "invite_sent": "✉️ Запрошення надіслано {name}!",
         "btn_cancel": "❌ Скасувати",
@@ -361,7 +361,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_found": "👥 Ми знайшли *{total}* гравців для вашого матчу",
         "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
         "fpm_not_found": (
-            "👥 Наразі ми не знайшли підходящих гравців.\n\n"
+            "😔 Наразі ми не знайшли підходящих гравців.\n\n"
             "Спільнота Baseline постійно зростає — нові гравці з'являться незабаром."
         ),
         "fpm_btn_select": "📨 Запросити",
@@ -454,11 +454,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "main_menu": "🏠 *Главное меню*\nЧто вы хотите сделать?",
         "btn_find_partner": "🔍 Найти партнёра",
         "btn_available_now": "🔥 Доступен сейчас",
-        "btn_my_matches": "📅 Мои матчи",
+        "btn_my_matches": "📋 Мои матчи",
         "btn_my_profile": "👤 Мой профиль",
         "btn_settings": "⚙️ Настройки",
         # My Matches
-        "my_matches_header": "📅 *Мои матчи*",
+        "my_matches_header": "📋 *Мои матчи*",
         "my_matches_empty": (
             "😔 У вас пока нет предстоящих матчей.\n\n"
             "Организуйте матч или примите приглашение, чтобы увидеть его здесь."
@@ -483,7 +483,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
         ),
         "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}",
-        "btn_invite": "✉️ Пригласить",
+        "btn_invite": "📨 Пригласить",
         "btn_view_profile": "👀 Профиль",
         "invite_sent": "✉️ Приглашение отправлено {name}!",
         "btn_cancel": "❌ Отмена",
@@ -573,7 +573,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "fpm_found": "👥 Мы нашли *{total}* игроков для вашего матча",
         "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
         "fpm_not_found": (
-            "👥 Сейчас мы не нашли подходящих игроков.\n\n"
+            "😔 Сейчас мы не нашли подходящих игроков.\n\n"
             "Сообщество Baseline постоянно растёт — новые игроки появятся совсем скоро."
         ),
         "fpm_btn_select": "📨 Пригласить",
