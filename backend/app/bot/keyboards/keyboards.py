@@ -296,10 +296,23 @@ def my_match_card_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def match_details_keyboard(lang: str) -> InlineKeyboardMarkup:
-    """Keyboard shown under the Match Details card."""
+def match_details_keyboard(lang: str, role: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown under the Match Details card. Role: 'organizer', 'participant', 'other'."""
     builder = InlineKeyboardBuilder()
-    builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
-    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
-    builder.adjust(1)
+    if role == "organizer":
+        builder.button(text=t("match_details_btn_add_player", lang), callback_data=f"fpm:start:{game_id}")
+        builder.button(text=t("match_details_btn_cancel_match", lang), callback_data=f"match:cancel:{game_id}")
+        builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+        builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+        builder.adjust(1, 1, 2)
+    elif role == "participant":
+        builder.button(text=t("match_details_btn_leave_match", lang), callback_data=f"match:leave:{game_id}")
+        builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+        builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+        builder.adjust(1, 2)
+    else:
+        builder.button(text=t("match_details_btn_join_match", lang), callback_data=f"match:join:{game_id}")
+        builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+        builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+        builder.adjust(1, 2)
     return builder.as_markup()

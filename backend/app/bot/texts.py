@@ -9,7 +9,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "welcome_new": "👋 Welcome to *Baseline* — the tennis matchmaking platform!\n\nLet's set up your profile.",
         "welcome_back": "👋 Welcome back, *{name}*!",
         "choose_language": "🌍 Choose your language:",
-        "choose_level": "🎾 Choose your skill level (NTRP):",
+        "choose_level": "📊 Choose your skill level (NTRP):",
         "choose_area": "📍 Choose your home area:",
         "choose_courts": "🏟 Select your preferred courts (tap to toggle, then tap ✅ Done):",
         "profile_complete": "✅ Profile complete! Welcome to Baseline.",
@@ -38,18 +38,32 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 *Match Details*\n\n"
             "{match_type}\n"
             "📅 {date} • 🕒 {time}\n"
-            "📍 {court}\n"
-            "🎾 Level {level}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "📊 Level {level}\n"
             "{status}\n\n"
-            "👤 Organizer: {organizer}\n\n"
-            "👥 Players ({count}/{total}):\n{players}"
+            "👑 Host\n{organizer}\n\n"
+            "👥 Players ({count}/{total}):\n{players}\n\n"
+            "{slots_line}"
         ),
         "match_details_btn_back": "⬅️ My Matches",
+        "match_details_btn_add_player": "➕ Add Player",
+        "match_details_btn_cancel_match": "❌ Cancel Match",
+        "match_details_btn_leave_match": "Leave Match",
+        "match_details_btn_join_match": "Join Match",
+        "match_details_1_player_needed": "➕ 1 player needed",
+        "match_details_players_needed": "➕ {n} players needed",
+        "feature_not_yet": "⚠️ Coming soon.",
         "match_not_found": "⚠️ Match not found.",
         "status_open": "Looking for players",
         "status_partially_filled": "Filling up",
         "status_full": "Full",
         "status_confirmed": "Confirmed ✅",
+        "status_badge_open": "🟢 Looking for players",
+        "status_badge_partially_filled": "🟡 Filling up",
+        "status_badge_full": "🔵 Full",
+        "status_badge_confirmed": "🔵 Confirmed",
+        "status_badge_cancelled": "🔴 Cancelled",
+        "status_badge_expired": "🔴 Expired",
         # Find partner
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
         "no_partners": (
@@ -86,7 +100,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "settings_header": "⚙️ *Settings* — what would you like to change?",
         "btn_change_language": "🌍 Language",
         "btn_change_area": "📍 Area",
-        "btn_change_level": "🎾 Level",
+        "btn_change_level": "📊 Level",
         "btn_change_courts": "🏟 Courts",
         "settings_saved": "✅ Settings updated!",
         # Misc
@@ -96,7 +110,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "🎾 NTRP {level}\n"
+            "📊 NTRP {level}\n"
             "{level_source_line}\n\n"
             "📍 {area}\n\n"
             "🏟 {courts}"
@@ -127,7 +141,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_choose_court": "📍 *Choose court*",
         "om_btn_other_court": "➕ Other Court",
         "om_enter_court": "Enter court name or address:",
-        "om_choose_level": "🎾 *Skill Level*\n\nYour profile level: NTRP *{level}*",
+        "om_choose_level": "📊 *Skill Level*\n\nYour profile level: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Use my level (NTRP {level})",
         "om_btn_change_level": "✏️ Change level",
         "om_choose_players": "👥 *Number of players*",
@@ -138,7 +152,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Level {level}\n"
+            "📊 Level {level}\n"
             "{match_type}\n"
             "👥 {players} players\n\n"
             "Create match?"
@@ -149,7 +163,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Level {level}\n"
+            "📊 Level {level}\n"
             "{match_type}\n"
             "👥 1/{players} players"
         ),
@@ -158,7 +172,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Your Matches:*",
         # Find Players for Match
         "fpm_found": "👥 We found *{total}* suitable players",
-        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_not_found": (
             "😔 We couldn't find suitable players right now.\n\n"
             "The Baseline community is growing — new players will appear soon."
@@ -178,7 +192,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Level {level}\n"
+            "📊 Level {level}\n"
             "👤 {organizer}"
         ),
         "inv_btn_accept": "✅ Accept",
@@ -247,7 +261,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
         "welcome_back": "👋 Ласкаво просимо, *{name}*!",
         "choose_language": "🌍 Оберіть мову:",
-        "choose_level": "🎾 Оберіть ваш рівень (NTRP):",
+        "choose_level": "📊 Оберіть ваш рівень (NTRP):",
         "choose_area": "📍 Оберіть домашній район:",
         "choose_courts": "🏟 Оберіть улюблені корти (натисніть для вибору, потім ✅ Готово):",
         "profile_complete": "✅ Профіль заповнено! Ласкаво просимо до Baseline.",
@@ -275,18 +289,32 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 *Деталі матчу*\n\n"
             "{match_type}\n"
             "📅 {date} • 🕒 {time}\n"
-            "📍 {court}\n"
-            "🎾 Рівень {level}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "📊 Рівень {level}\n"
             "{status}\n\n"
-            "👤 Організатор: {organizer}\n\n"
-            "👥 Гравці ({count}/{total}):\n{players}"
+            "👑 Господар\n{organizer}\n\n"
+            "👥 Гравці ({count}/{total}):\n{players}\n\n"
+            "{slots_line}"
         ),
         "match_details_btn_back": "⬅️ Мої матчі",
+        "match_details_btn_add_player": "➕ Додати гравця",
+        "match_details_btn_cancel_match": "❌ Скасувати матч",
+        "match_details_btn_leave_match": "Покинути матч",
+        "match_details_btn_join_match": "Приєднатися",
+        "match_details_1_player_needed": "➕ Потрібен 1 гравець",
+        "match_details_players_needed": "➕ Потрібно {n} гравців",
+        "feature_not_yet": "⚠️ Незабаром.",
         "match_not_found": "⚠️ Матч не знайдено.",
         "status_open": "Шукаємо гравців",
         "status_partially_filled": "Набираємо команду",
         "status_full": "Команда зібрана",
         "status_confirmed": "Підтверджено ✅",
+        "status_badge_open": "🟢 Шукаємо гравців",
+        "status_badge_partially_filled": "🟡 Набираємо команду",
+        "status_badge_full": "🔵 Команда зібрана",
+        "status_badge_confirmed": "🔵 Підтверджено",
+        "status_badge_cancelled": "🔴 Скасовано",
+        "status_badge_expired": "🔴 Завершено",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
         "no_partners": (
             "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
@@ -311,7 +339,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "settings_header": "⚙️ *Налаштування* — що змінити?",
         "btn_change_language": "🌍 Мова",
         "btn_change_area": "📍 Район",
-        "btn_change_level": "🎾 Рівень",
+        "btn_change_level": "📊 Рівень",
         "btn_change_courts": "🏟 Корти",
         "settings_saved": "✅ Налаштування збережено!",
         "cancelled": "❌ Скасовано.",
@@ -320,7 +348,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "🎾 NTRP {level}\n"
+            "📊 NTRP {level}\n"
             "{level_source_line}\n\n"
             "📍 {area}\n\n"
             "🏟 {courts}"
@@ -351,7 +379,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_choose_court": "📍 *Оберіть корт*",
         "om_btn_other_court": "➕ Інший корт",
         "om_enter_court": "Введіть назву або адресу корту:",
-        "om_choose_level": "🎾 *Рівень гри*\n\nВаш рівень: NTRP *{level}*",
+        "om_choose_level": "📊 *Рівень гри*\n\nВаш рівень: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Мій рівень (NTRP {level})",
         "om_btn_change_level": "✏️ Змінити рівень",
         "om_choose_players": "👥 *Кількість гравців*",
@@ -362,7 +390,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Рівень {level}\n"
+            "📊 Рівень {level}\n"
             "{match_type}\n"
             "👥 {players} гравців\n\n"
             "Створити матч?"
@@ -373,7 +401,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Рівень {level}\n"
+            "📊 Рівень {level}\n"
             "{match_type}\n"
             "👥 1/{players} гравців"
         ),
@@ -382,7 +410,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Ваші матчі:*",
         # Find Players for Match
         "fpm_found": "👥 Ми знайшли *{total}* гравців для вашого матчу",
-        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_not_found": (
             "😔 Наразі ми не знайшли підходящих гравців.\n\n"
             "Спільнота Baseline постійно зростає — нові гравці з'являться незабаром."
@@ -402,7 +430,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Рівень {level}\n"
+            "📊 Рівень {level}\n"
             "👤 {organizer}"
         ),
         "inv_btn_accept": "✅ Прийняти",
@@ -471,7 +499,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
         "welcome_back": "👋 С возвращением, *{name}*!",
         "choose_language": "🌍 Выберите язык:",
-        "choose_level": "🎾 Выберите ваш уровень (NTRP):",
+        "choose_level": "📊 Выберите ваш уровень (NTRP):",
         "choose_area": "📍 Выберите домашний район:",
         "choose_courts": "🏟 Выберите предпочитаемые корты (нажмите для выбора, затем ✅ Готово):",
         "profile_complete": "✅ Профиль заполнен! Добро пожаловать в Baseline.",
@@ -499,18 +527,32 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 *Детали матча*\n\n"
             "{match_type}\n"
             "📅 {date} • 🕒 {time}\n"
-            "📍 {court}\n"
-            "🎾 Уровень {level}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "📊 Уровень {level}\n"
             "{status}\n\n"
-            "👤 Организатор: {organizer}\n\n"
-            "👥 Игроки ({count}/{total}):\n{players}"
+            "👑 Хозяин\n{organizer}\n\n"
+            "👥 Игроки ({count}/{total}):\n{players}\n\n"
+            "{slots_line}"
         ),
         "match_details_btn_back": "⬅️ Мои матчи",
+        "match_details_btn_add_player": "➕ Добавить игрока",
+        "match_details_btn_cancel_match": "❌ Отменить матч",
+        "match_details_btn_leave_match": "Покинуть матч",
+        "match_details_btn_join_match": "Присоединиться",
+        "match_details_1_player_needed": "➕ Нужен 1 игрок",
+        "match_details_players_needed": "➕ Нужно {n} игроков",
+        "feature_not_yet": "⚠️ Скоро.",
         "match_not_found": "⚠️ Матч не найден.",
         "status_open": "Набираем игроков",
         "status_partially_filled": "Набираем команду",
         "status_full": "Команда собрана",
         "status_confirmed": "Подтверждено ✅",
+        "status_badge_open": "🟢 Набираем игроков",
+        "status_badge_partially_filled": "🟡 Набираем команду",
+        "status_badge_full": "🔵 Команда собрана",
+        "status_badge_confirmed": "🔵 Подтверждено",
+        "status_badge_cancelled": "🔴 Отменён",
+        "status_badge_expired": "🔴 Завершён",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
         "no_partners": (
             "😔 Пока мы не нашли для вас идеального партнёра.\n\n"
@@ -535,7 +577,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "settings_header": "⚙️ *Настройки* — что изменить?",
         "btn_change_language": "🌍 Язык",
         "btn_change_area": "📍 Район",
-        "btn_change_level": "🎾 Уровень",
+        "btn_change_level": "📊 Уровень",
         "btn_change_courts": "🏟 Корты",
         "settings_saved": "✅ Настройки сохранены!",
         "cancelled": "❌ Отменено.",
@@ -544,7 +586,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "🎾 NTRP {level}\n"
+            "📊 NTRP {level}\n"
             "{level_source_line}\n\n"
             "📍 {area}\n\n"
             "🏟 {courts}"
@@ -575,7 +617,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_choose_court": "📍 *Выберите корт*",
         "om_btn_other_court": "➕ Другой корт",
         "om_enter_court": "Введите название или адрес корта:",
-        "om_choose_level": "🎾 *Уровень игры*\n\nВаш уровень: NTRP *{level}*",
+        "om_choose_level": "📊 *Уровень игры*\n\nВаш уровень: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Мой уровень (NTRP {level})",
         "om_btn_change_level": "✏️ Изменить уровень",
         "om_choose_players": "👥 *Количество игроков*",
@@ -586,7 +628,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Уровень {level}\n"
+            "📊 Уровень {level}\n"
             "{match_type}\n"
             "👥 {players} игроков\n\n"
             "Создать матч?"
@@ -597,7 +639,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Уровень {level}\n"
+            "📊 Уровень {level}\n"
             "{match_type}\n"
             "👥 1/{players} игроков"
         ),
@@ -606,7 +648,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Ваши матчи:*",
         # Find Players for Match
         "fpm_found": "👥 Мы нашли *{total}* игроков для вашего матча",
-        "fpm_browse_card": "{name}\n🎾 {level}\n📍 {area}",
+        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_not_found": (
             "😔 Сейчас мы не нашли подходящих игроков.\n\n"
             "Сообщество Baseline постоянно растёт — новые игроки появятся совсем скоро."
@@ -626,7 +668,7 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📅 {date}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
-            "🎾 Уровень {level}\n"
+            "📊 Уровень {level}\n"
             "👤 {organizer}"
         ),
         "inv_btn_accept": "✅ Принять",
