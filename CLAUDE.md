@@ -139,7 +139,9 @@ One meaning per emoji — never reuse an emoji across different semantic roles.
 
 | Emoji | Meaning | Use |
 |-------|---------|-----|
-| 🎾 | Tennis data | Skill level labels, match type (Singles/Doubles), NTRP values |
+| 🎾 | Tennis data | Skill level labels, match type (Singles/Doubles), NTRP values, preferred courts |
+| ⭐ | Skill level value | Profile field — NTRP level display |
+| 📖 | Level source | Profile field — self-rated or coach-verified label |
 | 🏠 | Home / menu | Main menu header and all "back to menu" buttons |
 | 🔍 | Search | Finding partners, finding players for a match |
 | 👥 | Group / players | Player counts, roster, "we found N players" |
@@ -149,7 +151,7 @@ One meaning per emoji — never reuse an emoji across different semantic roles.
 | 📋 | List | My matches, invited players list, game count in stats |
 | ➡️ | Forward | Next button (always with variation selector) |
 | ⬅️ | Back | Previous / back buttons |
-| 📅 | Date | All dates |
+| 📅 | Date / activity | All dates; also matches-played count in profile |
 | 🕒 | Time | All times |
 | 📍 | Location | Courts, areas |
 | ✅ | Success / done | Confirmations, "Done" button, positive outcomes |
