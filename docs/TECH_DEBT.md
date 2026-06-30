@@ -170,6 +170,25 @@ The `expire_if_stale()` method on `MatchLifecycleService` remains the single tra
 
 ---
 
+## TECH-009
+
+**Title:** Duplicate lifecycle advancement after player joins
+
+**Problem:**
+`InvitationService.accept()` and `GameService.join_match()` both advance the match lifecycle after a player becomes committed (OPEN → PARTIALLY_FILLED → FULL). The logic is intentionally duplicated to preserve service boundaries — the only viable shared location (`MatchLifecycleService`) would require adding `GamePlayerRepository` to a class whose sole responsibility is validating and executing status transitions.
+
+**Impact:**
+Low. Logic is ~10 lines in each caller. A bug fix must be applied in two places.
+
+**Priority:** Low
+
+**Future trigger:**
+If a third workflow requires identical lifecycle advancement after a player joins a match, extract the shared logic into a dedicated helper while preserving the current separation of responsibilities.
+
+**Status:** Accepted technical debt
+
+---
+
 *Items without a source `TODO`/`FIXME` annotation are tracked here only. Items with a source annotation are listed under both the code comment and this register.*
 
 ---
