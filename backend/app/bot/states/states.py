@@ -39,6 +39,12 @@ class FindPlayersForMatchStates(StatesGroup):
     browsing = State()
 
 
+class AvailableMatchesStates(StatesGroup):
+    """Available-matches browsing flow. Stores current_page and filters in FSM data."""
+
+    browsing = State()
+
+
 class ConfirmMatchStates(StatesGroup):
     """Confirm-match wizard — collects optional organizer note before confirming."""
 

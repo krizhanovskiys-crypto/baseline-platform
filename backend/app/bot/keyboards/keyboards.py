@@ -20,10 +20,11 @@ def main_menu_keyboard(lang: str) -> ReplyKeyboardMarkup:
     builder.button(text=t("btn_find_partner", lang))
     builder.button(text=t("btn_organize_match", lang))
     builder.button(text=t("btn_available_now", lang))
+    builder.button(text=t("btn_available_matches", lang))
     builder.button(text=t("btn_my_matches", lang))
     builder.button(text=t("btn_my_profile", lang))
     builder.button(text=t("btn_settings", lang))
-    builder.adjust(2, 2, 2)
+    builder.adjust(2, 2, 2, 1)
     return builder.as_markup(resize_keyboard=True)
 
 
@@ -324,4 +325,74 @@ def match_details_keyboard(lang: str, role: str, game_id: int) -> InlineKeyboard
         builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
         builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
         builder.adjust(1, 2)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
+# Available Matches
+# ---------------------------------------------------------------------------
+
+def available_match_card_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown under each Available Matches card. Reuses the existing
+    Match Details entry point (match:open:{game_id})."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("available_matches_btn_view_details", lang), callback_data=f"match:open:{game_id}")
+    return builder.as_markup()
+
+
+def available_matches_nav_keyboard(
+    lang: str, page: int, has_prev: bool, has_next: bool
+) -> InlineKeyboardMarkup:
+    """Bottom keyboard for the Available Matches list: Filters / Previous / Next / Home."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("available_matches_btn_filters", lang), callback_data="available:filters")
+    row2 = 0
+    if has_prev:
+        builder.button(text=t("available_matches_btn_prev", lang), callback_data=f"available:page:{page - 1}")
+        row2 += 1
+    if has_next:
+        builder.button(text=t("available_matches_btn_next", lang), callback_data=f"available:page:{page + 1}")
+        row2 += 1
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    sizes = [1] + ([row2] if row2 else []) + [1]
+    builder.adjust(*sizes)
+    return builder.as_markup()
+
+
+def available_matches_filters_keyboard(lang: str, filters: dict[str, object]) -> InlineKeyboardMarkup:
+    """Filters screen keyboard: Area, Date, Level, Match Type, then Apply/Back.
+
+    `filters` carries the currently-selected values so callers can decide what
+    to mark as active; the keyboard itself always offers the full option set.
+    """
+    builder = InlineKeyboardBuilder()
+    for area in AREAS:
+        builder.button(text=area, callback_data=f"available:filter:area:{area}")
+    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:area:any")
+
+    builder.button(text=t("om_btn_today", lang), callback_data="available:filter:date:today")
+    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:date:any")
+
+    builder.button(text="±0.5", callback_data="available:filter:level:default")
+    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:level:any")
+
+    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:type:any")
+    builder.button(text=t("om_match_type_singles", lang), callback_data="available:filter:type:singles")
+    builder.button(text=t("om_match_type_doubles", lang), callback_data="available:filter:type:doubles")
+
+    builder.button(text=t("available_matches_btn_apply", lang), callback_data="available:filters:apply")
+    builder.button(text=t("fpm_btn_back", lang), callback_data="available:start")
+
+    n_area_buttons = len(AREAS) + 1
+    area_rows = [2] * (n_area_buttons // 2) + ([1] if n_area_buttons % 2 else [])
+    builder.adjust(*area_rows, 2, 2, 3, 1, 1)
+    return builder.as_markup()
+
+
+def join_confirmation_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard for the Join Confirmation screen: Join / Cancel."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("join_confirm_btn_join", lang), callback_data=f"available:confirm:{game_id}")
+    builder.button(text=t("join_confirm_btn_cancel", lang), callback_data=f"match:open:{game_id}")
+    builder.adjust(2)
     return builder.as_markup()

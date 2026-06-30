@@ -1,7 +1,9 @@
 """Game-specific database queries."""
-from sqlalchemy import and_, func, select, update
+from datetime import date as date_
 
-from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus
+from sqlalchemy import and_, case, func, select, update
+
+from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus, MatchType
 from backend.app.database.models.player import Player
 from backend.app.database.repositories.base import BaseRepository
 
@@ -74,6 +76,70 @@ class GameRepository(BaseRepository[Game]):
         )
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_available_matches(
+        self,
+        player_id: int,
+        home_area: str,
+        skill_level: float,
+        *,
+        area: str | None = None,
+        on_date: date_ | None = None,
+        match_type: MatchType | None = None,
+        level: float | None = None,
+        level_tolerance: float = 0.5,
+        page: int = 1,
+        page_size: int = 5,
+    ) -> tuple[list[Game], int]:
+        """Return joinable games for this player, filtered, sorted, and paginated.
+
+        Joinable = status OPEN or PARTIALLY_FILLED, not created by this player,
+        and this player has no ACCEPTED/CONFIRMED participation row already.
+
+        Sort priority: same area as home_area, today, earliest date, earliest
+        time, closest required_level to skill_level. Distance sorting is
+        reserved for a future release.
+
+        Returns (games_for_page, total_matching_count).
+        """
+        joined_subq = select(GamePlayer.game_id).where(
+            GamePlayer.player_id == player_id,
+            GamePlayer.status.in_([GamePlayerStatus.ACCEPTED, GamePlayerStatus.CONFIRMED]),
+        )
+        conditions = [
+            Game.status.in_([GameStatus.OPEN, GameStatus.PARTIALLY_FILLED]),
+            Game.creator_id != player_id,
+            Game.id.notin_(joined_subq),
+        ]
+        if area:
+            conditions.append(Game.area == area)
+        if on_date:
+            conditions.append(Game.date == on_date)
+        if match_type:
+            conditions.append(Game.match_type == match_type)
+        effective_level = func.coalesce(Game.required_level, 3.0)
+        if level is not None:
+            conditions.append(effective_level >= level - level_tolerance)
+            conditions.append(effective_level <= level + level_tolerance)
+
+        where_clause = and_(*conditions)
+
+        count_stmt = select(func.count()).select_from(Game).where(where_clause)
+        total = (await self._session.execute(count_stmt)).scalar_one()
+
+        same_area_rank = case((Game.area == home_area, 0), else_=1)
+        today_rank = case((Game.date == date_.today(), 0), else_=1)
+        level_diff = func.abs(effective_level - skill_level)
+
+        stmt = (
+            select(Game)
+            .where(where_clause)
+            .order_by(same_area_rank, today_rank, Game.date, Game.time, level_diff)
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all()), total
 
 
 class GamePlayerRepository(BaseRepository[GamePlayer]):

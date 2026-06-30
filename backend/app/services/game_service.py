@@ -1,10 +1,11 @@
 """Game service — business logic for game management."""
 import logging
+from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.exceptions import InvalidTransitionError
-from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus
+from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus, MatchType
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
 from backend.app.schemas.game import GameCreate, GameRead, MatchDetails, PlayerSummary
@@ -62,6 +63,117 @@ class GameService:
         """Return all open games, optionally filtered by area."""
         games = await self._game_repo.get_open_games(area=area)
         return [_game_to_schema(g) for g in games]
+
+    async def get_available_matches(
+        self,
+        player_telegram_id: int,
+        *,
+        area: str | None = None,
+        on_date: date | None = None,
+        match_type: MatchType | None = None,
+        apply_level_filter: bool = True,
+        page: int = 1,
+        page_size: int = 5,
+    ) -> tuple[list[tuple[GameRead, int]], int]:
+        """Return (game, committed_player_count) pairs the player can join, plus total count.
+
+        area/on_date/match_type are optional hard filters (None = no restriction).
+        apply_level_filter toggles the default skill_level ±0.5 NTRP filter.
+        Excludes games created by the player and games they already joined.
+        """
+        await self._expire_stale()
+        player = await self._player_repo.get_by_telegram_id(player_telegram_id)
+        if not player:
+            return [], 0
+
+        games, total = await self._game_repo.get_available_matches(
+            player_id=player.id,
+            home_area=player.home_area,
+            skill_level=player.skill_level,
+            area=area,
+            on_date=on_date,
+            match_type=match_type,
+            level=player.skill_level if apply_level_filter else None,
+            page=page,
+            page_size=page_size,
+        )
+        result = []
+        for game in games:
+            count = await self._gp_repo.count_committed_players(game.id)
+            result.append((_game_to_schema(game), count))
+        return result, total
+
+    async def join_match(
+        self, game_id: int, player_telegram_id: int
+    ) -> tuple[GameRead | None, str]:
+        """Join an OPEN/PARTIALLY_FILLED match as a committed participant.
+
+        Returns (updated_game, "") on success, (None, error_key) on failure.
+
+        Error keys:
+          match_not_found            — game or player does not exist
+          join_match_not_allowed     — game status does not allow joining
+          join_match_organizer       — organizer cannot join their own match
+          join_match_already_joined  — player already has a committed row
+          match_already_full         — race lost: another join filled the last slot first
+        """
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        _joinable = {GameStatus.OPEN, GameStatus.PARTIALLY_FILLED}
+
+        await self._expire_stale(game_id)
+        game = await self._game_repo.get_by_id(game_id)
+        if not game:
+            return None, "match_not_found"
+        if game.status not in _joinable:
+            return None, "join_match_not_allowed"
+
+        player = await self._player_repo.get_by_telegram_id(player_telegram_id)
+        if not player:
+            return None, "match_not_found"
+        if player.id == game.creator_id:
+            return None, "join_match_organizer"
+
+        existing = await self._gp_repo.get_participation(game_id, player.id)
+        if existing and existing.status in (GamePlayerStatus.ACCEPTED, GamePlayerStatus.CONFIRMED):
+            return None, "join_match_already_joined"
+
+        previous_status = existing.status if existing else None
+        if existing:
+            existing.status = GamePlayerStatus.ACCEPTED
+        else:
+            await self._gp_repo.add_player_to_game(game_id, player.id, GamePlayerStatus.ACCEPTED)
+
+        # Race-condition check: re-validate after the write. If this join pushed
+        # the match over capacity, another concurrent join got there first — undo.
+        committed = await self._gp_repo.count_committed_players(game_id)
+        if committed > game.required_players:
+            if previous_status is not None:
+                existing.status = previous_status
+            else:
+                await self._gp_repo.remove_player_from_game(game_id, player.id)
+            return None, "match_already_full"
+
+        # Sequential advancement, mirroring InvitationService._try_advance_lifecycle:
+        # OPEN -> PARTIALLY_FILLED first, then PARTIALLY_FILLED -> FULL if capacity is reached.
+        # A single join can cross both steps (e.g. singles filling on the first join).
+        lifecycle = MatchLifecycleService(self._session)
+        current_status = game.status
+        updated = _game_to_schema(game)
+        if current_status == GameStatus.OPEN:
+            try:
+                updated = await lifecycle.transition(game_id, GameStatus.PARTIALLY_FILLED)
+                current_status = GameStatus.PARTIALLY_FILLED
+            except InvalidTransitionError:
+                pass
+        if current_status == GameStatus.PARTIALLY_FILLED and committed >= game.required_players:
+            try:
+                updated = await lifecycle.transition(game_id, GameStatus.FULL)
+            except InvalidTransitionError:
+                pass
+
+        logger.info("Player telegram_id=%s joined game %s", player_telegram_id, game_id)
+        return updated, ""
 
     async def get_game(self, game_id: int) -> GameRead | None:
         game = await self._game_repo.get_by_id(game_id)

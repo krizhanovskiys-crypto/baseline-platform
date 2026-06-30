@@ -64,6 +64,46 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_confirmed": "🔵 Confirmed",
         "status_badge_cancelled": "🔴 Cancelled",
         "status_badge_expired": "🔴 Expired",
+        # Available Matches
+        "btn_available_matches": "🎾 Available Matches",
+        "available_matches_header": "🎾 *Available Matches*\n{count} matches found",
+        "available_matches_empty": (
+            "😔 No matches available right now.\n\n"
+            "Organize one yourself, or check back later."
+        ),
+        "available_matches_card": (
+            "{match_type}\n"
+            "📊 Level {level}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "available_matches_btn_view_details": "View Details",
+        "available_matches_btn_filters": "Filters",
+        "available_matches_btn_prev": "⬅️ Previous",
+        "available_matches_btn_next": "➡️ Next",
+        "available_matches_filters_header": "*Filters*",
+        "available_matches_filter_area": "📍 Area",
+        "available_matches_filter_date": "📅 Date",
+        "available_matches_filter_level": "⭐ Level",
+        "available_matches_filter_match_type": "🎾 Match Type",
+        "available_matches_filter_any": "Any",
+        "available_matches_btn_apply": "✅ Apply",
+        "available_matches_page_indicator": "Page {page}/{total_pages}",
+        "join_confirm_text": "Join this match?\n\nThe host will be notified.",
+        "join_confirm_btn_join": "✅ Join",
+        "join_confirm_btn_cancel": "❌ Cancel",
+        "join_success_text": (
+            "✅ Successfully joined.\n\n"
+            "The host has been notified.\n\n"
+            "You can find this match in My Matches."
+        ),
+        "join_match_notification": "👤 {name} joined your match.",
+        "join_match_not_allowed": "⚠️ This match can no longer be joined.",
+        "join_match_organizer": "⚠️ You can't join your own match.",
+        "join_match_already_joined": "⚠️ You already joined this match.",
+        "match_already_full": "😔 This match just became full.",
         # Find partner
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
         "no_partners": (
@@ -339,6 +379,46 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_confirmed": "🔵 Підтверджено",
         "status_badge_cancelled": "🔴 Скасовано",
         "status_badge_expired": "🔴 Завершено",
+        # Available Matches
+        "btn_available_matches": "🎾 Доступні матчі",
+        "available_matches_header": "🎾 *Доступні матчі*\n{count} матчів знайдено",
+        "available_matches_empty": (
+            "😔 Зараз немає доступних матчів.\n\n"
+            "Організуйте свій матч або перевірте пізніше."
+        ),
+        "available_matches_card": (
+            "{match_type}\n"
+            "📊 Рівень {level}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "available_matches_btn_view_details": "Детальніше",
+        "available_matches_btn_filters": "Фільтри",
+        "available_matches_btn_prev": "⬅️ Попередня",
+        "available_matches_btn_next": "➡️ Наступна",
+        "available_matches_filters_header": "*Фільтри*",
+        "available_matches_filter_area": "📍 Район",
+        "available_matches_filter_date": "📅 Дата",
+        "available_matches_filter_level": "⭐ Рівень",
+        "available_matches_filter_match_type": "🎾 Тип матчу",
+        "available_matches_filter_any": "Будь-який",
+        "available_matches_btn_apply": "✅ Застосувати",
+        "available_matches_page_indicator": "Сторінка {page}/{total_pages}",
+        "join_confirm_text": "Приєднатися до цього матчу?\n\nГосподаря буде повідомлено.",
+        "join_confirm_btn_join": "✅ Приєднатися",
+        "join_confirm_btn_cancel": "❌ Скасувати",
+        "join_success_text": (
+            "✅ Ви успішно приєдналися.\n\n"
+            "Господаря повідомлено.\n\n"
+            "Цей матч можна знайти в розділі «Мої матчі»."
+        ),
+        "join_match_notification": "👤 {name} приєднався(-лася) до вашого матчу.",
+        "join_match_not_allowed": "⚠️ До цього матчу більше не можна приєднатися.",
+        "join_match_organizer": "⚠️ Ви не можете приєднатися до власного матчу.",
+        "join_match_already_joined": "⚠️ Ви вже приєдналися до цього матчу.",
+        "match_already_full": "😔 Цей матч щойно заповнився.",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
         "no_partners": (
             "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
@@ -601,6 +681,46 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_confirmed": "🔵 Подтверждено",
         "status_badge_cancelled": "🔴 Отменён",
         "status_badge_expired": "🔴 Завершён",
+        # Available Matches
+        "btn_available_matches": "🎾 Доступные матчи",
+        "available_matches_header": "🎾 *Доступные матчи*\n{count} матчей найдено",
+        "available_matches_empty": (
+            "😔 Сейчас нет доступных матчей.\n\n"
+            "Организуйте свой матч или проверьте позже."
+        ),
+        "available_matches_card": (
+            "{match_type}\n"
+            "📊 Уровень {level}\n"
+            "📅 {date} • 🕒 {time}\n"
+            "📍 {area} • 🏟 {court}\n"
+            "👥 {players_joined}/{players_total}\n"
+            "{status}"
+        ),
+        "available_matches_btn_view_details": "Подробнее",
+        "available_matches_btn_filters": "Фильтры",
+        "available_matches_btn_prev": "⬅️ Предыдущая",
+        "available_matches_btn_next": "➡️ Следующая",
+        "available_matches_filters_header": "*Фильтры*",
+        "available_matches_filter_area": "📍 Район",
+        "available_matches_filter_date": "📅 Дата",
+        "available_matches_filter_level": "⭐ Уровень",
+        "available_matches_filter_match_type": "🎾 Тип матча",
+        "available_matches_filter_any": "Любой",
+        "available_matches_btn_apply": "✅ Применить",
+        "available_matches_page_indicator": "Страница {page}/{total_pages}",
+        "join_confirm_text": "Присоединиться к этому матчу?\n\nХозяин будет уведомлён.",
+        "join_confirm_btn_join": "✅ Присоединиться",
+        "join_confirm_btn_cancel": "❌ Отмена",
+        "join_success_text": (
+            "✅ Вы успешно присоединились.\n\n"
+            "Хозяин уведомлён.\n\n"
+            "Этот матч можно найти в разделе «Мои матчи»."
+        ),
+        "join_match_notification": "👤 {name} присоединился(-ась) к вашему матчу.",
+        "join_match_not_allowed": "⚠️ К этому матчу больше нельзя присоединиться.",
+        "join_match_organizer": "⚠️ Вы не можете присоединиться к собственному матчу.",
+        "join_match_already_joined": "⚠️ Вы уже присоединились к этому матчу.",
+        "match_already_full": "😔 Этот матч только что заполнился.",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
         "no_partners": (
             "😔 Пока мы не нашли для вас идеального партнёра.\n\n"

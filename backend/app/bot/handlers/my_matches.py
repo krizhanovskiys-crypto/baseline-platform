@@ -11,6 +11,7 @@ from aiogram.exceptions import TelegramAPIError
 
 from backend.app.bot.keyboards.keyboards import (
     back_to_menu_keyboard,
+    join_confirmation_keyboard,
     leave_match_done_keyboard,
     match_details_keyboard,
     my_match_card_keyboard,
@@ -253,10 +254,20 @@ async def match_leave_handler(callback: CallbackQuery, session: AsyncSession) ->
         logger.warning("Could not edit leave confirmation for telegram_id=%s", user_tid)
 
 
-# ── Match Details — join (placeholder) ───────────────────────────────────────
+# ── Match Details — join ──────────────────────────────────────────────────────
 
 @router.callback_query(F.data.regexp(r"^match:join:\d+$"))
 async def match_join_handler(callback: CallbackQuery, session: AsyncSession) -> None:
+    if not callback.data or not callback.message:
+        await callback.answer()
+        return
+    game_id = int(callback.data.split(":")[2])
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
-    await callback.answer(t("feature_not_yet", lang), show_alert=True)
+
+    await callback.answer()
+    await callback.message.answer(
+        t("join_confirm_text", lang),
+        reply_markup=join_confirmation_keyboard(lang, game_id),
+        parse_mode="Markdown",
+    )
