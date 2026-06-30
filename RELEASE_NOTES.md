@@ -2,6 +2,36 @@
 
 ---
 
+## Sprint 7.2 — Find Partner Smart Filter
+
+### New
+
+* Find Partner Search Mode
+* Smart Filter
+
+### Improved
+
+* Reused Filter UX
+* Temporary search filters
+* No changes to matching algorithm
+
+---
+
+## Sprint 7.1 — Profile UX Redesign
+
+### New
+
+* Redesigned Profile UX
+* New Edit Profile experience
+* Spoken Languages support
+
+### Improved
+
+* Automatic profile saving
+* Profile simplified
+
+---
+
 ## v0.3.0
 
 ### New

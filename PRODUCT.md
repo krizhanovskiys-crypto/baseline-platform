@@ -129,6 +129,15 @@ Baseline не прагне стати:
 
 ---
 
+# Implemented Features
+
+* ✓ Profile UX redesign
+* ✓ Spoken Languages
+* ✓ Find Partner Search Mode
+* ✓ Smart Filter
+
+---
+
 # Founder's Notes
 
 Baseline створюється не для того, щоб мати найбільшу кількість функцій.

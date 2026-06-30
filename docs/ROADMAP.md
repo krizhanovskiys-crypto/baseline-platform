@@ -109,7 +109,9 @@ Status: Future
 
 ## Current Sprint
 
-Sprint 7.0 — Browse Open Matches
+- Sprint 7.0 — Browse Open Matches ✅ Completed
+- Sprint 7.1 — Profile UX Redesign ✅ Completed
+- Sprint 7.2 — Find Partner Smart Filter ✅ Completed
 
 ---
 

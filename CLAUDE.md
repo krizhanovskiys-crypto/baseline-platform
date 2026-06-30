@@ -105,6 +105,10 @@ Multi-step wizards use `aiogram.fsm.state.StatesGroup`. All state classes live i
 
 FSM state is stored in `MemoryStorage` and is lost on bot restart.
 
+Two handlers may listen for the same `callback_data` pattern (e.g. `court_toggle:`) as long as they are gated by different FSM states — aiogram routes by state + filter together, so there is no runtime collision. Prefer this over writing a near-duplicate handler when an existing selector (Area, Courts, Level tolerance) is reused across features with different save targets (e.g. Edit Profile saves to the player's profile, Smart Filter saves only to FSM data for the current search).
+
+Any handler that edits a message in place (`edit_text` / `edit_reply_markup`) as part of a multi-screen flow (Filters, Edit Profile) must catch `TelegramBadRequest` and ignore it when the message is `"message is not modified"`, re-raising anything else — re-selecting the already-active option re-renders identical content, which Telegram rejects by default. See `docs/design/BASELINE_DESIGN_SYSTEM.md` for the full Filters/Edit Profile interaction pattern.
+
 ### Localization
 
 `backend/app/bot/texts.py` exports `t(key, lang, **kwargs)` for all bot strings. `AREAS`, `SKILL_LEVELS`, and `COURTS` constants are also defined there (Toronto-area defaults).
