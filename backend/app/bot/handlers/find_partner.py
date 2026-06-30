@@ -36,24 +36,14 @@ _DEFAULT_SMART_FILTERS = {"area": "home", "courts": None, "level": "default"}
 
 def _build_card(partner: PlayerRead, lang: str, total: int) -> tuple[str, object]:
     """Return (text, keyboard) for a partner card."""
-    level_indicator = "🟢" if partner.level_source == "coach_verified" else "🔵"
     languages = " • ".join(partner.spoken_languages or []) or "—"
-
-    courts_list = partner.preferred_courts or []
-    if not courts_list:
-        courts = "—"
-    else:
-        courts = " • ".join(courts_list[:2])
-        remaining = len(courts_list) - 2
-        if remaining > 0:
-            courts += "\n" + t("partner_card_more_courts", lang, count=remaining)
+    courts = " • ".join((partner.preferred_courts or [])[:2]) or "—"
 
     text = t(
         "partner_card_v2",
         lang,
         name=partner.first_name,
         level=partner.skill_level,
-        level_indicator=level_indicator,
         languages=languages,
         courts=courts,
         matches=partner.matches_played,

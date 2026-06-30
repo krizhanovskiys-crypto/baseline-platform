@@ -41,16 +41,14 @@ async def show_profile(message: Message, session: AsyncSession) -> None:
         await message.answer(t("profile_incomplete", lang), parse_mode="Markdown")
         return
 
-    courts = ", ".join(player.preferred_courts or []) or "—"
+    courts = " • ".join(player.preferred_courts or []) or "—"
     languages = " • ".join(player.spoken_languages or []) or "—"
-    level_indicator = "🟢" if player.level_source == "coach_verified" else "🔵"
     await message.answer(
         t(
             "profile_header",
             lang,
             name=player.first_name,
             level=player.skill_level,
-            level_indicator=level_indicator,
             courts=courts,
             languages=languages,
             matches=player.matches_played,

@@ -72,8 +72,8 @@ _TEXTS: dict[str, dict[str, str]] = {
             "Organize one yourself, or check back later."
         ),
         "available_matches_card": (
-            "{match_type}\n"
-            "📊 Level {level}\n"
+            "{match_type}\n\n"
+            "⭐ Level {level}\n"
             "📅 {date} • 🕒 {time}\n"
             "📍 {area} • 🏟 {court}\n"
             "👥 {players_joined}/{players_total}\n"
@@ -89,7 +89,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_filter_level": "⭐ Level",
         "available_matches_filter_match_type": "🎾 Match Type",
         "available_matches_filter_any": "Any",
-        "available_matches_btn_apply": "✅ Apply Filters",
+        "available_matches_btn_apply": "✅ Apply",
         "available_matches_choose_area": "Choose Area",
         "available_matches_choose_date": "Choose Date",
         "available_matches_choose_level": "Choose Level",
@@ -136,8 +136,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "profile_header": (
             "👤 *Your Profile*\n\n"
             "👤 Name: {name}\n"
-            "⭐ Level {level} {level_indicator}\n"
-            "💬 Languages: {languages}\n"
+            "⭐ Level {level}\n"
+            "🗣️ Languages: {languages}\n"
             "🎾 Favourite Courts: {courts}\n"
             "📊 Matches: {matches}"
         ),
@@ -151,10 +151,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "edit_profile_field_level": "⭐ Level",
         "edit_profile_field_area": "📍 Home Area",
         "edit_profile_field_courts": "🎾 Favourite Courts",
-        "edit_profile_field_languages": "💬 Languages",
+        "edit_profile_field_languages": "🗣️ Languages",
         "edit_profile_enter_name": "👤 Enter your new name:",
         "edit_profile_name_error": "⚠️ Name cannot be empty.",
-        "edit_profile_languages_header": "💬 *Choose Languages*",
+        "edit_profile_languages_header": "🗣️ *Choose Languages*",
         # Settings
         "settings_header": "⚙️ *Settings* — what would you like to change?",
         "btn_change_language": "🌍 Language",
@@ -169,12 +169,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "⭐ Level {level} {level_indicator}\n"
-            "💬 Languages: {languages}\n"
+            "⭐ Level {level}\n"
+            "🗣️ Languages: {languages}\n"
             "🎾 Favourite Courts: {courts}\n"
             "📊 Matches: {matches}"
         ),
-        "partner_card_more_courts": "+{count} more",
         "level_source_card_self_rated": "✅ Self Rated",
         "level_source_card_coach_verified": "🏆 Coach Verified",
         "no_partners_friendly": (
@@ -407,8 +406,8 @@ _TEXTS: dict[str, dict[str, str]] = {
             "Організуйте свій матч або перевірте пізніше."
         ),
         "available_matches_card": (
-            "{match_type}\n"
-            "📊 Рівень {level}\n"
+            "{match_type}\n\n"
+            "⭐ Рівень {level}\n"
             "📅 {date} • 🕒 {time}\n"
             "📍 {area} • 🏟 {court}\n"
             "👥 {players_joined}/{players_total}\n"
@@ -424,7 +423,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_filter_level": "⭐ Рівень",
         "available_matches_filter_match_type": "🎾 Тип матчу",
         "available_matches_filter_any": "Будь-який",
-        "available_matches_btn_apply": "✅ Застосувати фільтри",
+        "available_matches_btn_apply": "✅ Застосувати",
         "available_matches_choose_area": "Оберіть район",
         "available_matches_choose_date": "Оберіть дату",
         "available_matches_choose_level": "Оберіть рівень",
@@ -465,7 +464,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
-        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень {level} {level_indicator}\n💬 Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
+        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень {level}\n🗣️ Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
@@ -475,10 +474,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "edit_profile_field_level": "⭐ Рівень",
         "edit_profile_field_area": "📍 Домашній район",
         "edit_profile_field_courts": "🎾 Улюблені корти",
-        "edit_profile_field_languages": "💬 Мови",
+        "edit_profile_field_languages": "🗣️ Мови",
         "edit_profile_enter_name": "👤 Введіть нове ім'я:",
         "edit_profile_name_error": "⚠️ Ім'я не може бути порожнім.",
-        "edit_profile_languages_header": "💬 *Оберіть мови*",
+        "edit_profile_languages_header": "🗣️ *Оберіть мови*",
         "settings_header": "⚙️ *Налаштування* — що змінити?",
         "btn_change_language": "🌍 Мова",
         "btn_change_area": "📍 Район",
@@ -491,12 +490,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "⭐ Рівень {level} {level_indicator}\n"
-            "💬 Мови: {languages}\n"
+            "⭐ Рівень {level}\n"
+            "🗣️ Мови: {languages}\n"
             "🎾 Улюблені корти: {courts}\n"
             "📊 Матчів: {matches}"
         ),
-        "partner_card_more_courts": "+{count} ще",
         "level_source_card_self_rated": "✅ Самооцінка",
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
         "no_partners_friendly": (
@@ -729,8 +727,8 @@ _TEXTS: dict[str, dict[str, str]] = {
             "Организуйте свой матч или проверьте позже."
         ),
         "available_matches_card": (
-            "{match_type}\n"
-            "📊 Уровень {level}\n"
+            "{match_type}\n\n"
+            "⭐ Уровень {level}\n"
             "📅 {date} • 🕒 {time}\n"
             "📍 {area} • 🏟 {court}\n"
             "👥 {players_joined}/{players_total}\n"
@@ -746,7 +744,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_filter_level": "⭐ Уровень",
         "available_matches_filter_match_type": "🎾 Тип матча",
         "available_matches_filter_any": "Любой",
-        "available_matches_btn_apply": "✅ Применить фильтры",
+        "available_matches_btn_apply": "✅ Применить",
         "available_matches_choose_area": "Выберите район",
         "available_matches_choose_date": "Выберите дату",
         "available_matches_choose_level": "Выберите уровень",
@@ -787,7 +785,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
-        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень {level} {level_indicator}\n💬 Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
+        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень {level}\n🗣️ Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",
@@ -797,10 +795,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "edit_profile_field_level": "⭐ Уровень",
         "edit_profile_field_area": "📍 Домашний район",
         "edit_profile_field_courts": "🎾 Любимые корты",
-        "edit_profile_field_languages": "💬 Языки",
+        "edit_profile_field_languages": "🗣️ Языки",
         "edit_profile_enter_name": "👤 Введите новое имя:",
         "edit_profile_name_error": "⚠️ Имя не может быть пустым.",
-        "edit_profile_languages_header": "💬 *Выберите языки*",
+        "edit_profile_languages_header": "🗣️ *Выберите языки*",
         "settings_header": "⚙️ *Настройки* — что изменить?",
         "btn_change_language": "🌍 Язык",
         "btn_change_area": "📍 Район",
@@ -813,12 +811,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "⭐ Уровень {level} {level_indicator}\n"
-            "💬 Языки: {languages}\n"
+            "⭐ Уровень {level}\n"
+            "🗣️ Языки: {languages}\n"
             "🎾 Любимые корты: {courts}\n"
             "📊 Матчей: {matches}"
         ),
-        "partner_card_more_courts": "+{count} ещё",
         "level_source_card_self_rated": "✅ Самооценка",
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
         "no_partners_friendly": (
