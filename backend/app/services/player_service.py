@@ -26,6 +26,15 @@ def _parse_courts(player: Player) -> list[str]:
         return []
 
 
+def _parse_spoken_languages(player: Player) -> list[str]:
+    if not player.spoken_languages:
+        return []
+    try:
+        return json.loads(player.spoken_languages)
+    except (json.JSONDecodeError, TypeError):
+        return []
+
+
 def _player_to_schema(player: Player) -> PlayerRead:
     data = {
         "id": player.id,
@@ -37,6 +46,7 @@ def _player_to_schema(player: Player) -> PlayerRead:
         "level_source": player.level_source,
         "home_area": player.home_area,
         "preferred_courts": _parse_courts(player),
+        "spoken_languages": _parse_spoken_languages(player),
         "available_now": player.available_now,
         "available_until": player.available_until,
         "rating": player.rating,
@@ -87,6 +97,8 @@ class PlayerService:
         update_dict = data.model_dump(exclude_unset=True)
         if "preferred_courts" in update_dict and update_dict["preferred_courts"] is not None:
             update_dict["preferred_courts"] = json.dumps(update_dict["preferred_courts"])
+        if "spoken_languages" in update_dict and update_dict["spoken_languages"] is not None:
+            update_dict["spoken_languages"] = json.dumps(update_dict["spoken_languages"])
         if "skill_level" in update_dict and update_dict["skill_level"] is not None:
             if not update_dict.get("level_source") and player.level_source is None:
                 update_dict["level_source"] = "self_rated"

@@ -83,13 +83,18 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_btn_filters": "Filters",
         "available_matches_btn_prev": "⬅️ Previous",
         "available_matches_btn_next": "➡️ Next",
-        "available_matches_filters_header": "*Filters*",
+        "available_matches_filters_header": "🔎 *Filters*",
         "available_matches_filter_area": "📍 Area",
         "available_matches_filter_date": "📅 Date",
         "available_matches_filter_level": "⭐ Level",
         "available_matches_filter_match_type": "🎾 Match Type",
         "available_matches_filter_any": "Any",
-        "available_matches_btn_apply": "✅ Apply",
+        "available_matches_btn_apply": "✅ Apply Filters",
+        "available_matches_choose_area": "Choose Area",
+        "available_matches_choose_date": "Choose Date",
+        "available_matches_choose_level": "Choose Level",
+        "available_matches_choose_match_type": "Choose Match Type",
+        "available_matches_btn_back_to_filters": "⬅️ Filters",
         "available_matches_page_indicator": "Page {page}/{total_pages}",
         "join_confirm_text": "Join this match?\n\nThe host will be notified.",
         "join_confirm_btn_join": "✅ Join",
@@ -105,6 +110,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_already_joined": "⚠️ You already joined this match.",
         "match_already_full": "😔 This match just became full.",
         # Find partner
+        "fp_search_mode_header": "🔍 *Find Partner*\n\nHow would you like to search?",
+        "fp_btn_all_players": "👥 All Players",
+        "fp_btn_smart_filter": "🎯 Smart Filter",
+        "smart_filter_header": "🎯 *Smart Filter*",
+        "smart_filter_btn_find": "✅ Find Players",
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
         "no_partners": (
             "😔 We haven't found your ideal tennis partner yet.\n\n"
@@ -126,16 +136,25 @@ _TEXTS: dict[str, dict[str, str]] = {
         "profile_header": (
             "👤 *Your Profile*\n\n"
             "👤 Name: {name}\n"
-            "⭐ Level: {level}\n"
-            "📖 Level Source: {level_source}\n"
-            "📍 Area: {area}\n"
-            "🎾 Courts: {courts}\n"
+            "⭐ Level {level} {level_indicator}\n"
+            "💬 Languages: {languages}\n"
+            "🎾 Favourite Courts: {courts}\n"
             "📊 Matches: {matches}"
         ),
         "level_source_self_rated": "Self Rated",
         "level_source_coach_verified": "Coach Verified",
         "btn_edit_profile": "✏️ Edit Profile",
         "profile_incomplete": "⚠️ Profile incomplete. Starting onboarding...",
+        # Edit Profile
+        "edit_profile_header": "✏️ *Edit Profile*",
+        "edit_profile_field_name": "👤 Name",
+        "edit_profile_field_level": "⭐ Level",
+        "edit_profile_field_area": "📍 Home Area",
+        "edit_profile_field_courts": "🎾 Favourite Courts",
+        "edit_profile_field_languages": "💬 Languages",
+        "edit_profile_enter_name": "👤 Enter your new name:",
+        "edit_profile_name_error": "⚠️ Name cannot be empty.",
+        "edit_profile_languages_header": "💬 *Choose Languages*",
         # Settings
         "settings_header": "⚙️ *Settings* — what would you like to change?",
         "btn_change_language": "🌍 Language",
@@ -150,11 +169,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "📊 NTRP {level}\n"
-            "{level_source_line}\n\n"
-            "📍 {area}\n\n"
-            "🏟 {courts}"
+            "⭐ Level {level} {level_indicator}\n"
+            "💬 Languages: {languages}\n"
+            "🎾 Favourite Courts: {courts}\n"
+            "📊 Matches: {matches}"
         ),
+        "partner_card_more_courts": "+{count} more",
         "level_source_card_self_rated": "✅ Self Rated",
         "level_source_card_coach_verified": "🏆 Coach Verified",
         "no_partners_friendly": (
@@ -398,13 +418,18 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_btn_filters": "Фільтри",
         "available_matches_btn_prev": "⬅️ Попередня",
         "available_matches_btn_next": "➡️ Наступна",
-        "available_matches_filters_header": "*Фільтри*",
+        "available_matches_filters_header": "🔎 *Фільтри*",
         "available_matches_filter_area": "📍 Район",
         "available_matches_filter_date": "📅 Дата",
         "available_matches_filter_level": "⭐ Рівень",
         "available_matches_filter_match_type": "🎾 Тип матчу",
         "available_matches_filter_any": "Будь-який",
-        "available_matches_btn_apply": "✅ Застосувати",
+        "available_matches_btn_apply": "✅ Застосувати фільтри",
+        "available_matches_choose_area": "Оберіть район",
+        "available_matches_choose_date": "Оберіть дату",
+        "available_matches_choose_level": "Оберіть рівень",
+        "available_matches_choose_match_type": "Оберіть тип матчу",
+        "available_matches_btn_back_to_filters": "⬅️ Фільтри",
         "available_matches_page_indicator": "Сторінка {page}/{total_pages}",
         "join_confirm_text": "Приєднатися до цього матчу?\n\nГосподаря буде повідомлено.",
         "join_confirm_btn_join": "✅ Приєднатися",
@@ -419,6 +444,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_organizer": "⚠️ Ви не можете приєднатися до власного матчу.",
         "join_match_already_joined": "⚠️ Ви вже приєдналися до цього матчу.",
         "match_already_full": "😔 Цей матч щойно заповнився.",
+        "fp_search_mode_header": "🔍 *Знайти партнера*\n\nЯк ви хочете шукати?",
+        "fp_btn_all_players": "👥 Усі гравці",
+        "fp_btn_smart_filter": "🎯 Розумний фільтр",
+        "smart_filter_header": "🎯 *Розумний фільтр*",
+        "smart_filter_btn_find": "✅ Знайти гравців",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
         "no_partners": (
             "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
@@ -435,11 +465,20 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
-        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень: {level}\n📖 Джерело рівня: {level_source}\n📍 Район: {area}\n🎾 Корти: {courts}\n📊 Матчів: {matches}",
+        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень {level} {level_indicator}\n💬 Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
         "profile_incomplete": "⚠️ Профіль не заповнено. Починаємо реєстрацію...",
+        "edit_profile_header": "✏️ *Редагування профілю*",
+        "edit_profile_field_name": "👤 Ім'я",
+        "edit_profile_field_level": "⭐ Рівень",
+        "edit_profile_field_area": "📍 Домашній район",
+        "edit_profile_field_courts": "🎾 Улюблені корти",
+        "edit_profile_field_languages": "💬 Мови",
+        "edit_profile_enter_name": "👤 Введіть нове ім'я:",
+        "edit_profile_name_error": "⚠️ Ім'я не може бути порожнім.",
+        "edit_profile_languages_header": "💬 *Оберіть мови*",
         "settings_header": "⚙️ *Налаштування* — що змінити?",
         "btn_change_language": "🌍 Мова",
         "btn_change_area": "📍 Район",
@@ -452,11 +491,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "📊 NTRP {level}\n"
-            "{level_source_line}\n\n"
-            "📍 {area}\n\n"
-            "🏟 {courts}"
+            "⭐ Рівень {level} {level_indicator}\n"
+            "💬 Мови: {languages}\n"
+            "🎾 Улюблені корти: {courts}\n"
+            "📊 Матчів: {matches}"
         ),
+        "partner_card_more_courts": "+{count} ще",
         "level_source_card_self_rated": "✅ Самооцінка",
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
         "no_partners_friendly": (
@@ -700,13 +740,18 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_matches_btn_filters": "Фильтры",
         "available_matches_btn_prev": "⬅️ Предыдущая",
         "available_matches_btn_next": "➡️ Следующая",
-        "available_matches_filters_header": "*Фильтры*",
+        "available_matches_filters_header": "🔎 *Фильтры*",
         "available_matches_filter_area": "📍 Район",
         "available_matches_filter_date": "📅 Дата",
         "available_matches_filter_level": "⭐ Уровень",
         "available_matches_filter_match_type": "🎾 Тип матча",
         "available_matches_filter_any": "Любой",
-        "available_matches_btn_apply": "✅ Применить",
+        "available_matches_btn_apply": "✅ Применить фильтры",
+        "available_matches_choose_area": "Выберите район",
+        "available_matches_choose_date": "Выберите дату",
+        "available_matches_choose_level": "Выберите уровень",
+        "available_matches_choose_match_type": "Выберите тип матча",
+        "available_matches_btn_back_to_filters": "⬅️ Фильтры",
         "available_matches_page_indicator": "Страница {page}/{total_pages}",
         "join_confirm_text": "Присоединиться к этому матчу?\n\nХозяин будет уведомлён.",
         "join_confirm_btn_join": "✅ Присоединиться",
@@ -721,6 +766,11 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_organizer": "⚠️ Вы не можете присоединиться к собственному матчу.",
         "join_match_already_joined": "⚠️ Вы уже присоединились к этому матчу.",
         "match_already_full": "😔 Этот матч только что заполнился.",
+        "fp_search_mode_header": "🔍 *Найти партнёра*\n\nКак вы хотите искать?",
+        "fp_btn_all_players": "👥 Все игроки",
+        "fp_btn_smart_filter": "🎯 Умный фильтр",
+        "smart_filter_header": "🎯 *Умный фильтр*",
+        "smart_filter_btn_find": "✅ Найти игроков",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
         "no_partners": (
             "😔 Пока мы не нашли для вас идеального партнёра.\n\n"
@@ -737,11 +787,20 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
-        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень: {level}\n📖 Источник уровня: {level_source}\n📍 Район: {area}\n🎾 Корты: {courts}\n📊 Матчей: {matches}",
+        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень {level} {level_indicator}\n💬 Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",
         "profile_incomplete": "⚠️ Профиль не заполнен. Запускаем регистрацию...",
+        "edit_profile_header": "✏️ *Редактирование профиля*",
+        "edit_profile_field_name": "👤 Имя",
+        "edit_profile_field_level": "⭐ Уровень",
+        "edit_profile_field_area": "📍 Домашний район",
+        "edit_profile_field_courts": "🎾 Любимые корты",
+        "edit_profile_field_languages": "💬 Языки",
+        "edit_profile_enter_name": "👤 Введите новое имя:",
+        "edit_profile_name_error": "⚠️ Имя не может быть пустым.",
+        "edit_profile_languages_header": "💬 *Выберите языки*",
         "settings_header": "⚙️ *Настройки* — что изменить?",
         "btn_change_language": "🌍 Язык",
         "btn_change_area": "📍 Район",
@@ -754,11 +813,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Partner
         "partner_card_v2": (
             "👤 *{name}*\n\n"
-            "📊 NTRP {level}\n"
-            "{level_source_line}\n\n"
-            "📍 {area}\n\n"
-            "🏟 {courts}"
+            "⭐ Уровень {level} {level_indicator}\n"
+            "💬 Языки: {languages}\n"
+            "🎾 Любимые корты: {courts}\n"
+            "📊 Матчей: {matches}"
         ),
+        "partner_card_more_courts": "+{count} ещё",
         "level_source_card_self_rated": "✅ Самооценка",
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
         "no_partners_friendly": (
@@ -952,6 +1012,11 @@ COURTS = [
     "Rennie Park",
     "Other",
 ]
+
+# Spoken languages a player may select on their profile (NOT the bot's interface
+# language — see Player.language / SettingsStates.change_language for that).
+# Add new entries here to support more languages; no other code changes needed.
+SPOKEN_LANGUAGES = ["UKR", "ENG", "RUS"]
 
 
 def t(key: str, lang: str | None = None, **kwargs: object) -> str:

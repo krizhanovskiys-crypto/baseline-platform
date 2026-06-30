@@ -8,7 +8,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from backend.app.bot.handlers.available_matches import _render_available_matches, available_confirm_callback
+from backend.app.bot.handlers.available_matches import (
+    _render_available_matches,
+    available_confirm_callback,
+    available_filter_set_callback,
+    available_filters_back_callback,
+    available_filters_callback,
+    available_filters_open_category_callback,
+)
 from backend.app.bot.states.states import AvailableMatchesStates
 from backend.app.bot.texts import t
 from backend.app.database.models.game import Game, GamePlayer, GamePlayerStatus, GameStatus, MatchType
@@ -571,3 +578,78 @@ async def test_render_shows_empty_state_when_truly_zero_matches(session):
     assert (await state.get_data())["current_page"] == 1
     texts = [text for text, _ in message.sent]
     assert any(text == t("available_matches_empty", "en") for text in texts)
+
+
+# ── Regression: two-level Filters UX (main screen + per-category screens) ──────
+
+def _buttons(markup) -> list[tuple[str, str]]:
+    return [(b.text, b.callback_data) for row in markup.inline_keyboard for b in row]
+
+
+async def test_filters_main_screen_shows_categories_with_current_values(session):
+    await _make_player(session, 800001, "Viewer", area="Downtown", level=3.0)
+    state = _make_state(800001)
+
+    callback = _FakeCallback(data="available:filters", user_id=800001)
+    await available_filters_callback(callback, state, session)
+
+    callback.answer.assert_awaited_once()
+    callback.message.answer.assert_awaited_once()
+    _, kwargs = callback.message.answer.call_args
+    buttons = _buttons(kwargs["reply_markup"])
+    texts = dict(buttons)
+    assert any("Downtown" in label and cb == "available:filters:open:area" for label, cb in buttons)
+    assert any("±0.5" in label and cb == "available:filters:open:level" for label, cb in buttons)
+    assert any("Today" in label and cb == "available:filters:open:date" for label, cb in buttons)
+    assert any("Any" in label and cb == "available:filters:open:type" for label, cb in buttons)
+    assert "available:filters:apply" in texts.values()
+    assert "menu:main" in texts.values()  # "🏠 Menu" — project's standard return-to-main-menu pattern
+
+
+async def test_filters_open_category_shows_single_column_with_selection_marked(session):
+    await _make_player(session, 800101, "Viewer", area="Downtown")
+    state = _make_state(800101)
+
+    callback = _FakeCallback(data="available:filters:open:area", user_id=800101)
+    await available_filters_open_category_callback(callback, state, session)
+
+    callback.answer.assert_awaited_once()
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("available_matches_choose_area", "en")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert ("✅ Downtown", "available:filter:area:Downtown") in buttons
+    assert ("North York", "available:filter:area:North York") in buttons
+    assert (t("available_matches_btn_back_to_filters", "en"), "available:filters:back") in buttons
+
+
+async def test_filter_set_saves_value_and_returns_to_main_screen(session):
+    await _make_player(session, 800201, "Viewer", area="Downtown")
+    state = _make_state(800201)
+
+    callback = _FakeCallback(data="available:filter:area:North York", user_id=800201)
+    await available_filter_set_callback(callback, state, session)
+
+    callback.answer.assert_awaited_once()
+    assert (await state.get_data())["filters"]["area"] == "North York"
+
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("available_matches_filters_header", "en")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert any("North York" in label and cb == "available:filters:open:area" for label, cb in buttons)
+
+
+async def test_filters_back_returns_to_main_screen_without_changing_value(session):
+    await _make_player(session, 800301, "Viewer", area="Downtown")
+    state = _make_state(800301)
+    await state.update_data(filters={"area": "any", "date": "today", "match_type": None, "level": "default"})
+
+    callback = _FakeCallback(data="available:filters:back", user_id=800301)
+    await available_filters_back_callback(callback, state, session)
+
+    callback.answer.assert_awaited_once()
+    assert (await state.get_data())["filters"]["area"] == "any"  # unchanged
+
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("available_matches_filters_header", "en")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert any("Any" in label and cb == "available:filters:open:area" for label, cb in buttons)

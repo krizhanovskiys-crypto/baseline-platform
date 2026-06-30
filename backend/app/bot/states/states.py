@@ -28,9 +28,11 @@ class OrganizeMatchStates(StatesGroup):
 
 
 class FindPartnerStates(StatesGroup):
-    """Find-partner browsing flow."""
+    """Find-partner flow. browsing = paginating cards; smart_filter = the
+    Sprint 7.0-style filter screens shown before the search runs."""
 
     browsing = State()
+    smart_filter = State()
 
 
 class FindPlayersForMatchStates(StatesGroup):
@@ -52,10 +54,12 @@ class ConfirmMatchStates(StatesGroup):
 
 
 class SettingsStates(StatesGroup):
-    """Settings flow."""
+    """Settings / Edit Profile field-editing flow."""
 
     main = State()
     change_language = State()
     change_area = State()
     change_level = State()
     change_courts = State()
+    change_name = State()
+    change_languages = State()

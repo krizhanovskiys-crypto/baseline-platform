@@ -22,6 +22,7 @@ class PlayerUpdate(BaseModel):
     level_source: str | None = None
     home_area: str | None = None
     preferred_courts: list[str] | None = None
+    spoken_languages: list[str] | None = None
 
 
 class PlayerRead(BaseModel):
@@ -38,6 +39,7 @@ class PlayerRead(BaseModel):
     level_source: str | None = None
     home_area: str | None
     preferred_courts: list[str] | None = None
+    spoken_languages: list[str] | None = None
     available_now: bool
     available_until: datetime | None
     rating: float

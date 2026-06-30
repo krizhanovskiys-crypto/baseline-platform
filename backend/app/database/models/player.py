@@ -24,6 +24,7 @@ class Player(Base):
     home_area: Mapped[str | None] = mapped_column(String(64), nullable=True)
     preferred_courts: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON list stored as text
     level_source: Mapped[str | None] = mapped_column(String(32), nullable=True)  # e.g. "self_rated", "coach_verified"
+    spoken_languages: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON list stored as text, e.g. ["UKR", "ENG"]
 
     # Availability
     available_now: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

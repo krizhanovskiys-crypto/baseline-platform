@@ -8,7 +8,8 @@ from typing import Any
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from backend.app.bot.texts import AREAS, COURTS, SKILL_LEVELS, t
+from backend.app.bot.texts import AREAS, COURTS, SKILL_LEVELS, SPOKEN_LANGUAGES, t
+from backend.app.schemas.player import PlayerRead
 
 
 # ---------------------------------------------------------------------------
@@ -107,23 +108,138 @@ def partner_card_keyboard(
     return builder.as_markup()
 
 
+def search_mode_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Find Partner entry screen: choose between browsing everyone or Smart Filter."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("fp_btn_all_players", lang), callback_data="fp:mode:all")
+    builder.button(text=t("fp_btn_smart_filter", lang), callback_data="fp:mode:smart")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1, 1)
+    return builder.as_markup()
+
+
+def smart_filter_keyboard(lang: str, filters: dict[str, object], home_area: str) -> InlineKeyboardMarkup:
+    """Smart Filter main screen — same UX as the Sprint 7.0 Available Matches
+    Filters screen (category rows showing current value, divider, action,
+    Menu), scoped to Find Partner's three approved fields."""
+    area_value = home_area if filters.get("area", "home") == "home" else filters.get("area")
+    courts_value = ", ".join(filters.get("courts") or []) or "—"
+    level_labels = {"default": "±0.5", "1.0": "±1.0", "any": t("available_matches_filter_any", lang)}
+    level_value = level_labels.get(filters.get("level", "default"), "±0.5")
+
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=f"{t('available_matches_filter_area', lang)}: {area_value}",
+        callback_data="fp:smartfilter:open:area",
+    )
+    builder.button(
+        text=f"{t('edit_profile_field_courts', lang)}: {courts_value}",
+        callback_data="fp:smartfilter:open:courts",
+    )
+    builder.button(
+        text=f"{t('available_matches_filter_level', lang)}: {level_value}",
+        callback_data="fp:smartfilter:open:level",
+    )
+    builder.button(text="────────────", callback_data="noop")
+    builder.button(text=t("smart_filter_btn_find", lang), callback_data="fp:smartfilter:apply")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1, 1, 1, 1, 1)
+    return builder.as_markup()
+
+
+def level_tolerance_keyboard(
+    lang: str, selected: str, callback_prefix: str, back_callback: str
+) -> InlineKeyboardMarkup:
+    """Single-column ±tolerance selector (±0.5 / ±1.0 / Any), following the same
+    convention as available_matches_filter_category_keyboard's level screen.
+    `selected` is one of "default" (±0.5) / "1.0" / "any"."""
+    def _mark(label: str, value: str) -> str:
+        return f"✅ {label}" if value == selected else label
+
+    builder = InlineKeyboardBuilder()
+    builder.button(text=_mark("±0.5", "default"), callback_data=f"{callback_prefix}:default")
+    builder.button(text=_mark("±1.0", "1.0"), callback_data=f"{callback_prefix}:1.0")
+    builder.button(
+        text=_mark(t("available_matches_filter_any", lang), "any"), callback_data=f"{callback_prefix}:any"
+    )
+    builder.button(text=t("available_matches_btn_back_to_filters", lang), callback_data=back_callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 # ---------------------------------------------------------------------------
 # Settings
 # ---------------------------------------------------------------------------
 
 def settings_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Settings now covers only interface language — profile fields (area,
+    level, courts, name, spoken languages) are edited via Edit Profile."""
     builder = InlineKeyboardBuilder()
     builder.button(text=t("btn_change_language", lang), callback_data="settings:language")
-    builder.button(text=t("btn_change_area", lang), callback_data="settings:area")
-    builder.button(text=t("btn_change_level", lang), callback_data="settings:level")
-    builder.button(text=t("btn_change_courts", lang), callback_data="settings:courts")
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup()
 
 
 def profile_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("btn_edit_profile", lang), callback_data="profile:edit")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
+# Edit Profile
+# ---------------------------------------------------------------------------
+
+def edit_profile_keyboard(lang: str, player: PlayerRead) -> InlineKeyboardMarkup:
+    """Main Edit Profile screen: one row per field showing its current value,
+    a divider, then Menu. Tapping a field row opens its edit flow — Level/Area/
+    Courts reuse the existing settings:* callbacks (no duplicate handlers)."""
+    courts_display = ", ".join(player.preferred_courts or []) or "—"
+    languages_display = ", ".join(player.spoken_languages or []) or "—"
+
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=f"{t('edit_profile_field_name', lang)}: {player.first_name}",
+        callback_data="editprofile:name",
+    )
+    builder.button(
+        text=f"{t('edit_profile_field_level', lang)}: {player.skill_level}",
+        callback_data="settings:level",
+    )
+    builder.button(
+        text=f"{t('edit_profile_field_area', lang)}: {player.home_area or '—'}",
+        callback_data="settings:area",
+    )
+    builder.button(
+        text=f"{t('edit_profile_field_courts', lang)}: {courts_display}",
+        callback_data="settings:courts",
+    )
+    builder.button(
+        text=f"{t('edit_profile_field_languages', lang)}: {languages_display}",
+        callback_data="editprofile:languages",
+    )
+    builder.button(text="────────────", callback_data="noop")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1, 1, 1, 1, 1, 1)
+    return builder.as_markup()
+
+
+def spoken_languages_keyboard(lang: str, selected: list[str] | None = None) -> InlineKeyboardMarkup:
+    """Multi-select spoken-languages keyboard. Selected languages get a ✅
+    prefix (same convention as courts_keyboard). Add entries to
+    texts.SPOKEN_LANGUAGES to support more languages — no code change here."""
+    selected = selected or []
+    builder = InlineKeyboardBuilder()
+    for spoken_lang in SPOKEN_LANGUAGES:
+        label = f"✅ {spoken_lang}" if spoken_lang in selected else spoken_lang
+        builder.button(text=label, callback_data=f"language_toggle:{spoken_lang}")
+    builder.button(text=t("btn_done", lang), callback_data="languages_done")
+
+    n = len(SPOKEN_LANGUAGES)
+    rows = [2] * (n // 2) + ([1] if n % 2 else []) + [1]  # options in pairs, Done on its own row
+    builder.adjust(*rows)
     return builder.as_markup()
 
 
@@ -359,33 +475,119 @@ def available_matches_nav_keyboard(
     return builder.as_markup()
 
 
-def available_matches_filters_keyboard(lang: str, filters: dict[str, object]) -> InlineKeyboardMarkup:
-    """Filters screen keyboard: Area, Date, Level, Match Type, then Apply/Back.
+def _filter_display_value(lang: str, dimension: str, filters: dict[str, object], home_area: str) -> str:
+    """Return the localized current-value label for one filter category."""
+    if dimension == "area":
+        value = filters.get("area", "home")
+        if value == "any":
+            return t("available_matches_filter_any", lang)
+        if value in (None, "home"):
+            return home_area
+        return str(value)
+    if dimension == "date":
+        value = filters.get("date", "today")
+        return t("om_btn_today", lang) if value == "today" else t("available_matches_filter_any", lang)
+    if dimension == "level":
+        value = filters.get("level", "default")
+        return "±0.5" if value == "default" else t("available_matches_filter_any", lang)
+    if dimension == "type":
+        value = filters.get("match_type")
+        if value == "singles":
+            return t("om_match_type_singles", lang)
+        if value == "doubles":
+            return t("om_match_type_doubles", lang)
+        return t("available_matches_filter_any", lang)
+    raise ValueError(f"Unknown filter dimension: {dimension}")
 
-    `filters` carries the currently-selected values so callers can decide what
-    to mark as active; the keyboard itself always offers the full option set.
-    """
+
+_CATEGORY_LABEL_KEYS = [
+    ("area", "available_matches_filter_area"),
+    ("level", "available_matches_filter_level"),
+    ("date", "available_matches_filter_date"),
+    ("type", "available_matches_filter_match_type"),
+]
+
+
+def available_matches_filters_keyboard(
+    lang: str, filters: dict[str, object], home_area: str
+) -> InlineKeyboardMarkup:
+    """Main Filters screen: one row per category showing its current value
+    (e.g. "📍 Area: Downtown"), a divider, then Apply / Menu. Tapping a
+    category row opens its dedicated selection screen
+    (available:filters:open:{dimension}). Menu uses the project's standard
+    return-to-main-menu pattern (same text/callback as every other "🏠 Menu"
+    button — see match_details_keyboard, leave_match_done_keyboard, etc.)."""
     builder = InlineKeyboardBuilder()
-    for area in AREAS:
-        builder.button(text=area, callback_data=f"available:filter:area:{area}")
-    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:area:any")
+    for dimension, label_key in _CATEGORY_LABEL_KEYS:
+        label = t(label_key, lang)
+        value = _filter_display_value(lang, dimension, filters, home_area)
+        builder.button(text=f"{label}: {value}", callback_data=f"available:filters:open:{dimension}")
 
-    builder.button(text=t("om_btn_today", lang), callback_data="available:filter:date:today")
-    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:date:any")
-
-    builder.button(text="±0.5", callback_data="available:filter:level:default")
-    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:level:any")
-
-    builder.button(text=t("available_matches_filter_any", lang), callback_data="available:filter:type:any")
-    builder.button(text=t("om_match_type_singles", lang), callback_data="available:filter:type:singles")
-    builder.button(text=t("om_match_type_doubles", lang), callback_data="available:filter:type:doubles")
-
+    builder.button(text="────────────", callback_data="noop")
     builder.button(text=t("available_matches_btn_apply", lang), callback_data="available:filters:apply")
-    builder.button(text=t("fpm_btn_back", lang), callback_data="available:start")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
 
-    n_area_buttons = len(AREAS) + 1
-    area_rows = [2] * (n_area_buttons // 2) + ([1] if n_area_buttons % 2 else [])
-    builder.adjust(*area_rows, 2, 2, 3, 1, 1)
+    builder.adjust(1, 1, 1, 1, 1, 1, 1)
+    return builder.as_markup()
+
+
+def available_matches_filter_category_keyboard(
+    lang: str, dimension: str, filters: dict[str, object], home_area: str
+) -> InlineKeyboardMarkup:
+    """Single-column selection screen for one filter category (area/date/level/type).
+    The currently-selected option is marked with a ✅ prefix. "⬅️ Filters" returns
+    to the main Filters screen (available:filters:back) without changing any value."""
+    def _mark(label: str, selected: bool) -> str:
+        return f"✅ {label}" if selected else label
+
+    builder = InlineKeyboardBuilder()
+
+    if dimension == "area":
+        selected_area = home_area if filters.get("area", "home") in (None, "home") else filters.get("area")
+        for area in AREAS:
+            builder.button(text=_mark(area, area == selected_area), callback_data=f"available:filter:area:{area}")
+        builder.button(
+            text=_mark(t("available_matches_filter_any", lang), filters.get("area") == "any"),
+            callback_data="available:filter:area:any",
+        )
+    elif dimension == "date":
+        selected_date = filters.get("date", "today")
+        builder.button(
+            text=_mark(t("om_btn_today", lang), selected_date == "today"),
+            callback_data="available:filter:date:today",
+        )
+        builder.button(
+            text=_mark(t("available_matches_filter_any", lang), selected_date == "any"),
+            callback_data="available:filter:date:any",
+        )
+    elif dimension == "level":
+        selected_level = filters.get("level", "default")
+        builder.button(
+            text=_mark("±0.5", selected_level == "default"), callback_data="available:filter:level:default"
+        )
+        builder.button(
+            text=_mark(t("available_matches_filter_any", lang), selected_level == "any"),
+            callback_data="available:filter:level:any",
+        )
+    elif dimension == "type":
+        selected_type = filters.get("match_type")
+        builder.button(
+            text=_mark(t("available_matches_filter_any", lang), selected_type is None),
+            callback_data="available:filter:type:any",
+        )
+        builder.button(
+            text=_mark(t("om_match_type_singles", lang), selected_type == "singles"),
+            callback_data="available:filter:type:singles",
+        )
+        builder.button(
+            text=_mark(t("om_match_type_doubles", lang), selected_type == "doubles"),
+            callback_data="available:filter:type:doubles",
+        )
+    else:
+        raise ValueError(f"Unknown filter dimension: {dimension}")
+
+    builder.button(text=t("available_matches_btn_back_to_filters", lang), callback_data="available:filters:back")
+    builder.adjust(1)
     return builder.as_markup()
 
 

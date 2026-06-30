@@ -3,7 +3,7 @@ import logging
 from datetime import date
 
 from aiogram import F, Router
-from aiogram.exceptions import TelegramAPIError
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from backend.app.bot.handlers.helpers import get_player_lang
 from backend.app.bot.handlers.my_matches import _date_label, _status_label
 from backend.app.bot.keyboards.keyboards import (
     available_match_card_keyboard,
+    available_matches_filter_category_keyboard,
     available_matches_filters_keyboard,
     available_matches_nav_keyboard,
     leave_match_done_keyboard,
@@ -28,6 +29,12 @@ router = Router(name="available_matches")
 _TRIGGER_TEXTS = {"🎾 Available Matches", "🎾 Доступні матчі", "🎾 Доступные матчи"}
 _PAGE_SIZE = 5
 _DEFAULT_FILTERS = {"area": "home", "date": "today", "match_type": None, "level": "default"}
+_CATEGORY_TITLE_KEYS = {
+    "area": "available_matches_choose_area",
+    "date": "available_matches_choose_date",
+    "level": "available_matches_choose_level",
+    "type": "available_matches_choose_match_type",
+}
 
 
 def _match_type_key(match_type: MatchType) -> str:
@@ -172,8 +179,29 @@ async def available_page_callback(callback: CallbackQuery, state: FSMContext, se
 
 # ── Filters ──────────────────────────────────────────────────────────────────
 
+async def _edit_screen(message: Message, text: str, keyboard) -> None:
+    """Edit a message's text+keyboard in place, tolerating Telegram's
+    'message is not modified' error when the destination content is identical
+    to what's already shown (e.g. re-selecting the active option)."""
+    try:
+        await message.edit_text(text, reply_markup=keyboard, parse_mode="Markdown")
+    except TelegramBadRequest as exc:
+        if "message is not modified" not in str(exc):
+            raise
+
+
+async def _show_main_filters_screen(message: Message, filters: dict, lang: str, home_area: str) -> None:
+    await _edit_screen(
+        message,
+        t("available_matches_filters_header", lang),
+        available_matches_filters_keyboard(lang, filters, home_area),
+    )
+
+
 @router.callback_query(F.data == "available:filters")
 async def available_filters_callback(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    """Entry point from the Available Matches nav bar — opens the main Filters
+    screen as a new message (the nav bar message itself is left untouched)."""
     if not callback.message:
         await callback.answer()
         return
@@ -181,16 +209,43 @@ async def available_filters_callback(callback: CallbackQuery, state: FSMContext,
     filters = data.get("filters", dict(_DEFAULT_FILTERS))
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
+    home_area = player.home_area if player else ""
     await callback.answer()
     await callback.message.answer(
         t("available_matches_filters_header", lang),
-        reply_markup=available_matches_filters_keyboard(lang, filters),
+        reply_markup=available_matches_filters_keyboard(lang, filters, home_area),
         parse_mode="Markdown",
+    )
+
+
+@router.callback_query(F.data.regexp(r"^available:filters:open:(area|date|level|type)$"))
+async def available_filters_open_category_callback(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession
+) -> None:
+    """Tapping a category row on the main Filters screen opens its dedicated
+    single-category selection screen, editing the same message in place."""
+    if not callback.data or not callback.message:
+        await callback.answer()
+        return
+    dimension = callback.data.split(":")[3]
+
+    data = await state.get_data()
+    filters = data.get("filters", dict(_DEFAULT_FILTERS))
+    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
+    lang = get_player_lang(player)
+    home_area = player.home_area if player else ""
+    await callback.answer()
+    await _edit_screen(
+        callback.message,
+        t(_CATEGORY_TITLE_KEYS[dimension], lang),
+        available_matches_filter_category_keyboard(lang, dimension, filters, home_area),
     )
 
 
 @router.callback_query(F.data.regexp(r"^available:filter:(area|date|level|type):.+$"))
 async def available_filter_set_callback(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    """Selecting an option on a category screen saves it and immediately
+    returns to the main Filters screen, showing the updated current value."""
     if not callback.data or not callback.message:
         await callback.answer()
         return
@@ -206,8 +261,31 @@ async def available_filter_set_callback(callback: CallbackQuery, state: FSMConte
 
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
+    home_area = player.home_area if player else ""
     await callback.answer()
-    await callback.message.edit_reply_markup(reply_markup=available_matches_filters_keyboard(lang, filters))
+    await _show_main_filters_screen(callback.message, filters, lang, home_area)
+
+
+@router.callback_query(F.data == "available:filters:back")
+async def available_filters_back_callback(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    """Back button on a category screen — returns to the main Filters screen
+    without changing any value."""
+    if not callback.message:
+        await callback.answer()
+        return
+    data = await state.get_data()
+    filters = data.get("filters", dict(_DEFAULT_FILTERS))
+    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
+    lang = get_player_lang(player)
+    home_area = player.home_area if player else ""
+    await callback.answer()
+    await _show_main_filters_screen(callback.message, filters, lang, home_area)
+
+
+@router.callback_query(F.data == "noop")
+async def available_filters_noop_callback(callback: CallbackQuery) -> None:
+    """Non-interactive divider button on the Filters screen — label only, no action."""
+    await callback.answer()
 
 
 @router.callback_query(F.data == "available:filters:apply")
