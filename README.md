@@ -181,6 +181,67 @@ Then run migrations:
 alembic upgrade head
 ```
 
+### Automatic deployment (GitHub Actions)
+
+Every push to `master` triggers `.github/workflows/deploy.yml`, which SSHes
+into the Hetzner production server and redeploys the `baseline` systemd
+service. The server is made to mirror GitHub exactly — any local changes
+or drift on the server are discarded, not merged:
+
+```
+git fetch origin
+git reset --hard origin/master
+source .venv/bin/activate
+pip install -r requirements.txt
+sudo systemctl restart baseline
+sleep 3
+sudo systemctl status baseline
+```
+
+`set -euo pipefail` means the job fails immediately if any step fails —
+including `systemctl status` reporting the service as inactive after the
+restart.
+
+**Required GitHub Secrets** (repo → Settings → Secrets and variables →
+Actions):
+
+| Secret | Value |
+|---|---|
+| `SERVER_HOST` | Hetzner server hostname or IP |
+| `SERVER_USER` | SSH user with access to `~/baseline-platform` |
+| `SERVER_SSH_KEY` | Private key for `SERVER_USER` (PEM format) |
+
+**Server-side prerequisite:** `SERVER_USER` must be able to run exactly
+two commands under `sudo` without an interactive password prompt — nothing
+broader:
+
+```
+# /etc/sudoers.d/baseline-deploy
+SERVER_USER ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart baseline, /usr/bin/systemctl status baseline
+```
+
+Replace `SERVER_USER` with the actual deploy account name, and confirm the
+binary path with `which systemctl` on the server (some distros symlink it
+under `/bin`). No other command should be granted passwordless `sudo`.
+
+**Manual test procedure:**
+
+1. Confirm the three secrets above are set on the repository.
+2. Confirm the sudoers entry above is installed on the server (`sudo -l -U
+   SERVER_USER` should list only the two `systemctl` commands).
+3. Go to the Actions tab → "Deploy to Production" → "Run workflow" (uses
+   the `workflow_dispatch` trigger — no need to push a commit to test).
+4. Watch the run: it should complete without printing the SSH key or any
+   secret value.
+5. On the server, confirm the deploy actually happened:
+   ```bash
+   sudo systemctl status baseline   # should show "active (running)"
+   journalctl -u baseline -n 20     # recent restart, no crash loop
+   git log -1                       # HEAD matches origin/master
+   ```
+6. Push a trivial commit to `master` and confirm the workflow fires
+   automatically and the service restarts cleanly.
+
 ---
 
 ## Tech Stack

@@ -1,0 +1,36 @@
+name: Deploy to Production
+
+# Deploys to the Hetzner production server on every push to master.
+# Can also be triggered manually from the Actions tab to test deployment
+# without pushing a new commit.
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: {}
+
+# Prevent two deploys from racing each other if pushes land close together.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd ~/baseline-platform
+            git fetch origin
+            git reset --hard origin/master
+            source .venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart baseline
+            sleep 3
+            sudo systemctl status baseline
