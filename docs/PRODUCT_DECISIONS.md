@@ -148,11 +148,30 @@ screen, and with no way to express "this court is in that zone."
   list[str]`, never on the dict's internal shape.
 - Each zone carries 7–9 real public courts, sourced from municipal
   parks-and-recreation listings (not invented).
-- New flow (onboarding and Edit Profile): **Select Tennis Zone → that
-  zone's courts (+ any Custom Courts already selected) → ➕ Add my own
-  court**. Find Partner's Smart Filter reuses the same zone-scoped court
-  picker, scoped to whichever zone the filter is currently searching. See
-  "Custom Courts" below for the add-your-own-court decision in detail.
+- Flow, onboarding: **Select Tennis Zone → that zone's courts (+ any
+  Custom Courts already selected) → ➕ Add my own court**. The zone step
+  is unavoidable here since the player has no Home Area saved yet.
+- Flow, Edit Profile → Favourite Courts (revised after a second product
+  review — see "Product Review before Commit"): **straight to the
+  player's Home Area's courts** — no separate zone picker. Asking the
+  player to pick a Tennis Zone here was found to be a redundant step: the
+  player's Home Area (`Player.home_area`, set via Edit Profile's own
+  dedicated "Area" field) already answers "which zone," so
+  `settings_change_courts` in `backend/app/bot/handlers/profile.py` opens
+  `courts_keyboard(lang, player.home_area, ...)` directly. Changing which
+  zone's courts appear here happens **only** by changing Home Area via
+  the "Area" field — there is no independent zone browser inside
+  Favourite Courts anymore. A player who wants a favourite court outside
+  their home zone still can — via "➕ Add my own court" (Custom Courts),
+  not by re-picking a zone. Backward compatibility: a player with no
+  saved `home_area` (nullable field; shouldn't happen once onboarding is
+  complete, but handled defensively) falls back to the standalone Tennis
+  Zone picker (`SettingsStates.choose_courts_zone`) so they're never stuck.
+- Flow, Find Partner Smart Filter: unchanged — reuses the same zone-scoped
+  court picker, scoped to whichever zone *that* filter is currently
+  searching (its own "Area" filter, independent of the player's profile
+  Home Area, since a search can legitimately target a different zone).
+  See "Custom Courts" below for the add-your-own-court decision in detail.
 
 **Migration path to a database-backed registry:** replace
 `COURTS_BY_ZONE`/`get_courts_for_zone()` with repository-backed
@@ -214,6 +233,15 @@ label still reads correctly once the registry itself grows categories
 would not have kept communicating once registry courts are also, in a
 sense, "yours."
 
+**Future Enhancement (not scheduled, no implementation now):** in a
+future version, users should be able to select favourite registry courts
+from multiple Tennis Zones without those extra-zone courts being treated
+as custom courts. This is intentionally postponed — Court Registry v1.0
+deliberately keeps Favourite Courts scoped to the player's Home Area (see
+"Court Registry" above), and a court from another zone is, for now,
+reachable only via "➕ Add my own court." Revisit once there's a concrete
+need for browsing/selecting registry courts across zones in one flow.
+
 ---
 
 ## Development workflow
@@ -242,15 +270,19 @@ not sufficient to commit — a product/UX review pass happens first, and its
 feedback is applied *before* the commit, not scheduled as a follow-up,
 unless the requester explicitly chooses to defer it.
 
-**Why:** this is where UX regressions get caught cheaply. Sprint 10.3
-Phase 2 shipped a working, tested Court Registry; product review then
-caught two things pure functional testing wouldn't: the Edit Profile
-Courts flow needed to be confirmed as always showing the zone picker
-(never silently defaulting to the home zone), and the custom-court flow
-only confirmed via text instead of showing the court checked immediately.
-Both were fixed in the same sprint, before commit, because they were
-raised as review questions rather than accepted as shipped behavior — see
-"Custom Courts" above for the resulting design.
+**Why:** this is where UX regressions — and over-corrections — get caught
+cheaply. Sprint 10.3 Phase 2 shipped a working, tested Court Registry;
+product review went through three rounds before commit: (1) confirming
+the custom-court flow needed to show the added court checked immediately,
+not just confirm it via text; (2) confirming Edit Profile's zone picker
+was never silently defaulting to the home zone; and (3) — after living
+with round 2's answer — recognizing that *always* asking for a zone was
+itself a redundant step once a Home Area is already saved, since the
+dedicated "Area" field already answers that question. Round 3 reversed
+part of round 2's confirmed behavior; that's a legitimate outcome of
+review, not a mistake to avoid — a decision confirmed as "working as
+intended" can still be revisited once its real usage is considered. See
+"Custom Courts" and "Court Registry" above for the resulting design.
 
 **How it works in practice:**
 1. Implementer presents modified files, root cause (if any), test results,

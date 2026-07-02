@@ -293,13 +293,40 @@ async def test_edit_profile_languages_done_saves_and_returns(session):
 # ── Courts field (Sprint 10.3 Phase 2 — Court Registry) ─────────────────────
 # New flow: Select Tennis Zone -> that zone's courts -> optional custom court.
 
-async def test_settings_change_courts_opens_zone_selection_first(session):
-    """Tapping the Courts field no longer jumps straight to a court list —
-    it opens the Tennis Zone picker first (Select Tennis Zone -> zone's courts)."""
-    await _make_player(session, 801001, "Jill")
+async def test_settings_change_courts_opens_home_zones_courts_directly(session):
+    """Tapping the Courts field must NOT ask for a Tennis Zone again — the
+    player's Home Area (set via the dedicated Area field) already answers
+    that, so Favourite Courts opens straight to that zone's court list."""
+    await _make_player(session, 801001, "Jill")  # home_area="Downtown"
     state = _make_state(801001)
 
     callback = _FakeCallback(data="settings:courts", user_id=801001)
+    await settings_change_courts(callback, state, session)
+
+    assert await state.get_state() == SettingsStates.change_courts.state
+    assert (await state.get_data())["courts_zone"] == "Downtown"
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("choose_courts", "en", zone="Downtown")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert ("Ramsden Park", "court_toggle:Ramsden Park") in buttons
+    # No Tennis Zone picker buttons — the redundant step is gone.
+    assert not any(cb.startswith("settings_courts_zone:") for _, cb in buttons)
+
+
+async def test_settings_change_courts_falls_back_to_zone_picker_without_home_area(session):
+    """Backward compatibility: a player with no saved home_area (nullable
+    field; shouldn't normally happen post-onboarding) still gets a way to
+    browse courts — the standalone Tennis Zone picker as a fallback."""
+    service = PlayerService(session)
+    await service.get_or_create(PlayerCreate(telegram_id=801011, first_name="NoZone"))
+    await service.update_profile(
+        801011,
+        PlayerUpdate(language="en", skill_level=3.0, preferred_courts=["Other"]),
+    )
+    await session.commit()
+
+    state = _make_state(801011)
+    callback = _FakeCallback(data="settings:courts", user_id=801011)
     await settings_change_courts(callback, state, session)
 
     assert await state.get_state() == SettingsStates.choose_courts_zone.state
@@ -307,7 +334,24 @@ async def test_settings_change_courts_opens_zone_selection_first(session):
     assert args[0] == t("choose_area", "en")
     buttons = _buttons(kwargs["reply_markup"])
     assert ("Downtown", "settings_courts_zone:Downtown") in buttons
-    assert ("Mississauga", "settings_courts_zone:Mississauga") in buttons
+
+
+async def test_changing_home_area_changes_which_zones_courts_open(session):
+    """Changing Home Area via the dedicated Area setting is the only way to
+    change which zone's courts Favourite Courts opens to."""
+    await _make_player(session, 801021, "Moved")  # starts in Downtown
+    await PlayerService(session).update_profile(801021, PlayerUpdate(home_area="Mississauga"))
+    await session.commit()
+
+    state = _make_state(801021)
+    callback = _FakeCallback(data="settings:courts", user_id=801021)
+    await settings_change_courts(callback, state, session)
+
+    assert (await state.get_data())["courts_zone"] == "Mississauga"
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("choose_courts", "en", zone="Mississauga")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert ("Mississauga Valley Park", "court_toggle:Mississauga Valley Park") in buttons
 
 
 async def test_settings_choose_courts_zone_shows_only_that_zones_courts(session):

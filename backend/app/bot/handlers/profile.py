@@ -193,19 +193,39 @@ async def settings_save_level(callback: CallbackQuery, state: FSMContext, sessio
 
 @router.callback_query(F.data == "settings:courts")
 async def settings_change_courts(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
-    """Courts are scoped to a Tennis Zone — first ask which zone to browse
-    (defaults to nothing pre-selected; the player's existing preferred_courts
-    are kept regardless of which zone they were originally added from)."""
+    """Courts are scoped to a Tennis Zone. The player's Home Area (set via
+    the dedicated "Area" field) already tells us which zone — asking again
+    here would be a redundant extra step, so Favourite Courts opens
+    straight to that zone's court list. Changing Home Area via "Area"
+    changes which zone's courts show here; there is no separate zone
+    picker in this flow.
+
+    Backward compatibility: a player without a saved home_area (shouldn't
+    normally happen once onboarding is complete, but the field is nullable)
+    falls back to the standalone Tennis Zone picker so they're never stuck
+    with no way to browse courts.
+    """
     if not callback.message:
         await callback.answer()
         return
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
     current = player.preferred_courts if player else []
-    await state.set_state(SettingsStates.choose_courts_zone)
-    await state.update_data(selected_courts=current, lang=lang)
     await callback.answer()
-    await _edit_screen(callback.message, t("choose_area", lang), area_keyboard(lang, "settings_courts_zone"))
+    if not player:
+        return
+
+    if player.home_area:
+        zone = player.home_area
+        await state.set_state(SettingsStates.change_courts)
+        await state.update_data(selected_courts=current, lang=lang, courts_zone=zone)
+        await _edit_screen(
+            callback.message, t("choose_courts", lang, zone=zone), courts_keyboard(lang, zone, current)
+        )
+    else:
+        await state.set_state(SettingsStates.choose_courts_zone)
+        await state.update_data(selected_courts=current, lang=lang)
+        await _edit_screen(callback.message, t("choose_area", lang), area_keyboard(lang, "settings_courts_zone"))
 
 
 @router.callback_query(SettingsStates.choose_courts_zone, F.data.startswith("settings_courts_zone:"))
