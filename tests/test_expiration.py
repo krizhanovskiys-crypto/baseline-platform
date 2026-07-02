@@ -44,12 +44,13 @@ async def _make_game_at(
         ),
     )
     assert game is not None
+    # create_game() already opens the match, so the path starts from OPEN.
     lc = MatchLifecycleService(session)
     path = {
-        GameStatus.OPEN:             [GameStatus.OPEN],
-        GameStatus.PARTIALLY_FILLED: [GameStatus.OPEN, GameStatus.PARTIALLY_FILLED],
-        GameStatus.FULL:             [GameStatus.OPEN, GameStatus.PARTIALLY_FILLED, GameStatus.FULL],
-        GameStatus.CONFIRMED:        [GameStatus.OPEN, GameStatus.PARTIALLY_FILLED, GameStatus.FULL, GameStatus.CONFIRMED],
+        GameStatus.OPEN:             [],
+        GameStatus.PARTIALLY_FILLED: [GameStatus.PARTIALLY_FILLED],
+        GameStatus.FULL:             [GameStatus.PARTIALLY_FILLED, GameStatus.FULL],
+        GameStatus.CONFIRMED:        [GameStatus.PARTIALLY_FILLED, GameStatus.FULL, GameStatus.CONFIRMED],
     }
     for s in path.get(target_status, []):
         await lc.transition(game.id, s)

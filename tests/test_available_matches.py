@@ -97,7 +97,6 @@ async def _make_open_game(
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 
@@ -364,16 +363,20 @@ async def test_join_match_forbidden_statuses(session, target_status):
 
 
 async def test_join_match_draft_not_allowed(session):
+    """DRAFT is a construction-only state now that create_game() opens matches
+    immediately — force a game back to DRAFT to verify join_match() still
+    rejects it, independent of how a match ends up in that status."""
     await _make_player(session, 300401, "Organizer")
-    draft_game = await GameService(session).create_game(
+    game = await GameService(session).create_game(
         creator_telegram_id=300401,
         data=GameCreate(court="X", area="Downtown", date=_FUTURE, time=time(9, 0)),
     )
+    assert game.status == GameStatus.OPEN
+    await GameRepository(session).update_status(game.id, GameStatus.DRAFT)
     await session.commit()
-    assert draft_game.status == GameStatus.DRAFT
 
     await _make_player(session, 300402, "Joiner")
-    _, err = await GameService(session).join_match(draft_game.id, 300402)
+    _, err = await GameService(session).join_match(game.id, 300402)
     assert err == "join_match_not_allowed"
 
 

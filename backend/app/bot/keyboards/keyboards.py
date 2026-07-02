@@ -311,7 +311,7 @@ def om_confirm_keyboard(lang: str) -> InlineKeyboardMarkup:
 def om_success_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text=t("om_btn_find_players", lang), callback_data=f"fpm:start:{game_id}")
-    builder.button(text=t("om_btn_my_matches", lang), callback_data="om:my_matches")
+    builder.button(text=t("om_btn_my_matches", lang), callback_data="my_matches:back")
     builder.button(text=t("btn_menu_home", lang), callback_data="om:menu")
     builder.adjust(2, 1)
     return builder.as_markup()

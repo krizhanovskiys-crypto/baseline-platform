@@ -8,7 +8,6 @@ from backend.app.database.repositories.game_repository import GamePlayerReposito
 from backend.app.schemas.game import GameCreate
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.services.game_service import GameService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 
@@ -42,7 +41,6 @@ async def _make_open_game(
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 

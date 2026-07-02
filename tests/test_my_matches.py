@@ -8,7 +8,6 @@ from backend.app.database.repositories.game_repository import GamePlayerReposito
 from backend.app.schemas.game import GameCreate
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.services.game_service import GameService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 
@@ -42,7 +41,6 @@ async def _make_open_game(
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 
@@ -100,6 +98,63 @@ async def test_accepted_invitee_sees_match(session):
     game, count = result[0]
     assert game.id == game_id
     assert count == 2  # organizer + accepted invitee
+
+
+# ── Sprint 10.3 — immediate visibility regression ───────────────────────────────
+# Root cause: GameService.create_game() used to leave a new match in DRAFT
+# status, and get_my_upcoming_matches() explicitly excludes DRAFT. Only the
+# Organize Match bot handler remembered to call MatchLifecycleService to open
+# it — any other caller (e.g. the REST API) left the match permanently
+# invisible. create_game() now opens the match itself, so these tests call it
+# with NO manual transition afterward, exactly reproducing the reported bug.
+
+async def test_newly_created_match_appears_immediately_for_organizer(session):
+    """A match created via create_game() alone (no manual OPEN transition)
+    must appear immediately in the organizer's My Matches list."""
+    await _make_player(session, 20001, "Organizer")
+    game = await GameService(session).create_game(
+        creator_telegram_id=20001,
+        data=GameCreate(
+            court="High Park Court 3",
+            area="Downtown",
+            date=date(2026, 9, 1),
+            time=time(18, 0),
+            match_type=MatchType.SINGLES,
+        ),
+    )
+    assert game is not None
+    assert game.status == GameStatus.OPEN  # visible immediately, not DRAFT
+
+    result = await GameService(session).get_my_upcoming_matches(20001)
+
+    assert len(result) == 1
+    assert result[0][0].id == game.id
+
+
+async def test_joined_match_appears_immediately_for_joiner(session):
+    """A match another player joins via join_match() must appear immediately
+    in the joiner's My Matches list — not just for the organizer."""
+    await _make_player(session, 20002, "Organizer")
+    await _make_player(session, 20003, "Joiner")
+    game = await GameService(session).create_game(
+        creator_telegram_id=20002,
+        data=GameCreate(
+            court="High Park Court 3",
+            area="Downtown",
+            date=date(2026, 9, 1),
+            time=time(18, 0),
+            match_type=MatchType.SINGLES,
+        ),
+    )
+    assert game is not None
+
+    _, err = await GameService(session).join_match(game.id, 20003)
+    assert err == ""
+
+    result = await GameService(session).get_my_upcoming_matches(20003)
+
+    assert len(result) == 1
+    assert result[0][0].id == game.id
 
 
 async def test_invited_not_yet_accepted_not_shown(session):

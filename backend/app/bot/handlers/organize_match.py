@@ -20,10 +20,9 @@ from backend.app.bot.keyboards.keyboards import (
 )
 from backend.app.bot.states.states import OrganizeMatchStates
 from backend.app.bot.texts import t
-from backend.app.database.models.game import GameStatus, MatchType
+from backend.app.database.models.game import MatchType
 from backend.app.schemas.game import GameCreate
 from backend.app.services.game_service import GameService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 logger = logging.getLogger(__name__)
@@ -307,8 +306,6 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         await callback.answer()
         return
 
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
-
     match_type_key = "om_match_type_singles" if players == 2 else "om_match_type_doubles"
     text = t(
         "om_success",
@@ -336,43 +333,10 @@ async def om_cancel(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 # ── Success screen callbacks ──────────────────────────────────────────────────
-
-@router.callback_query(F.data == "om:my_matches")
-async def om_my_matches(callback: CallbackQuery, session: AsyncSession) -> None:
-    user_id = callback.from_user.id
-    player = await PlayerService(session).get_by_telegram_id(user_id)
-    lang = get_player_lang(player)
-
-    matches = await GameService(session).get_my_matches(user_id)
-    if not matches:
-        await callback.message.answer(t("om_no_matches", lang), parse_mode="Markdown")  # type: ignore[union-attr]
-        await callback.answer()
-        return
-
-    today = date.today()
-    tomorrow = today + timedelta(days=1)
-
-    lines = [t("om_my_matches_header", lang)]
-    for match in matches:
-        if match.date == today:
-            date_label = t("om_btn_today", lang)
-        elif match.date == tomorrow:
-            date_label = t("om_btn_tomorrow", lang)
-        else:
-            date_label = match.date.strftime("%d.%m.%Y")
-        players_total = 4 if match.match_type == MatchType.DOUBLES else 2
-        lines.append(t(
-            "om_match_item",
-            lang,
-            date_label=date_label,
-            time=match.time.strftime("%H:%M"),
-            court=match.court,
-            players_joined=1,
-            players_total=players_total,
-        ))
-    await callback.message.answer("\n\n".join(lines), parse_mode="Markdown")  # type: ignore[union-attr]
-    await callback.answer()
-
+# "My Matches" on the success screen uses my_matches:back (my_matches.py) —
+# the same unified list + Match Details screen used from the main menu and
+# from any other entry point. There is only one My Matches / Match Details
+# implementation; see backend/app/bot/handlers/my_matches.py.
 
 @router.callback_query(F.data == "om:menu")
 async def om_to_menu(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:

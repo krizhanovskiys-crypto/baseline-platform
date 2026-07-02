@@ -23,8 +23,6 @@ async def _make_player(session, telegram_id: int, area: str, level: float, first
 
 async def _make_game(session, organizer_id: int, area: str, level: float) -> int:
     from datetime import date, time
-    from backend.app.database.models.game import GameStatus
-    from backend.app.services.match_lifecycle_service import MatchLifecycleService
     game = await GameService(session).create_game(
         creator_telegram_id=organizer_id,
         data=GameCreate(
@@ -37,7 +35,6 @@ async def _make_game(session, organizer_id: int, area: str, level: float) -> int
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 

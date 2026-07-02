@@ -2,7 +2,7 @@
 import pytest
 from datetime import date, time
 
-from backend.app.database.models.game import GamePlayerStatus, GameStatus, MatchType
+from backend.app.database.models.game import GamePlayerStatus, MatchType
 from backend.app.database.models.invitation import InvitationStatus
 from backend.app.database.repositories.game_repository import GamePlayerRepository
 from backend.app.database.repositories.invitation_repository import InvitationRepository
@@ -10,7 +10,6 @@ from backend.app.schemas.game import GameCreate
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.services.game_service import GameService
 from backend.app.services.invitation_service import InvitationService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 
@@ -39,8 +38,7 @@ async def _make_game(session, organizer_telegram_id: int, area: str = "Downtown"
         ),
     )
     assert game is not None
-    # Invitations require OPEN or PARTIALLY_FILLED status.
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
+    # create_game() already opens the match (OPEN or PARTIALLY_FILLED-eligible).
     return game.id
 
 

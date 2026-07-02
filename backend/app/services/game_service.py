@@ -56,11 +56,19 @@ class GameService:
             status=GamePlayerStatus.CONFIRMED,
         )
 
+        # A created match must be immediately visible/joinable — DRAFT is a
+        # construction-only state. This is the single point that opens every
+        # match regardless of caller (bot wizard, REST API, future callers),
+        # so no caller can forget the transition and leave a match invisible.
+        from backend.app.services.match_lifecycle_service import MatchLifecycleService
+
+        opened = await MatchLifecycleService(self._session).transition(game.id, GameStatus.OPEN)
+
         logger.info(
             "Game created id=%s by telegram_id=%s area=%s", game.id, creator_telegram_id, game.area
         )
         await self._analytics.track_event(creator.id, "game_created", {"game_id": game.id})
-        return _game_to_schema(game)
+        return opened
 
     async def get_open_games(self, area: str | None = None) -> list[GameRead]:
         """Return all open games, optionally filtered by area."""

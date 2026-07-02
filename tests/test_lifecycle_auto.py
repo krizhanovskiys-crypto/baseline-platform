@@ -8,7 +8,6 @@ from backend.app.schemas.game import GameCreate
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.services.game_service import GameService
 from backend.app.services.invitation_service import InvitationService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 
@@ -25,7 +24,7 @@ async def _make_player(session, telegram_id: int, first_name: str = "Player") ->
 
 
 async def _make_open_game(session, organizer_tid: int, match_type: MatchType = MatchType.SINGLES) -> int:
-    """Create a game in OPEN status (DRAFT → OPEN via lifecycle)."""
+    """Create a game — create_game() opens it immediately."""
     game = await GameService(session).create_game(
         creator_telegram_id=organizer_tid,
         data=GameCreate(
@@ -37,7 +36,6 @@ async def _make_open_game(session, organizer_tid: int, match_type: MatchType = M
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 

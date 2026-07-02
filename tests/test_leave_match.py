@@ -38,7 +38,6 @@ async def _make_open_game(session, organizer_tid: int, match_type: MatchType = M
         ),
     )
     assert game is not None
-    await MatchLifecycleService(session).transition(game.id, GameStatus.OPEN)
     return game.id
 
 

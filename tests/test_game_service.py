@@ -9,7 +9,6 @@ from backend.app.schemas.game import GameCreate
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.database.models.game import GameStatus
 from backend.app.services.game_service import GameService
-from backend.app.services.match_lifecycle_service import MatchLifecycleService
 from backend.app.services.player_service import PlayerService
 
 
@@ -61,28 +60,28 @@ async def test_create_game_unknown_player(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_game_starts_as_draft(session: AsyncSession) -> None:
+async def test_create_game_starts_as_open(session: AsyncSession) -> None:
+    """A created match must be immediately visible/joinable — create_game()
+    opens it itself rather than leaving it in DRAFT for the caller to open."""
     await _make_player(session, 5002, "Bob")
     game = await GameService(session).create_game(
         creator_telegram_id=5002,
         data=GameCreate(court="A", area="Downtown", date=date(2025, 10, 1), time=time(9, 0)),
     )
     assert game is not None
-    assert game.status == GameStatus.DRAFT
+    assert game.status == GameStatus.OPEN
 
 
 @pytest.mark.asyncio
 async def test_get_open_games(session: AsyncSession) -> None:
     await _make_player(session, 5003, "Bob")
     game_svc = GameService(session)
-    lifecycle = MatchLifecycleService(session)
 
     for court in ["A", "B", "C"]:
-        game = await game_svc.create_game(
+        await game_svc.create_game(
             creator_telegram_id=5003,
             data=GameCreate(court=court, area="Downtown", date=date(2025, 10, 1), time=time(9, 0)),
         )
-        await lifecycle.transition(game.id, GameStatus.OPEN)
     await session.commit()
 
     games = await game_svc.get_open_games()
