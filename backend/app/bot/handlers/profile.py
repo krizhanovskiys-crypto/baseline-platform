@@ -193,16 +193,36 @@ async def settings_save_level(callback: CallbackQuery, state: FSMContext, sessio
 
 @router.callback_query(F.data == "settings:courts")
 async def settings_change_courts(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    """Courts are scoped to a Tennis Zone — first ask which zone to browse
+    (defaults to nothing pre-selected; the player's existing preferred_courts
+    are kept regardless of which zone they were originally added from)."""
     if not callback.message:
         await callback.answer()
         return
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
     current = player.preferred_courts if player else []
-    await state.set_state(SettingsStates.change_courts)
+    await state.set_state(SettingsStates.choose_courts_zone)
     await state.update_data(selected_courts=current, lang=lang)
     await callback.answer()
-    await _edit_screen(callback.message, t("choose_courts", lang), courts_keyboard(lang, current))
+    await _edit_screen(callback.message, t("choose_area", lang), area_keyboard(lang, "settings_courts_zone"))
+
+
+@router.callback_query(SettingsStates.choose_courts_zone, F.data.startswith("settings_courts_zone:"))
+async def settings_choose_courts_zone(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.data or not callback.message:
+        await callback.answer()
+        return
+    zone = callback.data.split(":", 1)[1]
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    selected: list[str] = data.get("selected_courts", [])
+    await state.update_data(courts_zone=zone)
+    await state.set_state(SettingsStates.change_courts)
+    await callback.answer()
+    await _edit_screen(
+        callback.message, t("choose_courts", lang, zone=zone), courts_keyboard(lang, zone, selected)
+    )
 
 
 @router.callback_query(SettingsStates.change_courts, F.data.startswith("court_toggle:"))
@@ -213,6 +233,7 @@ async def settings_court_toggle(callback: CallbackQuery, state: FSMContext) -> N
     court = callback.data.split(":", 1)[1]
     data = await state.get_data()
     lang = data.get("lang", "en")
+    zone = data.get("courts_zone", "")
     selected: list[str] = data.get("selected_courts", [])
     if court in selected:
         selected.remove(court)
@@ -221,10 +242,46 @@ async def settings_court_toggle(callback: CallbackQuery, state: FSMContext) -> N
     await state.update_data(selected_courts=selected)
     await callback.answer()
     try:
-        await callback.message.edit_reply_markup(reply_markup=courts_keyboard(lang, selected))
+        await callback.message.edit_reply_markup(reply_markup=courts_keyboard(lang, zone, selected))
     except TelegramBadRequest as exc:
         if "message is not modified" not in str(exc):
             raise
+
+
+@router.callback_query(SettingsStates.change_courts, F.data == "court_add_custom")
+async def settings_court_add_custom(callback: CallbackQuery, state: FSMContext) -> None:
+    if not callback.message:
+        await callback.answer()
+        return
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    await state.set_state(SettingsStates.enter_custom_court)
+    await callback.answer()
+    await callback.message.answer(t("custom_court_prompt", lang), parse_mode="Markdown")
+
+
+@router.message(SettingsStates.enter_custom_court)
+async def settings_custom_court_submit(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    zone = data.get("courts_zone", "")
+    court = (message.text or "").strip()
+    if not court:
+        await message.answer(t("custom_court_empty_error", lang), parse_mode="Markdown")
+        return
+
+    selected: list[str] = data.get("selected_courts", [])
+    if court not in selected:
+        selected.append(court)
+    await state.update_data(selected_courts=selected)
+    await state.set_state(SettingsStates.change_courts)
+
+    await message.answer(t("custom_court_added", lang), parse_mode="Markdown")
+    await message.answer(
+        t("choose_courts", lang, zone=zone),
+        reply_markup=courts_keyboard(lang, zone, selected),
+        parse_mode="Markdown",
+    )
 
 
 @router.callback_query(SettingsStates.change_courts, F.data == "courts_done")
@@ -236,7 +293,7 @@ async def settings_courts_done(callback: CallbackQuery, state: FSMContext, sessi
     selected: list[str] = data.get("selected_courts", [])
     user = callback.from_user
     service = PlayerService(session)
-    await service.update_profile(user.id, PlayerUpdate(preferred_courts=selected or ["Other"]))
+    await service.update_profile(user.id, PlayerUpdate(preferred_courts=selected))
     await state.clear()
     player = await service.get_by_telegram_id(user.id)
     lang = get_player_lang(player)

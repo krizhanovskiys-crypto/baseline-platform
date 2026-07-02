@@ -9,6 +9,7 @@ class OnboardingStates(StatesGroup):
     choose_level = State()
     choose_area = State()
     choose_courts = State()
+    enter_custom_court = State()
 
 
 
@@ -29,10 +30,13 @@ class OrganizeMatchStates(StatesGroup):
 
 class FindPartnerStates(StatesGroup):
     """Find-partner flow. browsing = paginating cards; smart_filter = the
-    Sprint 7.0-style filter screens shown before the search runs."""
+    Sprint 7.0-style filter screens shown before the search runs;
+    enter_custom_court = free-text entry for "Add my own court" within the
+    Smart Filter's Favourite Courts step."""
 
     browsing = State()
     smart_filter = State()
+    enter_custom_court = State()
 
 
 class FindPlayersForMatchStates(StatesGroup):
@@ -60,6 +64,8 @@ class SettingsStates(StatesGroup):
     change_language = State()
     change_area = State()
     change_level = State()
+    choose_courts_zone = State()
     change_courts = State()
+    enter_custom_court = State()
     change_name = State()
     change_languages = State()

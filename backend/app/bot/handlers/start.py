@@ -106,20 +106,21 @@ async def onboarding_area(callback: CallbackQuery, state: FSMContext, session: A
     await callback.message.edit_reply_markup()  # type: ignore[union-attr]
     await state.set_state(OnboardingStates.choose_courts)
     await callback.message.answer(  # type: ignore[union-attr]
-        t("choose_courts", lang),
-        reply_markup=courts_keyboard(lang, []),
+        t("choose_courts", lang, zone=area),
+        reply_markup=courts_keyboard(lang, area, []),
         parse_mode="Markdown",
     )
     await callback.answer()
 
 
-# ── Step 4: Courts (multi-select) ────────────────────────────────────────────
+# ── Step 4: Courts (multi-select, scoped to the chosen Tennis Zone) ──────────
 
 @router.callback_query(OnboardingStates.choose_courts, F.data.startswith("court_toggle:"))
 async def onboarding_court_toggle(callback: CallbackQuery, state: FSMContext) -> None:
     court = callback.data.split(":", 1)[1]  # type: ignore[union-attr]
     data = await state.get_data()
     lang = data.get("language", "en")
+    zone = data.get("home_area", "")
     selected: list[str] = data.get("selected_courts", [])
 
     if court in selected:
@@ -129,9 +130,42 @@ async def onboarding_court_toggle(callback: CallbackQuery, state: FSMContext) ->
 
     await state.update_data(selected_courts=selected)
     await callback.message.edit_reply_markup(  # type: ignore[union-attr]
-        reply_markup=courts_keyboard(lang, selected)
+        reply_markup=courts_keyboard(lang, zone, selected)
     )
     await callback.answer()
+
+
+@router.callback_query(OnboardingStates.choose_courts, F.data == "court_add_custom")
+async def onboarding_court_add_custom(callback: CallbackQuery, state: FSMContext) -> None:
+    data = await state.get_data()
+    lang = data.get("language", "en")
+    await state.set_state(OnboardingStates.enter_custom_court)
+    await callback.message.answer(t("custom_court_prompt", lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    await callback.answer()
+
+
+@router.message(OnboardingStates.enter_custom_court)
+async def onboarding_custom_court_submit(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    lang = data.get("language", "en")
+    zone = data.get("home_area", "")
+    court = (message.text or "").strip()
+    if not court:
+        await message.answer(t("custom_court_empty_error", lang), parse_mode="Markdown")
+        return
+
+    selected: list[str] = data.get("selected_courts", [])
+    if court not in selected:
+        selected.append(court)
+    await state.update_data(selected_courts=selected)
+    await state.set_state(OnboardingStates.choose_courts)
+
+    await message.answer(t("custom_court_added", lang), parse_mode="Markdown")
+    await message.answer(
+        t("choose_courts", lang, zone=zone),
+        reply_markup=courts_keyboard(lang, zone, selected),
+        parse_mode="Markdown",
+    )
 
 
 @router.callback_query(OnboardingStates.choose_courts, F.data == "courts_done")
@@ -153,7 +187,7 @@ async def onboarding_courts_done(
             language=lang,
             skill_level=data.get("skill_level"),
             home_area=data.get("home_area"),
-            preferred_courts=selected_courts or ["Other"],
+            preferred_courts=selected_courts,
         ),
     )
 

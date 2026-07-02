@@ -15,7 +15,12 @@ from backend.app.bot.handlers.profile import (
     edit_profile_name_save,
     edit_profile_name_start,
     settings_change_area,
+    settings_change_courts,
+    settings_choose_courts_zone,
+    settings_court_add_custom,
+    settings_court_toggle,
     settings_courts_done,
+    settings_custom_court_submit,
     settings_save_area,
     settings_save_level,
 )
@@ -283,3 +288,184 @@ async def test_edit_profile_languages_done_saves_and_returns(session):
 
     player = await PlayerService(session).get_by_telegram_id(800901)
     assert sorted(player.spoken_languages) == ["RUS", "UKR"]
+
+
+# ── Courts field (Sprint 10.3 Phase 2 — Court Registry) ─────────────────────
+# New flow: Select Tennis Zone -> that zone's courts -> optional custom court.
+
+async def test_settings_change_courts_opens_zone_selection_first(session):
+    """Tapping the Courts field no longer jumps straight to a court list —
+    it opens the Tennis Zone picker first (Select Tennis Zone -> zone's courts)."""
+    await _make_player(session, 801001, "Jill")
+    state = _make_state(801001)
+
+    callback = _FakeCallback(data="settings:courts", user_id=801001)
+    await settings_change_courts(callback, state, session)
+
+    assert await state.get_state() == SettingsStates.choose_courts_zone.state
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("choose_area", "en")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert ("Downtown", "settings_courts_zone:Downtown") in buttons
+    assert ("Mississauga", "settings_courts_zone:Mississauga") in buttons
+
+
+async def test_settings_choose_courts_zone_shows_only_that_zones_courts(session):
+    await _make_player(session, 801101, "Kim")
+    state = _make_state(801101)
+    await state.set_state(SettingsStates.choose_courts_zone)
+    await state.update_data(selected_courts=["High Park"], lang="en")
+
+    callback = _FakeCallback(data="settings_courts_zone:West Toronto / Etobicoke", user_id=801101)
+    await settings_choose_courts_zone(callback, state)
+
+    assert await state.get_state() == SettingsStates.change_courts.state
+    assert (await state.get_data())["courts_zone"] == "West Toronto / Etobicoke"
+    args, kwargs = callback.message.edit_text.call_args
+    assert args[0] == t("choose_courts", "en", zone="West Toronto / Etobicoke")
+    buttons = _buttons(kwargs["reply_markup"])
+    assert ("✅ High Park", "court_toggle:High Park") in buttons
+    assert ("Colonel Samuel Smith Park", "court_toggle:Colonel Samuel Smith Park") in buttons
+    # Downtown-only courts must not appear on the Etobicoke zone screen.
+    assert not any(cb == "court_toggle:Ramsden Park" for _, cb in buttons)
+    assert ("➕ Add my own court", "court_add_custom") in buttons
+
+
+async def test_settings_court_toggle_then_done_saves_to_profile(session):
+    await _make_player(session, 801201, "Leo")
+    state = _make_state(801201)
+    await state.set_state(SettingsStates.change_courts)
+    await state.update_data(selected_courts=[], lang="en", courts_zone="Downtown")
+
+    toggle_cb = _FakeCallback(data="court_toggle:Withrow Park", user_id=801201)
+    await settings_court_toggle(toggle_cb, state)
+    assert (await state.get_data())["selected_courts"] == ["Withrow Park"]
+
+    done_cb = _FakeCallback(data="courts_done", user_id=801201)
+    await settings_courts_done(done_cb, state, session)
+
+    player = await PlayerService(session).get_by_telegram_id(801201)
+    assert player.preferred_courts == ["Withrow Park"]
+
+
+async def test_settings_custom_court_flow_adds_and_confirms(session):
+    """➕ Add my own court -> free-text prompt -> confirmation -> the same
+    zone screen re-renders with the new court immediately visible and
+    already checked in a "Custom Courts" section (not just a text message),
+    then Done persists it."""
+    await _make_player(session, 801301, "Mia")
+    state = _make_state(801301)
+    await state.set_state(SettingsStates.change_courts)
+    await state.update_data(selected_courts=[], lang="en", courts_zone="Downtown")
+
+    add_cb = _FakeCallback(data="court_add_custom", user_id=801301)
+    await settings_court_add_custom(add_cb, state)
+    assert await state.get_state() == SettingsStates.enter_custom_court.state
+    prompt_text, _ = add_cb.message.sent[0]
+    assert prompt_text == t("custom_court_prompt", "en")
+
+    message = _FakeMessage(text="High Park Bubble", from_user_id=801301)
+    await settings_custom_court_submit(message, state)
+
+    assert await state.get_state() == SettingsStates.change_courts.state
+    assert (await state.get_data())["selected_courts"] == ["High Park Bubble"]
+    confirmation, _ = message.sent[0]
+    assert confirmation == t("custom_court_added", "en")
+    screen_text, screen_markup = message.sent[1]
+    assert screen_text == t("choose_courts", "en", zone="Downtown")
+    buttons = _buttons(screen_markup)
+    assert (t("custom_courts_divider", "en"), "noop") in buttons
+    assert ("✅ High Park Bubble", "court_toggle:High Park Bubble") in buttons
+
+    done_cb = _FakeCallback(data="courts_done", user_id=801301)
+    await settings_courts_done(done_cb, state, session)
+    player = await PlayerService(session).get_by_telegram_id(801301)
+    assert player.preferred_courts == ["High Park Bubble"]
+
+
+async def test_custom_court_toggled_off_by_tapping_again(session):
+    """A custom court's "Custom Courts" button behaves exactly like a registry
+    button — tapping it again removes it from the selection, using the same
+    court_toggle handler and no separate code path."""
+    state = _make_state(801351)
+    await state.set_state(SettingsStates.change_courts)
+    await state.update_data(selected_courts=["High Park Bubble"], lang="en", courts_zone="Downtown")
+
+    toggle_cb = _FakeCallback(data="court_toggle:High Park Bubble", user_id=801351)
+    await settings_court_toggle(toggle_cb, state)
+
+    assert (await state.get_data())["selected_courts"] == []
+    buttons = _buttons(toggle_cb.message.edit_reply_markup.call_args[1]["reply_markup"])
+    assert not any(cb == "court_toggle:High Park Bubble" for _, cb in buttons)
+    assert (t("custom_courts_divider", "en"), "noop") not in buttons  # section disappears once empty
+
+
+async def test_courts_screen_mixes_registry_and_custom_selections(session):
+    """A registry court and a custom court, both selected, render together —
+    the registry court checked in its normal spot, the custom court checked
+    in the separate 'Custom Courts' section."""
+    state = _make_state(801361)
+    await state.set_state(SettingsStates.change_courts)
+    await state.update_data(
+        selected_courts=["Ramsden Park", "High Park Bubble"], lang="en", courts_zone="Downtown"
+    )
+
+    toggle_cb = _FakeCallback(data="court_toggle:Withrow Park", user_id=801361)
+    await settings_court_toggle(toggle_cb, state)  # re-render without changing the mix under test
+
+    buttons = _buttons(toggle_cb.message.edit_reply_markup.call_args[1]["reply_markup"])
+    assert ("✅ Ramsden Park", "court_toggle:Ramsden Park") in buttons
+    assert ("✅ High Park Bubble", "court_toggle:High Park Bubble") in buttons
+    assert (t("custom_courts_divider", "en"), "noop") in buttons
+
+
+async def test_settings_custom_court_rejects_empty_input(session):
+    await _make_player(session, 801401, "Nia")
+    state = _make_state(801401)
+    await state.set_state(SettingsStates.enter_custom_court)
+    await state.update_data(selected_courts=[], lang="en", courts_zone="Downtown")
+
+    message = _FakeMessage(text="   ", from_user_id=801401)
+    await settings_custom_court_submit(message, state)
+
+    text, _ = message.sent[0]
+    assert text == t("custom_court_empty_error", "en")
+    assert await state.get_state() == SettingsStates.enter_custom_court.state  # stays in the flow
+    assert (await state.get_data())["selected_courts"] == []
+
+
+# ── Backward compatibility: pre-Sprint-10.3 profiles keep working ───────────
+
+async def test_pre_sprint_court_selection_survives_a_zone_screen_visit(session):
+    """A player whose preferred_courts predate the Court Registry (e.g. the
+    literal 'Other' sentinel from the old flow) must not lose that selection
+    just by opening a different zone's court screen — no migration is
+    required for old profiles to keep working. It now also shows up in the
+    "Custom Courts" section (same mechanism as a freshly-added custom court),
+    which is a UX improvement over being silently invisible."""
+    service = PlayerService(session)
+    await service.get_or_create(PlayerCreate(telegram_id=801501, first_name="Omar"))
+    await service.update_profile(
+        801501,
+        PlayerUpdate(language="en", skill_level=3.0, home_area="Downtown", preferred_courts=["Other"]),
+    )
+    await session.commit()
+
+    state = _make_state(801501)
+    await state.set_state(SettingsStates.choose_courts_zone)
+    await state.update_data(selected_courts=["Other"], lang="en")
+
+    # Open an unrelated zone screen — "Other" isn't a Scarborough registry
+    # court, but it still surfaces (checked) in the Custom Courts section.
+    zone_cb = _FakeCallback(data="settings_courts_zone:Scarborough", user_id=801501)
+    await settings_choose_courts_zone(zone_cb, state)
+    buttons = _buttons(zone_cb.message.edit_text.call_args[1]["reply_markup"])
+    assert ("✅ Other", "court_toggle:Other") in buttons
+
+    # ...then hit Done without touching anything — the old value must survive.
+    done_cb = _FakeCallback(data="courts_done", user_id=801501)
+    await settings_courts_done(done_cb, state, session)
+
+    player = await service.get_by_telegram_id(801501)
+    assert player.preferred_courts == ["Other"]
+    assert player.is_profile_complete is True

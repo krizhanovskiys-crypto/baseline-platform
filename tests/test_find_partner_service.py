@@ -98,3 +98,37 @@ async def test_empty_when_no_matches(session: AsyncSession) -> None:
     svc = PlayerService(session)
     partners = await svc.find_partners(telegram_id=9999, area="Nowhere", skill_level=3.0)
     assert partners == []
+
+
+# ── Sprint 10.3 Phase 2 — Court Registry: matching is court-value agnostic ───
+
+@pytest.mark.asyncio
+async def test_matching_works_with_registry_and_custom_courts_mixed(session: AsyncSession) -> None:
+    """find_partners() only ever does plain string set-intersection on
+    preferred_courts — it has no knowledge of the Court Registry or Tennis
+    Zones. Official registry courts and freeform custom courts (added via
+    'Add my own court') must sort identically, with no regression."""
+    svc = PlayerService(session)
+    # Registry court, matches searcher exactly.
+    await svc.get_or_create(PlayerCreate(telegram_id=8101, first_name="Registry"))
+    await svc.update_profile(8101, PlayerUpdate(language="en", skill_level=3.5, home_area="Downtown", preferred_courts=["Ramsden Park"]))
+    # Custom (non-registry) court, matches searcher exactly.
+    await svc.get_or_create(PlayerCreate(telegram_id=8102, first_name="Custom"))
+    await svc.update_profile(8102, PlayerUpdate(language="en", skill_level=3.5, home_area="Downtown", preferred_courts=["High Park Bubble"]))
+    # No shared court at all.
+    await svc.get_or_create(PlayerCreate(telegram_id=8103, first_name="NoMatch"))
+    await svc.update_profile(8103, PlayerUpdate(language="en", skill_level=3.5, home_area="Downtown", preferred_courts=["Some Other Court"]))
+    await session.commit()
+
+    partners = await svc.find_partners(
+        telegram_id=9999,
+        area="Downtown",
+        skill_level=3.5,
+        my_courts=["Ramsden Park", "High Park Bubble"],
+    )
+    names = [p.first_name for p in partners]
+    # Registry and Custom both share exactly 1 court with the searcher, so
+    # they must rank ahead of NoMatch — the registry/custom distinction has
+    # no effect on ranking.
+    assert set(names[:2]) == {"Registry", "Custom"}
+    assert names[2] == "NoMatch"

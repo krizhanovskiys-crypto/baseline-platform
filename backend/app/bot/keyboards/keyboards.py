@@ -8,7 +8,8 @@ from typing import Any
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from backend.app.bot.texts import AREAS, COURTS, SKILL_LEVELS, SPOKEN_LANGUAGES, t
+from backend.app.bot.texts import SKILL_LEVELS, SPOKEN_LANGUAGES, t
+from backend.app.data.courts import TENNIS_ZONES, get_courts_for_zone
 from backend.app.schemas.player import PlayerRead
 
 
@@ -51,22 +52,54 @@ def skill_level_keyboard(lang: str) -> InlineKeyboardMarkup:
 
 
 def area_keyboard(lang: str, callback_prefix: str = "area") -> InlineKeyboardMarkup:
+    """Tennis Zone selector. Despite the name (kept for callback/state
+    compatibility across the codebase), options come from the Court
+    Registry's TENNIS_ZONES — Baseline uses Tennis Zones, not administrative
+    districts."""
     builder = InlineKeyboardBuilder()
-    for area in AREAS:
-        builder.button(text=area, callback_data=f"{callback_prefix}:{area}")
+    for zone in TENNIS_ZONES:
+        builder.button(text=zone, callback_data=f"{callback_prefix}:{zone}")
     builder.adjust(2)
     return builder.as_markup()
 
 
-def courts_keyboard(lang: str, selected: list[str] | None = None) -> InlineKeyboardMarkup:
-    """Multi-select court keyboard.  Selected courts get a ✅ prefix."""
+def courts_keyboard(lang: str, zone: str, selected: list[str] | None = None) -> InlineKeyboardMarkup:
+    """Multi-select court keyboard scoped to one Tennis Zone.
+
+    Registry courts for `zone` (Court Registry — backend/app/data/courts.py
+    — is the single source of truth) are shown first. Any already-selected
+    court that ISN'T part of that zone's registry — typically a custom
+    court added via "Add my own court", but also simply a court saved while
+    a different zone was open — is rendered in a separate "Custom Courts"
+    section below, so it's visible and already checked immediately, not
+    just confirmed via a message. Every button, registry or custom, toggles
+    through the same court_toggle:{court} callback — callers don't need a
+    separate code path or FSM state for custom courts.
+    """
     selected = selected or []
+    zone_courts = get_courts_for_zone(zone)
+    custom_courts = [court for court in selected if court not in zone_courts]
+
     builder = InlineKeyboardBuilder()
-    for court in COURTS:
+    rows: list[int] = []
+
+    for court in zone_courts:
         label = f"✅ {court}" if court in selected else court
         builder.button(text=label, callback_data=f"court_toggle:{court}")
+    rows.extend([2] * (len(zone_courts) // 2) + ([1] if len(zone_courts) % 2 else []))
+
+    if custom_courts:
+        builder.button(text=t("custom_courts_divider", lang), callback_data="noop")
+        rows.append(1)
+        for court in custom_courts:
+            builder.button(text=f"✅ {court}", callback_data=f"court_toggle:{court}")
+        rows.extend([1] * len(custom_courts))
+
+    builder.button(text=t("btn_add_own_court", lang), callback_data="court_add_custom")
     builder.button(text=t("btn_done", lang), callback_data="courts_done")
-    builder.adjust(2, 2, 2, 2, 1)
+    rows.extend([1, 1])
+
+    builder.adjust(*rows)
     return builder.as_markup()
 
 
@@ -544,7 +577,7 @@ def available_matches_filter_category_keyboard(
 
     if dimension == "area":
         selected_area = home_area if filters.get("area", "home") in (None, "home") else filters.get("area")
-        for area in AREAS:
+        for area in TENNIS_ZONES:
             builder.button(text=_mark(area, area == selected_area), callback_data=f"available:filter:area:{area}")
         builder.button(
             text=_mark(t("available_matches_filter_any", lang), filters.get("area") == "any"),

@@ -16,11 +16,11 @@ _TEST_PREFIX = "_test_"
 _TEST_TELEGRAM_ID_BASE = 9_000_000_000
 
 _TEST_PLAYERS = [
-    {"first_name": "Test Alice", "username": "_test_alice", "skill_level": 3.0, "home_area": "Downtown",   "courts": ["High Park", "Ramsden Park"]},
-    {"first_name": "Test Bob",   "username": "_test_bob",   "skill_level": 3.5, "home_area": "Downtown",   "courts": ["High Park"]},
-    {"first_name": "Test Carol", "username": "_test_carol", "skill_level": 4.0, "home_area": "North York", "courts": ["Eglinton Park"]},
-    {"first_name": "Test Dave",  "username": "_test_dave",  "skill_level": 3.5, "home_area": "Etobicoke",  "courts": ["Other"]},
-    {"first_name": "Test Eve",   "username": "_test_eve",   "skill_level": 4.5, "home_area": "Mississauga","courts": ["Other"]},
+    {"first_name": "Test Alice", "username": "_test_alice", "skill_level": 3.0, "home_area": "Downtown",   "courts": ["Ramsden Park", "Withrow Park"]},
+    {"first_name": "Test Bob",   "username": "_test_bob",   "skill_level": 3.5, "home_area": "Downtown",   "courts": ["Ramsden Park"]},
+    {"first_name": "Test Carol", "username": "_test_carol", "skill_level": 4.0, "home_area": "North York", "courts": ["Oriole Park"]},
+    {"first_name": "Test Dave",  "username": "_test_dave",  "skill_level": 3.5, "home_area": "West Toronto / Etobicoke", "courts": ["High Park Bubble"]},
+    {"first_name": "Test Eve",   "username": "_test_eve",   "skill_level": 4.5, "home_area": "Mississauga","courts": ["Mississauga Valley Park"]},
 ]
 
 

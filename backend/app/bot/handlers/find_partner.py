@@ -224,8 +224,16 @@ async def fp_smartfilter_save_area(callback: CallbackQuery, state: FSMContext, s
     await _show_smart_filter_screen(callback.message, filters, lang, player.home_area or "")
 
 
-# ── Smart Filter — Favourite Courts (reuses the existing Courts selector;
+# ── Smart Filter — Favourite Courts (reuses the existing Courts selector,
+#    scoped to whichever zone Smart Filter is currently searching in;
 #    temporary selection only, never written to the player's profile) ─────────
+
+def _smart_filter_zone(filters: dict, player: PlayerRead) -> str:
+    """The Tennis Zone Smart Filter's court list should show — the resolved
+    search area (player's home zone when filters["area"] == "home")."""
+    area = filters.get("area", "home")
+    return player.home_area or "" if area == "home" else str(area)
+
 
 @router.callback_query(F.data == "fp:smartfilter:open:courts")
 async def fp_smartfilter_open_courts(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
@@ -240,7 +248,10 @@ async def fp_smartfilter_open_courts(callback: CallbackQuery, state: FSMContext,
     await callback.answer()
     if not player:
         return
-    await _edit_screen(callback.message, t("choose_courts", lang), courts_keyboard(lang, filters["courts"]))
+    zone = _smart_filter_zone(filters, player)
+    await _edit_screen(
+        callback.message, t("choose_courts", lang, zone=zone), courts_keyboard(lang, zone, filters["courts"])
+    )
 
 
 @router.callback_query(FindPartnerStates.smart_filter, F.data.startswith("court_toggle:"))
@@ -261,7 +272,51 @@ async def fp_smartfilter_court_toggle(callback: CallbackQuery, state: FSMContext
     filters["courts"] = selected
     await state.update_data(filters=filters)
     await callback.answer()
-    await _edit_screen(callback.message, t("choose_courts", lang), courts_keyboard(lang, selected))
+    if not player:
+        return
+    zone = _smart_filter_zone(filters, player)
+    await _edit_screen(callback.message, t("choose_courts", lang, zone=zone), courts_keyboard(lang, zone, selected))
+
+
+@router.callback_query(FindPartnerStates.smart_filter, F.data == "court_add_custom")
+async def fp_smartfilter_court_add_custom(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    if not callback.message:
+        await callback.answer()
+        return
+    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
+    lang = get_player_lang(player)
+    await state.set_state(FindPartnerStates.enter_custom_court)
+    await callback.answer()
+    await callback.message.answer(t("custom_court_prompt", lang), parse_mode="Markdown")
+
+
+@router.message(FindPartnerStates.enter_custom_court)
+async def fp_smartfilter_custom_court_submit(message: Message, state: FSMContext, session: AsyncSession) -> None:
+    player = await PlayerService(session).get_by_telegram_id(message.from_user.id)  # type: ignore[union-attr]
+    lang = get_player_lang(player)
+    court = (message.text or "").strip()
+    if not court:
+        await message.answer(t("custom_court_empty_error", lang), parse_mode="Markdown")
+        return
+
+    data = await state.get_data()
+    filters = data.get("filters", dict(_DEFAULT_SMART_FILTERS))
+    selected: list[str] = filters.get("courts") or []
+    if court not in selected:
+        selected.append(court)
+    filters["courts"] = selected
+    await state.update_data(filters=filters)
+    await state.set_state(FindPartnerStates.smart_filter)
+
+    await message.answer(t("custom_court_added", lang), parse_mode="Markdown")
+    if not player:
+        return
+    zone = _smart_filter_zone(filters, player)
+    await message.answer(
+        t("choose_courts", lang, zone=zone),
+        reply_markup=courts_keyboard(lang, zone, selected),
+        parse_mode="Markdown",
+    )
 
 
 @router.callback_query(FindPartnerStates.smart_filter, F.data == "courts_done")
