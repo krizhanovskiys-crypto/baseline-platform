@@ -35,58 +35,6 @@ vocabulary is match-first.
 
 ---
 
-## "🎾 On Court Now" is a separate workflow
-
-**Status: referenced during Sprint 10 planning; not yet fully specified in
-this repository.**
-
-The current shipped feature is "🔥 Available Now" (`btn_available_now`,
-`backend/app/bot/handlers/available_now.py`): a player marks themselves
-available for the next 2 hours and appears in a list other players can
-browse. "🎾 On Court Now" was raised as a **distinct** concept from this —
-the working assumption is that it represents a player signaling they are
-*currently mid-session on a specific court* (a live/real-time state) rather
-than *available to be contacted for the next 2 hours* (Available Now's
-existing semantics).
-
-This entry is intentionally left without implementation detail (target
-states, whether it replaces or supplements Available Now, court-registry
-integration) because that detail wasn't established in the sessions this
-document was compiled from. Fill in and re-date this section from the
-source planning conversation before it is treated as a build-ready spec —
-per the Engineering Constitution, "Documentation updates MUST NOT invent
-scope beyond what was actually built."
-
----
-
-## Coach Role architecture
-
-**Status: partially implemented at the data layer; role/permission system
-not yet built.**
-
-What exists today:
-- `Player.level_source` (`backend/app/database/models/player.py`) —
-  `"self_rated"` or `"coach_verified"`, defaulting to `"self_rated"` the
-  first time `skill_level` is set (`PlayerService.update_profile`).
-- UI badges distinguish the two: `level_source_card_self_rated` (✅) vs.
-  `level_source_card_coach_verified` (🏆) in partner/profile cards.
-- `docs/VISION.md` lists "Coach Verified Level" and "Verified Coaches"
-  under Pillar 2 (Trusted Community) as future ideas, not shipped scope.
-
-What does **not** exist yet: there is no `Coach` role, no coach-facing
-verification flow, no permission system distinguishing a coach from a
-regular player. `level_source` is currently set by the player themselves
-(self-reported), not by any actual coach-verification mechanism — the
-field is forward-compatible plumbing, not the feature.
-
-As with "On Court Now," this section should be expanded from the actual
-approving conversation once the Coach Role's specifics (who can grant
-`coach_verified`, how a coach identity is established, any new
-model/table) are decided — do not treat the `level_source` field as
-evidence the full feature is built.
-
----
-
 ## Tennis Zones
 
 **Decision (Sprint 10.3 Phase 2):** Baseline does not use administrative

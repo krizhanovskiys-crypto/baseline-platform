@@ -1,0 +1,253 @@
+# Baseline Architecture
+
+This document explains **how** the system is organized. For **why** it's
+built this way — product framing, Tennis Zones, Court Registry rationale,
+UX principles — see `docs/PRODUCT_DECISIONS.md`. For mandatory engineering
+rules (MUST/MUST NOT), see `docs/engineering/CONSTITUTION.md`. This is a
+living document — update it when the architecture changes, not just when
+someone remembers to.
+
+---
+
+## 1. Overall architecture
+
+```
+Telegram Bot (aiogram)
+        ↓
+    Handlers          — coordinate flow, call one service, render a reply
+        ↓
+    Services          — all business logic, transport-agnostic
+        ↓
+    Repositories       — data access only, no rules
+        ↓
+    Database (SQLAlchemy async ORM, SQLite/Postgres)
+```
+
+A REST API (`backend/app/api/`) exists alongside the bot and calls into the
+**same service layer** — services never assume they're being called from
+Telegram. Anything that works from the bot must work identically from the
+API, because there is exactly one place business rules live.
+
+Every layer only talks to the layer directly below it. A handler never
+touches a repository or the ORM directly; a service never touches aiogram
+types; a repository never contains an `if` that encodes a business rule.
+
+---
+
+## 2. Folder responsibilities
+
+```
+backend/app/
+├── bot/
+│   ├── handlers/     one file per feature (find_partner.py, organize_match.py, ...)
+│   ├── keyboards/     keyboards.py — pure functions, no state, no side effects
+│   ├── states/        states.py — every FSM StatesGroup, one place
+│   ├── texts.py        all UI strings, keyed by language; t(key, lang, **kwargs)
+│   ├── middlewares/    database.py — injects a fresh session per update
+│   └── main.py          builds the dispatcher, registers every router
+├── api/v1/               FastAPI routers — thin, call services, no logic
+├── services/              business logic, transport-agnostic
+├── database/
+│   ├── models/            SQLAlchemy ORM
+│   └── repositories/      data access, one repository per aggregate
+├── schemas/                Pydantic v2 request/response shapes
+├── data/                    static reference registries (e.g. Court Registry)
+├── insights/                 analytics: repository.py + service.py, same pattern as any other domain
+└── core/                      Settings (pydantic-settings) and logging setup
+```
+
+`backend/app/data/` is for registries that are real data but don't yet
+warrant a database table — currently just the Court Registry
+(`courts.py`). If a registry starts needing writes, per-user overrides, or
+relational queries, that's the signal to promote it to a proper
+Model → Repository → Service, not to keep bolting behavior onto the data
+module.
+
+---
+
+## 3. Business logic rules
+
+**Business logic belongs in Services, not in Handlers.** This is the one
+rule everything else in this document supports.
+
+A handler's job is narrow: parse the incoming update, call exactly one
+service method, render the result. If a handler contains an `if` that
+decides *whether something is allowed* (not just *whether to show screen A
+or screen B*), that check almost certainly belongs in a service instead.
+
+Concretely, a service method is responsible for:
+- Every read/write that touches more than one repository.
+- Every invariant ("a match must be OPEN before it can be joined," "a
+  created match must be immediately visible").
+- Anything that must behave identically whether called from the bot or
+  the REST API.
+
+A handler is responsible for:
+- FSM state transitions (which screen comes next).
+- Building the reply (calling a keyboard factory, calling `t()`).
+- Translating a callback/message into a service call and its arguments.
+
+If you find yourself writing DB queries, status checks, or multi-step
+"do X then Y" logic inside a handler, stop — it belongs in
+`backend/app/services/`.
+
+---
+
+## 4. Repository responsibilities
+
+Repositories are data access **only** — no business rules, no
+cross-repository orchestration. Each repository owns one model (or a
+tightly related pair, e.g. `GameRepository` / `GamePlayerRepository`) and
+exposes query methods named for what they return
+(`get_upcoming_matches_for_player`, not a generic `filter(**kwargs)`).
+
+`BaseRepository` (`database/repositories/base.py`) provides the common
+`get_by_id` / `get_all` / `add` / `delete` primitives; specific
+repositories add domain queries on top. A repository method may combine
+`and_`/`join`/`order_by` however it needs to, but it must not decide
+things like "is this transition allowed" — that's a service's job
+(see `MatchLifecycleService`, section 6).
+
+Services instantiate the repositories they need in `__init__`, and are
+the only thing that talks to more than one repository in a single
+operation.
+
+---
+
+## 5. State management (FSM)
+
+Multi-step conversational flows use `aiogram.fsm.state.StatesGroup`. All
+state classes live in one file, `backend/app/bot/states/states.py` — never
+scattered across handler files. Current groups: `OnboardingStates`,
+`OrganizeMatchStates`, `FindPartnerStates`, `FindPlayersForMatchStates`,
+`AvailableMatchesStates`, `ConfirmMatchStates`, `SettingsStates`.
+
+Conventions:
+- FSM state is stored in `MemoryStorage` and is **lost on bot restart** —
+  don't rely on it surviving a deploy mid-flow.
+- A free-text input step (e.g. "enter the court name") gets its own state
+  (`enter_custom_*`) rather than trying to detect free text inside a
+  callback-only state.
+- Two different features may reuse the same `callback_data` prefix (e.g.
+  `court_toggle:`) as long as they're gated by different states — aiogram
+  routes on state + filter together, so there's no runtime collision. This
+  is preferred over writing a near-duplicate handler when an existing
+  selector is reused with a different save target (Court Registry's
+  `courts_keyboard()` is reused, unchanged, by onboarding, Edit Profile,
+  and Find Partner's Smart Filter — three states, one keyboard function).
+- A handler that edits a message in place as part of a multi-screen flow
+  must tolerate Telegram's "message is not modified" error (re-selecting
+  the active option re-renders identical content) — see `_edit_screen()`.
+
+---
+
+## 6. Court Registry architecture
+
+`backend/app/data/courts.py` is the single source of truth for Tennis
+Zones and courts:
+
+```python
+COURTS_BY_ZONE: dict[str, list[str]]   # the actual data
+TENNIS_ZONES: list[str]                # derived from COURTS_BY_ZONE.keys()
+get_courts_for_zone(zone) -> list[str] # the only read API callers use
+```
+
+It's a pure data + lookup module — no ORM, no session, no side effects.
+Callers (`keyboards.py`, bot handlers) depend only on
+`get_courts_for_zone()`'s signature, never on the dict's shape, which
+makes it a drop-in replacement target for a future database-backed
+`Court` model: swap the module's internals for repository calls, and no
+caller changes.
+
+Custom courts (a player's own, not in the registry) are **not** a
+separate concept at the storage layer — they're stored in the existing
+`Player.preferred_courts` field alongside registry courts, as plain
+strings. `courts_keyboard(lang, zone, selected)` is what distinguishes
+them at render time: registry courts for `zone` render first, then any
+`selected` court NOT in that zone's registry renders as an extra checked
+button under a "Custom Courts" divider. Both kinds toggle through the
+same `court_toggle:{court}` callback — there is no separate code path,
+model, or FSM state for "custom" vs. "registry."
+
+Partner matching (`PlayerService.find_partners`) has **zero** awareness
+of the registry — it does plain string set-intersection on
+`preferred_courts`. This is why adding the registry carried no risk of
+matching regressions: the registry is a UI/selection-time concern only.
+
+---
+
+## 7. Match lifecycle architecture
+
+`MatchLifecycleService` (`services/match_lifecycle_service.py`) is the
+**sole authority** over `Game.status`. No handler and no other service
+may write `Game.status` directly — every transition goes through
+`MatchLifecycleService.transition(game_id, new_status)`, which checks a
+`_VALID_TRANSITIONS` table and raises `InvalidTransitionError` for
+anything not explicitly allowed.
+
+```
+DRAFT → OPEN → PARTIALLY_FILLED → FULL → CONFIRMED → IN_PROGRESS → COMPLETED
+                    ↘________________↗ (reversible while filling)
+              any pre-start status → CANCELLED / EXPIRED
+```
+
+Two rules that follow from "sole authority":
+- **A match must leave `GameService.create_game()` already usable.**
+  `create_game()` transitions `DRAFT → OPEN` itself before returning —
+  visibility (My Matches, joinability) is a guarantee the service makes,
+  not a step every future caller has to remember. (This was a real bug:
+  the bot's Organize Match wizard used to perform this transition itself
+  after calling `create_game()`; the REST API path didn't, so matches
+  created through it were permanently invisible. Fixed by moving the
+  transition into the service.)
+- **Expiry is lazy, not scheduled.** There's no background job. Any
+  service method that reads match state calls
+  `MatchLifecycleService.expire_if_stale()` first, which transitions a
+  past-dated pre-start match to `EXPIRED` on read.
+
+---
+
+## 8. Current project conventions
+
+- **One screen per concept, reachable identically from every entry
+  point.** If a feature can be reached from the main menu, from a
+  just-completed action, and from another screen, all three must render
+  through the same handler function — not near-duplicate implementations
+  that drift apart (`my_matches.py` is the only Match Details screen;
+  there is deliberately no second one).
+- **`_player_to_schema()` / `_game_to_schema()` are the only way ORM
+  objects become API/bot-facing schemas.** Never call
+  `PlayerRead.model_validate(player)` directly — `preferred_courts` and
+  `spoken_languages` are JSON-encoded `Text` columns that need explicit
+  parsing.
+- **Every new ORM model is registered in
+  `database/models/__init__.py`**, and every schema change goes through
+  an Alembic migration — `create_all_tables()` is a first-run safety net
+  only, never a substitute for a migration.
+- **No forced migrations for vocabulary/UI changes.** Tennis Zones
+  replaced the old Area list's *values* without touching the
+  `Player.home_area` column or any Python identifier — old data keeps
+  working; only the displayed options changed.
+- **Localization:** every user-facing string goes through
+  `t(key, lang, **kwargs)` in `texts.py`, defined for all three supported
+  languages (en/uk/ru). No hardcoded UI strings in handlers or keyboards.
+
+---
+
+## 9. Rules for adding a new feature
+
+1. **Model** (if new data is needed) → register it in
+   `database/models/__init__.py` → Alembic migration.
+2. **Repository** — data access only, named query methods.
+3. **Service** — business logic, transport-agnostic, usable from bot and
+   API identically. This is where invariants live.
+4. **Handler** — FSM state + one service call + render. Reuse an existing
+   keyboard/state/selector before writing a new one.
+5. **Tests** — repository/service tests hit the real in-memory SQLite
+   fixture (never mock the DB layer); a bug fix needs a regression test
+   that reproduces the original defect.
+6. Run the full `pytest` suite and verify the bot dispatcher builds
+   before calling anything done.
+7. If the change introduces a new architectural pattern (not just a new
+   feature using existing patterns), update this document in the same
+   change — don't let it drift out of date.
