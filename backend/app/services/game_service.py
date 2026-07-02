@@ -8,6 +8,7 @@ from backend.app.core.exceptions import InvalidTransitionError
 from backend.app.database.models.game import Game, GamePlayerStatus, GameStatus, MatchType
 from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.database.repositories.player_repository import PlayerRepository
+from backend.app.insights.service import AnalyticsService
 from backend.app.schemas.game import GameCreate, GameRead, MatchDetails, PlayerSummary
 from backend.app.schemas.player import PlayerRead
 from backend.app.services.player_service import _player_to_schema as _player_to_read
@@ -27,6 +28,7 @@ class GameService:
         self._game_repo = GameRepository(session)
         self._gp_repo = GamePlayerRepository(session)
         self._player_repo = PlayerRepository(session)
+        self._analytics = AnalyticsService(session)
 
     async def create_game(self, creator_telegram_id: int, data: GameCreate) -> GameRead | None:
         """Create a new game.  Returns None if creator player not found."""
@@ -57,6 +59,7 @@ class GameService:
         logger.info(
             "Game created id=%s by telegram_id=%s area=%s", game.id, creator_telegram_id, game.area
         )
+        await self._analytics.track_event(creator.id, "game_created", {"game_id": game.id})
         return _game_to_schema(game)
 
     async def get_open_games(self, area: str | None = None) -> list[GameRead]:

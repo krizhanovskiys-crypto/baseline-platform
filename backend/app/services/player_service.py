@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.database.models.player import Player
 from backend.app.database.repositories.player_repository import PlayerRepository
+from backend.app.insights.service import AnalyticsService
 from backend.app.schemas.player import PlayerCreate, PlayerRead, PlayerUpdate
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,7 @@ class PlayerService:
 
     def __init__(self, session: AsyncSession) -> None:
         self._repo = PlayerRepository(session)
+        self._analytics = AnalyticsService(session)
 
     async def get_or_create(self, data: PlayerCreate) -> tuple[PlayerRead, bool]:
         """Return (player, created) — creates player if telegram_id is new."""
@@ -77,6 +79,7 @@ class PlayerService:
         )
         player = await self._repo.add(player)
         logger.info("Created new player telegram_id=%s", data.telegram_id)
+        await self._analytics.track_event(player.id, "user_registered")
         return _player_to_schema(player), True
 
     async def get_by_telegram_id(self, telegram_id: int) -> PlayerRead | None:
@@ -93,6 +96,7 @@ class PlayerService:
         player = await self._repo.get_by_telegram_id(telegram_id)
         if not player:
             return None
+        was_complete = player.is_profile_complete
 
         update_dict = data.model_dump(exclude_unset=True)
         if "preferred_courts" in update_dict and update_dict["preferred_courts"] is not None:
@@ -109,6 +113,8 @@ class PlayerService:
         await self._repo._session.flush()
         await self._repo._session.refresh(player)
         logger.info("Updated profile for telegram_id=%s fields=%s", telegram_id, list(update_dict))
+        if not was_complete and player.is_profile_complete:
+            await self._analytics.track_event(player.id, "profile_completed")
         return _player_to_schema(player)
 
     async def find_partners(

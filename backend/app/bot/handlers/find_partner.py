@@ -18,6 +18,7 @@ from backend.app.bot.keyboards.keyboards import (
 )
 from backend.app.bot.states.states import FindPartnerStates
 from backend.app.bot.texts import t
+from backend.app.insights.service import AnalyticsService
 from backend.app.schemas.player import PlayerRead
 from backend.app.services.player_service import PlayerService
 
@@ -106,6 +107,8 @@ async def find_partner(message: Message, session: AsyncSession) -> None:
     if not player or not player.is_profile_complete:
         await message.answer(t("profile_not_complete_action", lang), parse_mode="Markdown")
         return
+
+    await AnalyticsService(session).track_event(player.id, "find_partner_opened")
 
     await message.answer(
         t("fp_search_mode_header", lang), reply_markup=search_mode_keyboard(lang), parse_mode="Markdown"
