@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Purpose:** operational, Claude-Code-specific guidance — commands, quick
+architecture orientation, and the rules Claude Code must follow while
+working in this repo day to day.
+
+**What belongs here:** commands, product principles as quick reminders,
+a brief architecture orientation, UX/emoji conventions, and workflow
+rules specific to working *with Claude Code* in this repository.
+
+**What must never be duplicated here:** the full folder-by-folder
+architecture reference (→ `docs/ARCHITECTURE.md` — this file gives only
+a brief orientation and points there), the formal MUST/MUST NOT
+engineering rules in full (→ `docs/engineering/CONSTITUTION.md`, which
+this file must stay consistent with), product vision (→ `PRODUCT.md`,
+`docs/VISION.md`), or dated decisions (→ `docs/PRODUCT_DECISIONS.md`).
+
 ## Commands
 
 ```bash
@@ -42,7 +57,7 @@ Every feature should improve one of these goals:
 - Encourage players to return.
 - Keep the interface simple.
 
-Avoid exposing future concepts before they are implemented (rating, reputation, etc.).
+Never expose rating, reputation, or ranking concepts in user-facing text — these are explicit product non-goals (`PRODUCT.md`), not deferred features.
 
 Users **organize matches** and **invite players** — use that language in UI strings.
 
@@ -51,6 +66,9 @@ Users **organize matches** and **invite players** — use that language in UI st
 ## Architecture
 
 This is a tennis matchmaking platform. The Telegram bot is the primary client, with a REST API sharing the same service layer. The key constraint: **handlers never contain business logic** — they call a service and return a response.
+
+Brief orientation only — see `docs/ARCHITECTURE.md` for the full,
+authoritative folder-by-folder breakdown and the layer diagram:
 
 ```
 backend/app/
@@ -64,9 +82,11 @@ backend/app/
 │   └── v1/       # Versioned routers (players, games)
 ├── services/     # Business logic — transport-agnostic, fully testable
 ├── database/
-│   ├── models/   # SQLAlchemy 2.x ORM (Player, Game, GamePlayer, Invitation)
+│   ├── models/   # SQLAlchemy 2.x ORM (Player, Game, GamePlayer, Invitation, AnalyticsEvent)
 │   └── repositories/ # Data access layer; services talk only to repos
 ├── schemas/      # Pydantic v2 input/output schemas
+├── data/         # Static reference registries not yet backed by a table (Court Registry)
+├── insights/     # Analytics: repository.py + service.py, same pattern as any domain
 └── core/         # Settings (pydantic-settings) and logging setup
 ```
 
@@ -259,6 +279,16 @@ Only ask before potentially destructive operations or git commits.
 
 | Document | Purpose |
 |---|---|
+| `docs/ARCHITECTURE.md` | How the system is organized — the technical reference for adding/changing code |
+| `docs/engineering/CONSTITUTION.md` | Mandatory MUST/MUST NOT engineering rules |
+| `docs/PRODUCT_DECISIONS.md` | Accepted, shipped product decisions and why |
 | `docs/RELEASE_CHECKLIST.md` | Mandatory pre-commit gate for user-facing features |
 | `docs/TECH_DEBT.md` | Known technical debt — consult before scoping a fix |
 | `docs/telegram_conflict_error.md` | Runbook for TelegramConflictError (duplicate polling instance) |
+| `PRODUCT.md` | Founder's product philosophy, mission, non-goals |
+| `docs/VISION.md` | Long-term direction and product pillars |
+| `MANIFESTO.md` | Widest-lens statement of why Baseline exists (multi-role, multi-city end state) |
+| `docs/ROADMAP.md` | Phased future plan — future work only |
+| `docs/BACKLOG.md` | The single planning document — future work broken into Epics (Goal/MVP/Phase 1/Phase 2/Future) |
+| `RELEASE_NOTES.md` | Log of what has actually shipped |
+| `docs/IDEAS.md` | Ideas intentionally parked outside any roadmap |

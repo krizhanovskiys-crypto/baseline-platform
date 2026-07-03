@@ -1,9 +1,21 @@
 # Baseline Engineering Constitution
 
-This document defines the mandatory engineering rules for the Baseline
-project. Every rule uses **MUST** / **MUST NOT**. These are not
+**Purpose:** the single, authoritative source for mandatory engineering
+rules — every rule uses **MUST** / **MUST NOT**. These are not
 recommendations — they apply to every contributor, human or AI, on every
 change.
+
+**What belongs here:** formal, enforceable rules — sprint scope, git,
+testing, deployment, documentation, and decision-making rules stated as
+MUST/MUST NOT.
+
+**What must never be duplicated here:** *how* the code is organized (→
+`docs/ARCHITECTURE.md`), the reasoning behind a specific decision (→
+`docs/PRODUCT_DECISIONS.md`), or product vision (→ `PRODUCT.md`,
+`docs/VISION.md`). `CLAUDE.md` (repository root) is the operational
+counterpart to this file — command reference, day-to-day workflow
+detail, and Claude-Code-specific instructions — and must stay consistent
+with the rules stated here, not restate them in full.
 
 ---
 
@@ -21,8 +33,11 @@ engineering elegance for its own sake.
 - Implementation MUST take the shortest viable user flow.
 - Existing services, repositories, keyboards, and text keys MUST be reused
   before new ones are written.
-- Future or unimplemented concepts (rating, reputation, coach verification,
+- Future or unimplemented concepts (coach verification, achievements,
   etc.) MUST NOT be exposed in user-facing text or UI until they ship.
+  Rating/reputation/ranking is a separate case: an explicit product
+  non-goal (`PRODUCT.md`), not a deferred feature — MUST NOT be exposed
+  or implemented at all.
 - User-facing language MUST use product terms ("organize", "invite"), not
   internal/technical terms.
 

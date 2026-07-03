@@ -1,6 +1,20 @@
 # Baseline Product Roadmap
 
-Version: 1.0
+Version: 1.2
+
+**Purpose:** the phase-level summary of what's still ahead. If a phase or
+item is listed here, it has not shipped yet. For the epic-level
+breakdown of this same forward plan (Goal/MVP/Phase 1/Phase 2/Future per
+epic) — the single planning document for future development — see
+`docs/BACKLOG.md`.
+
+**What belongs here:** future phases and the features planned for them,
+at roadmap granularity (not sprint-level task breakdowns).
+
+**What must never be duplicated here:** anything already shipped (→
+`RELEASE_NOTES.md`), epic-level MVP/Phase breakdown (→ `docs/BACKLOG.md`),
+the reasoning behind a specific decision (→ `docs/PRODUCT_DECISIONS.md`),
+or long-term vision/principles (→ `docs/VISION.md`, `PRODUCT.md`).
 
 ---
 
@@ -10,36 +24,13 @@ A simple platform that helps tennis players find partners, organize matches, par
 
 ---
 
-## Phase 1 — MVP ✅
-
-Status: Completed
-
-- Registration
-- Player Profile
-- Create Match
-- Find Players
-- Invitations
-- Accept / Decline
-- Match Details
-- Leave Match
-- Cancel Match
-- Match Lifecycle
-- Automatic Expiration
-- Localization
-- Release Checklist
-- Technical Debt Register
-
----
-
 ## Phase 2 — Community
 
-Status: Next
+Status: In progress — Browse Open Matches, Join Match, Better search
+filters, and Favourite courts have shipped (see `RELEASE_NOTES.md`,
+Sprint 7.0 and Sprint 10.3). Remaining:
 
-- Browse Open Matches
-- Join Match
 - Public Match Feed
-- Better search filters
-- Favourite courts
 - Nearby matches
 
 ---
@@ -63,7 +54,6 @@ Status: Planned
 
 - Match History
 - Player Statistics
-- Rating System
 - Coach Verification
 - Achievements
 
@@ -104,14 +94,6 @@ Status: Future
   - Tests
   - Telegram E2E verification
   - Documentation update
-
----
-
-## Current Sprint
-
-- Sprint 7.0 — Browse Open Matches ✅ Completed
-- Sprint 7.1 — Profile UX Redesign ✅ Completed
-- Sprint 7.2 — Find Partner Smart Filter ✅ Completed
 
 ---
 

@@ -1,14 +1,21 @@
 # Baseline Product Decisions
 
-This document is the single source of truth for approved product decisions.
-It complements `docs/VISION.md` (long-term direction), `docs/ROADMAP.md`
-(phased plan), and `docs/engineering/CONSTITUTION.md` (mandatory engineering
-rules) — this file records **what was decided and why**, not the vision or
-the rules.
+**Purpose:** the single source of truth for *approved and shipped*
+product decisions — what was decided and why, not the vision or the
+rules.
 
-Entries are dated and attributed to the sprint in which they were approved.
-Once a decision ships, cross-reference the code/doc that implements it so
-this file stays verifiable rather than aspirational.
+**What belongs here:** a decision that has actually been implemented,
+with its reasoning and where it shows up in the code. Entries are
+attributed to the sprint in which they were approved; once a decision
+ships, cross-reference the code/doc that implements it so this file stays
+verifiable rather than aspirational.
+
+**What must never be duplicated here:** long-term direction (→
+`docs/VISION.md`), the phased future plan (→ `docs/ROADMAP.md`),
+mandatory engineering rules (→ `docs/engineering/CONSTITUTION.md`), a
+decision that hasn't been accepted yet (→ discuss it, don't pre-write it
+here — an entry here asserts something is *done*, not proposed), or ideas
+intentionally out of scope (→ `docs/IDEAS.md`).
 
 ---
 

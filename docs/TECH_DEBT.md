@@ -4,7 +4,21 @@
 **Owner:** Baseline Engineering  
 **Status:** Active
 
-All known technical debt items are tracked here. Each item must be reviewed before the sprint it is scheduled for. Unresolved items that affect user-facing behaviour must be documented in the Release Checklist before shipping.
+**Purpose:** every known real technical debt item — a correctness,
+reliability, or maintainability cost the codebase is carrying — with its
+impact and a suggested fix.
+
+**What belongs here:** debt that has genuine impact (bugs, fragile
+coupling, scalability limits) and a concrete suggested solution. Each
+item must be reviewed before the sprint it is scheduled for. Unresolved
+items that affect user-facing behaviour must be documented in the Release
+Checklist before shipping.
+
+**What must never be duplicated here:** cosmetic-only cleanup with no
+functional impact (that's a nice-to-have, not debt), a missing feature (→
+`docs/ROADMAP.md` or `docs/IDEAS.md`), or a decision that was made
+deliberately and isn't regretted (→ `docs/PRODUCT_DECISIONS.md` — e.g.
+TECH-009 below is *accepted* duplication, not an open problem).
 
 ---
 
@@ -140,10 +154,10 @@ Low — organizer cannot cancel a match. Workaround: none identified. Frequency:
 If the issue reappears, reproduce with the following instrumentation in place before making any code changes:
 1. Add `logger.warning("[CANCEL_DEBUG] game_id=%s status=%s", game_id, game.status.value)` at `game_service.py` before `MatchLifecycleService.transition()`.
 2. Add `logger.warning("[LC_DEBUG] current=%r allowed=%s", current, [s.value for s in allowed])` at `match_lifecycle_service.py:70`.
-3. Confirm which handler fires: `match_cancel_handler` (`match:cancel:{id}`) in `my_matches.py` or `cancel_match` (`cancel_match:{id}`) in `confirm_match.py`.
+3. Confirm which handler fires: as of Sprint 10.4 Phase 2, Cancel Match is a single unified flow in `my_matches.py` — `match_cancel_ask_handler` (`match:cancel:{id}`, shows a confirmation screen) then `match_cancel_confirm_handler` (`match:cancel_confirm:{id}`, executes the cancellation and notifies every participant). The old second implementation this note originally referenced, `confirm_match.py::cancel_match`, no longer exists — it was removed when the two independent Cancel Match code paths were unified (see `RELEASE_NOTES.md`, Sprint 10.4).
 4. Check `game.status` raw DB value via `sqlite3 baseline.db "SELECT id, status FROM game WHERE id = <id>"`.
 
-**Status:** Investigate — observed once, not reproducible, no code changes until confirmed
+**Status:** Investigate — observed once, not reproducible, no code changes until confirmed. Note: the unification in Sprint 10.4 Phase 2 changed the exact code path this bug was observed on; if it reappears, treat it as a fresh repro against the current single handler rather than assuming the original two-handler theory still applies.
 
 ---
 

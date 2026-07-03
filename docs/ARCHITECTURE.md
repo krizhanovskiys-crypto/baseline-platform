@@ -1,11 +1,21 @@
 # Baseline Architecture
 
-This document explains **how** the system is organized. For **why** it's
-built this way — product framing, Tennis Zones, Court Registry rationale,
-UX principles — see `docs/PRODUCT_DECISIONS.md`. For mandatory engineering
-rules (MUST/MUST NOT), see `docs/engineering/CONSTITUTION.md`. This is a
-living document — update it when the architecture changes, not just when
-someone remembers to.
+**Purpose:** explains **how** the system is organized — the technical
+reference for adding or changing anything in the codebase.
+
+**What belongs here:** the layer diagram, folder responsibilities,
+business-logic placement rules, repository/FSM/registry/lifecycle
+architecture, project conventions, and the checklist for adding a new
+feature.
+
+**What must never be duplicated here:** *why* a feature is built the way
+it is, or product framing (→ `docs/PRODUCT_DECISIONS.md`), mandatory
+MUST/MUST NOT engineering rules (→ `docs/engineering/CONSTITUTION.md`),
+or a folder-tree summary for newcomers (→ `README.md`, which points here
+for detail instead of keeping its own copy).
+
+This is a living document — update it when the architecture changes, not
+just when someone remembers to.
 
 ---
 

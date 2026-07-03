@@ -2,29 +2,28 @@
 
 Baseline is a tennis matchmaking platform. The Telegram Bot is the first client. The architecture is designed to support iOS, Android, and Web clients from day one — all business logic lives in the service layer, completely decoupled from Telegram.
 
+**Purpose of this file:** get a new developer from clone to a running bot,
+and document the current, live production setup (install steps, features
+as actually shipped, deployment runbook).
+
+**What belongs here:** setup instructions, the current feature list, API
+endpoint list, tech stack, and the deployment procedure.
+
+**What must never be duplicated here:** folder-by-folder architecture
+rationale (→ `docs/ARCHITECTURE.md`), product vision (→ `PRODUCT.md`,
+`docs/VISION.md`, `MANIFESTO.md`), future/planned work (→
+`docs/ROADMAP.md`), or a history of what's shipped (→ `RELEASE_NOTES.md`).
+
 ---
 
-## Architecture Overview
+## Architecture
 
-```
-baseline/
-├── backend/
-│   └── app/
-│       ├── api/          # FastAPI routers (REST API)
-│       ├── bot/          # Aiogram bot (handlers, keyboards, states)
-│       ├── services/     # Business logic (transport-agnostic)
-│       ├── database/
-│       │   ├── models/   # SQLAlchemy ORM models
-│       │   └── repositories/  # Data access layer
-│       ├── schemas/      # Pydantic v2 schemas
-│       └── core/         # Config, logging
-├── tests/                # pytest test suite
-├── alembic/              # Database migrations
-├── requirements.txt
-└── .env.example
-```
-
-**Key principle:** Handlers never contain business logic. They receive Telegram events, call a service, and return a response. Services are testable in isolation.
+See `docs/ARCHITECTURE.md` for the full folder-by-folder breakdown, the
+Handlers → Services → Repositories → Database layering, and the
+conventions that govern adding a new feature. In one line: **handlers
+never contain business logic** — they receive an event, call a service,
+and render the response; services are transport-agnostic and testable in
+isolation.
 
 ---
 
@@ -54,17 +53,22 @@ pip install -r requirements.txt
 ### 4. Configure environment
 
 ```bash
-cp .env.example .env
+cp .env.dev.example .env.dev
 ```
 
-Open `.env` and set your values:
+Open `.env.dev` and set your values — use a **separate** bot token from
+production:
 
 ```env
-BOT_TOKEN=your_telegram_bot_token_here
-DATABASE_URL=sqlite+aiosqlite:///./baseline.db   # development default
+BOT_TOKEN=your_development_bot_token_here
+DATABASE_URL=sqlite+aiosqlite:///./baseline-dev.db
 ```
 
 Get a bot token from [@BotFather](https://t.me/BotFather) on Telegram.
+Run with `ENV=development` so this file is the one that gets loaded — see
+`docs/ARCHITECTURE.md` §10 for the full environment-selection rules
+(`.env.example` still works as a plain, environment-agnostic fallback if
+you don't set `ENV`).
 
 ---
 
@@ -118,14 +122,9 @@ alembic downgrade -1
 pytest
 ```
 
-Tests use an in-memory SQLite database — no `.env` needed. Coverage by feature:
-
-| Test file | What it covers |
-|---|---|
-| `test_player_repository.py` | CRUD, partner search, availability |
-| `test_game_repository.py` | Game + participation records |
-| `test_player_service.py` | Full player lifecycle |
-| `test_game_service.py` | Game creation, listing |
+Tests use an in-memory SQLite database — no `.env` needed. One test file
+per feature/domain (`tests/test_<feature>.py`); repository and service
+tests hit a real in-memory database, never a mock.
 
 Run with verbose output:
 
@@ -135,17 +134,23 @@ pytest -v
 
 ---
 
-## Bot Features (MVP)
+## Bot Features
 
 | Feature | Description |
 |---|---|
 | `/start` | Registers new user, shows menu or starts onboarding |
-| Onboarding | 4-step wizard: language → level → area → courts |
-| 🎾 Find Partner | Lists players in same area ±0.5 NTRP level |
-| 📅 Create Game | 5-step wizard: court → area → date → time → type/level |
-| 🔥 Available Now | Mark yourself available for 2 hours; see others available |
-| 👤 My Profile | View your profile summary |
-| ⚙️ Settings | Change language, area, level, preferred courts |
+| Onboarding | 4-step wizard: language → level → Tennis Zone → courts |
+| 🔍 Find Partner | Search Mode (browse everyone, or Smart Filter by zone/courts/level) |
+| 🎾 Organize Match | 6-step wizard: date → time → court → level → players → confirm |
+| 🔥 I'm Available | Mark yourself available for 2 hours; see others available |
+| 🧭 Available Matches | Browse, filter, and join open matches created by other players |
+| 📋 My Matches | Upcoming matches → Match Details (role-based actions: add player, cancel, leave, join) |
+| 👤 My Profile | Read-only profile card → Edit Profile (name, level, zone, courts, spoken languages) |
+| ⚙️ Settings | Interface language |
+| `/dev` | Hidden developer menu (gated by `DEVELOPER_IDS`) — seed/reset test players, DB stats |
+
+See `docs/ARCHITECTURE.md` for how these flows are organized internally,
+and `RELEASE_NOTES.md` for the full history of what shipped when.
 
 ---
 
@@ -167,7 +172,10 @@ pytest -v
 
 ## Production Deployment
 
-Switch to PostgreSQL by updating `.env`:
+The production server today runs on a plain `.env` (see
+`docs/ARCHITECTURE.md` §10 for why `ENV` being unset there is intentional
+and backward-compatible). To switch to PostgreSQL, update the active env
+file:
 
 ```env
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/baseline
@@ -261,10 +269,8 @@ under `/bin`). No other command should be granted passwordless `sudo`.
 
 ---
 
-## Future Roadmap
+## Future work
 
-- Scheduled job to expire `available_now` flags
-- Push notifications for game invitations
-- iOS / Android / Web clients (service layer is already ready)
-- ELO-based rating updates after match completion
-- Court availability integration
+See `docs/ROADMAP.md` for the full phased plan. Baseline does not use
+player ratings (`PRODUCT.md` Non-Goals) — that includes ELO or any other
+rating system.

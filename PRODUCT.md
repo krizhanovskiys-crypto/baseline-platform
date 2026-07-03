@@ -6,6 +6,20 @@ Version: 1.0
 
 ---
 
+**Purpose:** the founder's product philosophy — mission, vision, values,
+and the non-goals that keep Baseline from becoming something else. This
+is the document every other product decision must agree with.
+
+**What belongs here:** mission, vision, success metric, core values,
+product/UX principles, non-goals, the one-question product decision rule.
+
+**What must never be duplicated here:** a list of shipped features (→
+`RELEASE_NOTES.md`), the phased future plan (→ `docs/ROADMAP.md`),
+specific dated decisions with rationale (→ `docs/PRODUCT_DECISIONS.md`),
+or engineering rules (→ `docs/engineering/CONSTITUTION.md`).
+
+---
+
 # Philosophy
 
 > **Baseline — це не просто про пошук гравця.**
@@ -126,15 +140,6 @@ Baseline не прагне стати:
 > **Чи допоможе це двом людям швидше зустрітися на тенісному корті?**
 
 Якщо відповідь "ні" — ця функція не повинна потрапити в продукт.
-
----
-
-# Implemented Features
-
-* ✓ Profile UX redesign
-* ✓ Spoken Languages
-* ✓ Find Partner Search Mode
-* ✓ Smart Filter
 
 ---
 

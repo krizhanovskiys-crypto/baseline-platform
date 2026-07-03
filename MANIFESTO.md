@@ -1,5 +1,23 @@
 # BASELINE MANIFESTO
 
+**Purpose:** the widest-lens statement of why Baseline exists and who
+it's ultimately for (Player, Coach, Club, Community) — the multi-client,
+multi-role, multi-city end state. This is the furthest-out document; not
+everything here is scheduled anywhere yet.
+
+**What belongs here:** why/mission/vision at platform scale, the full set
+of user types and roles, the Trust and Roles/Permissions concepts, what
+Baseline explicitly refuses to become.
+
+**What must never be duplicated here:** current architecture detail (→
+`docs/ARCHITECTURE.md` — this file states the *principle* "business logic
+belongs in Services," not the folder layout), a schedule for when Coach
+or Club roles ship (→ `docs/ROADMAP.md`, which does not schedule them
+today — see the Product Gap Review), or specific accepted decisions (→
+`docs/PRODUCT_DECISIONS.md`).
+
+---
+
 ## Why Baseline exists
 
 Baseline exists to make playing tennis easier.

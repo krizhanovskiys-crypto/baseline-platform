@@ -2,6 +2,21 @@
 
 Version: 1.0
 
+**Purpose:** the long-term direction — the product pillars and the future
+ideas under each one, in English, for the wider team. Complements
+`PRODUCT.md` (the founder's philosophy, in Ukrainian) rather than
+replacing it.
+
+**What belongs here:** mission, core principles, product pillars and the
+future ideas grouped under each, long-term dream.
+
+**What must never be duplicated here:** shipped features (→
+`RELEASE_NOTES.md`), the phased delivery plan with status (→
+`docs/ROADMAP.md`), or dated decisions with implementation rationale (→
+`docs/PRODUCT_DECISIONS.md`). "Future ideas" here are directional, not a
+commitment or a schedule — `docs/IDEAS.md` is for ideas explicitly parked
+outside any roadmap.
+
 ---
 
 ## Mission
@@ -97,7 +112,6 @@ No phone numbers. No Telegram usernames. No searching. Only one scan.
 Future ideas:
 
 - Statistics
-- Rating History
 - Tennis DNA
 - Playing Style
 - Progress Graph

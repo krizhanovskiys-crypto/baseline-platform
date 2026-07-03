@@ -4,6 +4,18 @@
 **Owner:** Baseline Engineering  
 **Status:** Active
 
+**Purpose:** the mandatory pre-commit/pre-release gate for any user-facing
+change — a procedure, not a status report.
+
+**What belongs here:** checklist items that apply to every release
+(automated checks, core flows to verify, Telegram UX, database
+invariants, notifications, regression, the manual test script).
+
+**What must never be duplicated here:** the current feature list (→
+`README.md`), what has already shipped (→ `RELEASE_NOTES.md`), or open
+technical debt detail (→ `docs/TECH_DEBT.md` — Section 6/8 below only
+point to it).
+
 This checklist must be completed before every release or commit of a user-facing feature.
 
 ---
@@ -39,7 +51,7 @@ Verify manually:
 - [ ] Accept Invitation
 - [ ] Decline Invitation
 - [ ] My Matches
-- [ ] Match Details (when implemented)
+- [ ] Match Details
 
 ---
 

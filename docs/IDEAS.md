@@ -1,6 +1,16 @@
 # Product Ideas
 
-This document stores product ideas that are intentionally out of MVP scope. It is a brainstorming document only. No implementation details, no architecture, no database design.
+**Purpose:** a brainstorming parking lot for ideas intentionally out of
+MVP scope. Nothing here is scheduled.
+
+**What belongs here:** a short idea description, `Status: Future`, and a
+priority. No implementation details, no architecture, no database design.
+
+**What must never be duplicated here:** anything with a phase or
+schedule (→ `docs/ROADMAP.md`, or `docs/BACKLOG.md` once it has a Goal
+and MVP/Phase tier — if an idea graduates onto the backlog, move it,
+don't keep both), an accepted decision (→ `docs/PRODUCT_DECISIONS.md`),
+or a fleshed-out design.
 
 ---
 
