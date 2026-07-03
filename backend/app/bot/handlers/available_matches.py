@@ -12,6 +12,7 @@ from backend.app.bot.handlers.helpers import get_player_lang
 from backend.app.bot.handlers.my_matches import _date_label, _status_label
 from backend.app.bot.keyboards.keyboards import (
     available_match_card_keyboard,
+    available_matches_empty_keyboard,
     available_matches_filter_category_keyboard,
     available_matches_filters_keyboard,
     available_matches_nav_keyboard,
@@ -26,7 +27,7 @@ from backend.app.services.player_service import PlayerService
 logger = logging.getLogger(__name__)
 router = Router(name="available_matches")
 
-_TRIGGER_TEXTS = {"🎾 Available Matches", "🎾 Доступні матчі", "🎾 Доступные матчи"}
+_TRIGGER_TEXTS = {"🧭 Available Matches", "🧭 Доступні матчі", "🧭 Доступные матчи"}
 _PAGE_SIZE = 5
 _DEFAULT_FILTERS = {"area": "home", "date": "today", "match_type": None, "level": "default"}
 _CATEGORY_TITLE_KEYS = {
@@ -97,7 +98,11 @@ async def _render_available_matches(
     await message.answer(t("available_matches_header", lang, count=total), parse_mode="Markdown")
 
     if not matches:
-        await message.answer(t("available_matches_empty", lang), parse_mode="Markdown")
+        await message.answer(
+            t("available_matches_empty", lang),
+            reply_markup=available_matches_empty_keyboard(lang),
+            parse_mode="Markdown",
+        )
         return
 
     for game, committed_count in matches:

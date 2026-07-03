@@ -12,7 +12,7 @@ from backend.app.services.player_service import PlayerService
 logger = logging.getLogger(__name__)
 router = Router(name="available_now")
 
-_TRIGGER_TEXTS = {"🔥 Available Now", "🔥 Доступний зараз", "🔥 Доступен сейчас"}
+_TRIGGER_TEXTS = {"🔥 I'm Available", "🔥 Я готовий(-а) грати", "🔥 Я готов(а) играть"}
 
 
 @router.message(F.text.in_(_TRIGGER_TEXTS))

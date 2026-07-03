@@ -571,7 +571,8 @@ async def test_render_clamps_to_page_one_when_current_page_becomes_empty(session
 
 async def test_render_shows_empty_state_when_truly_zero_matches(session):
     """When there are genuinely zero matches, clamping lands on page 1 and the
-    empty-state message is shown (no nav keyboard claiming a page exists)."""
+    empty-state message is shown, with its own Filters + Menu keyboard
+    (Phase 3 UX review, item 1 — previously this screen had no buttons at all)."""
     await _make_player(session, 700401, "Viewer")
     state = _make_state(700401)
     message = _FakeMessage()
@@ -579,8 +580,13 @@ async def test_render_shows_empty_state_when_truly_zero_matches(session):
     await _render_available_matches(message, session, state, 700401, "en", page=5)
 
     assert (await state.get_data())["current_page"] == 1
-    texts = [text for text, _ in message.sent]
-    assert any(text == t("available_matches_empty", "en") for text in texts)
+    empty_entries = [(text, markup) for text, markup in message.sent if text == t("available_matches_empty", "en")]
+    assert len(empty_entries) == 1
+    _, markup = empty_entries[0]
+    assert markup is not None
+    buttons = _buttons(markup)
+    assert ("Filters", "available:filters") in buttons
+    assert (t("btn_menu_home", "en"), "menu:main") in buttons
 
 
 # ── Regression: two-level Filters UX (main screen + per-category screens) ──────

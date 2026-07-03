@@ -536,6 +536,16 @@ def available_matches_nav_keyboard(
     return builder.as_markup()
 
 
+def available_matches_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Keyboard for the Available Matches empty state — without this, a
+    zero-results page had no buttons at all (Phase 3 UX review, item 1)."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("available_matches_btn_filters", lang), callback_data="available:filters")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
 def _filter_display_value(lang: str, dimension: str, filters: dict[str, object], home_area: str) -> str:
     """Return the localized current-value label for one filter category."""
     if dimension == "area":
