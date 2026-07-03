@@ -35,15 +35,20 @@ plan (→ `docs/IDEAS.md`), or an accepted, shipped decision (→
 
 ---
 
-## Epic 1 — Match Discovery & Community
+## Epic 1 — Admin & Trust Operations
 
-**Goal:** help a player find more games than the ones inside their own
-Tennis Zone and their own initiative to browse.
+**Goal:** give an operator real tools to run the platform as it grows,
+beyond direct database access (`MANIFESTO.md`'s Permissions: User,
+Moderator, Admin, Owner).
 
-- **MVP:** Public Match Feed — a view of open matches distinct from the
-  current in-bot, profile-gated Available Matches browsing.
-- **Phase 1:** Nearby / geolocation-based matching.
-- **Phase 2:** —
+- **MVP:** Permission levels — today `/dev` is a single flat allowlist
+  with no distinction between Moderator, Admin, and Owner.
+- **Phase 1:** Real user management (view/edit/suspend a real player),
+  match moderation (force-cancel, inspect any match).
+- **Phase 2:** Report Abuse admin review queue (see Epic 7 for the
+  player-facing half), analytics visibility in `/dev` (the analytics
+  pipeline already collects events — nothing surfaces them yet),
+  environment visibility in `/dev` (confirm which `ENV`/config is active).
 - **Future:** —
 
 ---
@@ -63,59 +68,34 @@ Tennis Zone and their own initiative to browse.
 
 ---
 
-## Epic 3 — Player Growth & History
+## Epic 3 — Coach Platform
 
-**Goal:** give players a sense of progress and a record of their tennis
-life — without ratings or rankings.
+**Goal:** support Coach as a first-class user type (`MANIFESTO.md`), not
+a self-reported profile label.
 
-- **MVP:** Match History — a player can see a match after it happened,
-  not only while it's upcoming.
-- **Phase 1:** Player Statistics.
-- **Phase 2:** Achievements.
-- **Future:** Tennis Passport, Courts Collection, Tennis DNA.
+- **MVP:** Coach role/identity, distinct from Player.
+- **Phase 1:** Coach verification workflow — replaces today's self-set
+  `level_source="coach_verified"` flag, which nothing actually verifies.
+- **Phase 2:** Coach discovery, coach-specific profile fields.
+- **Future:** Lesson organization & scheduling, player recommendation
+  from a coach.
 
 ---
 
-## Epic 4 — Trust & Reliability
+## Epic 4 — Match Discovery & Community
 
-**Goal:** build a trusted community through verified/earned signals, per
-`MANIFESTO.md`'s Trust principle — never through a rating.
+**Goal:** help a player find more games than the ones inside their own
+Tennis Zone and their own initiative to browse.
 
-- **MVP:** Report Abuse — the player-facing action (the admin-side review
-  queue is Epic 9).
-- **Phase 1:** Reliability Score, Level Confidence.
+- **MVP:** Public Match Feed — a view of open matches distinct from the
+  current in-bot, profile-gated Available Matches browsing.
+- **Phase 1:** Nearby / geolocation-based matching.
 - **Phase 2:** —
 - **Future:** —
 
 ---
 
-## Epic 5 — Social & Friends
-
-**Goal:** players shouldn't lose contact after a great match
-(`docs/VISION.md` Pillar 4).
-
-- **MVP:** QR Friend — scan-to-connect after a match, no usernames or
-  searching.
-- **Phase 1:** Favourite Partners / Add Friend, Play Again (Rematch).
-- **Phase 2:** Player Reviews.
-- **Future:** Chat, Private Groups.
-
----
-
-## Epic 6 — Proactive Notifications
-
-**Goal:** reach a player at the right moment, not only in reaction to
-something they just did — every notification today is reactive.
-
-- **MVP:** Match reminders ahead of a scheduled match.
-- **Phase 1:** Available Now expiry notice.
-- **Phase 2:** —
-- **Future:** Native push notifications (depends on Epic 7's mobile
-  clients existing).
-
----
-
-## Epic 7 — Multi-Client Platform
+## Epic 5 — Multi-Client Platform
 
 **Goal:** Telegram is only the first client — one backend, multiple
 clients (`MANIFESTO.md`).
@@ -131,35 +111,55 @@ clients (`MANIFESTO.md`).
 
 ---
 
-## Epic 8 — Coach Platform
+## Epic 6 — Player Growth & History
 
-**Goal:** support Coach as a first-class user type (`MANIFESTO.md`), not
-a self-reported profile label.
+**Goal:** give players a sense of progress and a record of their tennis
+life — without ratings or rankings.
 
-- **MVP:** Coach role/identity, distinct from Player.
-- **Phase 1:** Coach verification workflow — replaces today's self-set
-  `level_source="coach_verified"` flag, which nothing actually verifies.
-- **Phase 2:** Coach discovery, coach-specific profile fields.
-- **Future:** Lesson organization & scheduling, player recommendation
-  from a coach.
+- **MVP:** Match History — a player can see a match after it happened,
+  not only while it's upcoming.
+- **Phase 1:** Player Statistics.
+- **Phase 2:** Achievements.
+- **Future:** Tennis Passport, Courts Collection, Tennis DNA.
 
 ---
 
-## Epic 9 — Admin & Trust Operations
+## Epic 7 — Trust & Reliability
 
-**Goal:** give an operator real tools to run the platform as it grows,
-beyond direct database access (`MANIFESTO.md`'s Permissions: User,
-Moderator, Admin, Owner).
+**Goal:** build a trusted community through verified/earned signals, per
+`MANIFESTO.md`'s Trust principle — never through a rating.
 
-- **MVP:** Permission levels — today `/dev` is a single flat allowlist
-  with no distinction between Moderator, Admin, and Owner.
-- **Phase 1:** Real user management (view/edit/suspend a real player),
-  match moderation (force-cancel, inspect any match).
-- **Phase 2:** Report Abuse admin review queue (see Epic 4 for the
-  player-facing half), analytics visibility in `/dev` (the analytics
-  pipeline already collects events — nothing surfaces them yet),
-  environment visibility in `/dev` (confirm which `ENV`/config is active).
+- **MVP:** Report Abuse — the player-facing action (the admin-side review
+  queue is Epic 1).
+- **Phase 1:** Reliability Score, Level Confidence.
+- **Phase 2:** —
 - **Future:** —
+
+---
+
+## Epic 8 — Social & Friends
+
+**Goal:** players shouldn't lose contact after a great match
+(`docs/VISION.md` Pillar 4).
+
+- **MVP:** QR Friend — scan-to-connect after a match, no usernames or
+  searching.
+- **Phase 1:** Favourite Partners / Add Friend, Play Again (Rematch).
+- **Phase 2:** Player Reviews.
+- **Future:** Chat, Private Groups.
+
+---
+
+## Epic 9 — Proactive Notifications
+
+**Goal:** reach a player at the right moment, not only in reaction to
+something they just did — every notification today is reactive.
+
+- **MVP:** Match reminders ahead of a scheduled match.
+- **Phase 1:** Available Now expiry notice.
+- **Phase 2:** —
+- **Future:** Native push notifications (depends on Epic 5's mobile
+  clients existing).
 
 ---
 
