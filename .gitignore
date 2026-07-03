@@ -8,6 +8,10 @@ dist/
 build/
 .eggs/
 .env
+.env.*
+!.env.example
+!.env.dev.example
+!.env.production.example
 *.db
 *.sqlite3
 .venv/

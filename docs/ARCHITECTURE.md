@@ -251,3 +251,84 @@ Two rules that follow from "sole authority":
 7. If the change introduces a new architectural pattern (not just a new
    feature using existing patterns), update this document in the same
    change — don't let it drift out of date.
+
+---
+
+## 10. Environment separation
+
+**Goal:** development must never be able to touch production's bot token,
+database, or data — by construction, not by discipline.
+
+### Configuration flow
+
+`backend/app/core/config.py` resolves configuration in this order:
+
+```
+OS environment variables (highest precedence)
+        ↓
+dotenv file selected by ENV   (.env.dev / .env.production / .env)
+        ↓
+field defaults in Settings (lowest precedence)
+```
+
+Which dotenv file gets loaded is decided once, at import time, by
+`_resolve_env_file()`:
+
+| `ENV` (OS var)          | File loaded      |
+|--------------------------|-------------------|
+| `development` / `dev`    | `.env.dev`         |
+| `production` / `prod`    | `.env.production`   |
+| unset, unrecognized, or the mapped file doesn't exist | `.env` (unchanged legacy behavior) |
+
+`Settings` is a singleton (`get_settings()`, `@lru_cache`) — resolved once
+per process, not hot-reloaded if `ENV` changes mid-run. `.env`,
+`.env.dev`, and `.env.production` are all gitignored; `.env.dev.example`
+and `.env.production.example` are the tracked templates (`cp
+.env.dev.example .env.dev`, then fill in real values).
+
+### What's environment-specific
+
+Everything comes from the same `Settings` object — no code branches on
+"am I in dev or prod," it just reads the config that was resolved for
+this process:
+
+| Setting | Development | Production |
+|----------|--------------|-------------|
+| `BOT_TOKEN` | a separate dev bot — **never** the production token | the real bot |
+| `DATABASE_URL` | `sqlite+aiosqlite:///./baseline-dev.db` | `sqlite+aiosqlite:///./baseline.db` (or Postgres) |
+| `DEBUG` | `true` | `false` |
+| `LOG_LEVEL` | `DEBUG` | `INFO` |
+| SQLAlchemy engine logger | `INFO` (`sqlalchemy.engine.Engine` logs every query) | `WARNING` (concise — no per-query noise) |
+
+The SQLAlchemy verbosity toggle already existed in
+`backend/app/core/logging.py` (`INFO if settings.debug else WARNING`) —
+nothing there needed to change; supplying the right `DEBUG`/`LOG_LEVEL`
+values per environment file is what drives requirement 5 end to end.
+
+### Startup flow
+
+No code changes are needed to start in either environment — only the
+`ENV` variable:
+
+```bash
+ENV=development python -m backend.app.bot.main   # loads .env.dev
+ENV=production  python -m backend.app.bot.main   # loads .env.production
+python -m backend.app.bot.main                     # unset ENV -> .env (legacy/current default)
+```
+
+### Deployment flow
+
+The production deploy (`.github/workflows/deploy.yml`) is **unchanged** —
+it SSHes in, `git reset --hard origin/master`, reinstalls dependencies,
+and restarts the `baseline` systemd service. It never sets `ENV`, so it
+keeps loading the server's existing `.env` exactly as before
+(backward-compatible by construction, not by exception). Adopting
+`ENV=production` + `.env.production` on the server is an **optional**
+future step (e.g. `Environment=ENV=production` in the systemd unit, or
+exporting it before the deploy script's restart) — not required for this
+sprint, and deliberately not done here so the live deployment isn't
+touched without a dedicated, reviewed change.
+
+Local development should export `ENV=development` (e.g. in a shell
+profile or a `direnv .envrc`) so `.env.dev` — and only `.env.dev` — is
+ever loaded while working on the project locally.

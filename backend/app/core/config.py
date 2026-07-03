@@ -1,24 +1,66 @@
-"""Application configuration loaded from environment variables."""
-from functools import lru_cache
+"""Application configuration loaded from environment variables.
 
-from pydantic import field_validator
+Environment selection (Sprint 10.4): the OS-level `ENV` variable picks
+which dotenv file is loaded — `ENV=development` -> `.env.dev`,
+`ENV=production` -> `.env.production`. If `ENV` is unset, or the mapped
+file doesn't exist, this falls back to the original `.env` — which is
+exactly what every environment used before this existed, so an
+unconfigured deployment (e.g. the current production server, which never
+sets `ENV`) keeps working with zero changes required.
+"""
+import os
+from functools import lru_cache
+from pathlib import Path
+
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_ENV_FILE_BY_ENV = {
+    "development": ".env.dev",
+    "dev": ".env.dev",
+    "production": ".env.production",
+    "prod": ".env.production",
+}
+
+
+def _resolve_env_file() -> str:
+    """Pick the dotenv file to load based on the `ENV` OS variable.
+
+    Resolved once, at import time — matches the existing singleton
+    (`get_settings()` is `@lru_cache`d), not meant to be hot-swapped
+    mid-process.
+    """
+    env = os.environ.get("ENV", "").strip().lower()
+    candidate = _ENV_FILE_BY_ENV.get(env)
+    if candidate and Path(candidate).is_file():
+        return candidate
+    return ".env"
+
+
+def _default_app_env() -> str:
+    """Default for the `app_env` field when the loaded dotenv file (or a
+    real OS env var) doesn't explicitly set APP_ENV — falls back to the
+    same `ENV` variable used to pick the dotenv file, so `ENV=production`
+    alone is enough to be recognised as production even without a
+    matching `APP_ENV=production` line."""
+    return os.environ.get("ENV", "development").strip().lower() or "development"
 
 
 class Settings(BaseSettings):
     """All runtime configuration lives here.
 
-    Values are read from the environment (or a .env file at project root).
-    Never hard-code secrets in source code.
+    Values are read from the environment (or the dotenv file selected by
+    `_resolve_env_file()`). Never hard-code secrets in source code.
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_resolve_env_file(),
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
 
     # ── Telegram ────────────────────────────────────────────────────────────
+    # Development MUST use its own bot token — never the production token.
     bot_token: str = ""
 
     # ── Database ─────────────────────────────────────────────────────────────
@@ -36,7 +78,7 @@ class Settings(BaseSettings):
         return [int(x.strip()) for x in self.developer_ids.split(",") if x.strip()]
 
     # ── Application ──────────────────────────────────────────────────────────
-    app_env: str = "development"
+    app_env: str = Field(default_factory=_default_app_env)
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     debug: bool = False
