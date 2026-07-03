@@ -172,6 +172,7 @@ One meaning per emoji — never reuse an emoji across different semantic roles.
 | ✏️ | Edit | Edit profile, change level |
 | 🏆 | Verified | Coach-verified level badge |
 | 📊 | Statistics | Developer stats header; matches-played count in profile |
+| 🧭 | Discover / browse | Available Matches — browsing open matches to join (distinct from 🔍 Search, which is for finding a *person*) |
 
 Never add catch-all or generic fallback handlers. Unknown messages must remain unhandled during development — silence exposes routing bugs; a catch-all hides them. If a message is not reaching the right handler, fix the router registration or state filter, not the symptom.
 

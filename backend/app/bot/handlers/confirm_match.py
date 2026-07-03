@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.helpers import get_player_lang
-from backend.app.bot.keyboards.keyboards import back_to_menu_keyboard, confirm_note_keyboard
+from backend.app.bot.keyboards.keyboards import confirm_note_keyboard, view_roster_keyboard
 from backend.app.bot.states.states import ConfirmMatchStates
 from backend.app.bot.texts import t
 from backend.app.services.game_service import GameService
@@ -140,26 +140,10 @@ async def _execute_confirm(
 
 
 # ── Cancel Match ──────────────────────────────────────────────────────────────
-
-@router.callback_query(F.data.regexp(r"^cancel_match:\d+$"))
-async def cancel_match(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Cancel a match at any cancellable status."""
-    if not callback.data or not callback.message:
-        return
-    game_id = int(callback.data.split(":")[-1])
-    user = callback.from_user
-
-    player = await PlayerService(session).get_by_telegram_id(user.id)
-    lang = get_player_lang(player)
-
-    _, error = await GameService(session).cancel_match(game_id, user.id)
-
-    if error:
-        await callback.answer(t(error, lang), show_alert=True)
-        return
-
-    await callback.message.answer(t("cancel_match_done", lang))
-    await callback.answer()
+# Cancel Match itself lives in my_matches.py (match:cancel: / match:cancel_confirm:)
+# — one confirmation + notification flow shared by the Match Details screen and
+# the game-full notification's Cancel button (see game_full_keyboard), not two
+# independent implementations.
 
 
 # ── View Roster ───────────────────────────────────────────────────────────────
@@ -186,5 +170,7 @@ async def view_roster(callback: CallbackQuery, session: AsyncSession) -> None:
 
     msg = t("view_roster_header", lang, date=date_str, time=time_str, court=game.court) + player_lines
 
-    await callback.message.answer(msg, reply_markup=back_to_menu_keyboard(lang), parse_mode="Markdown")
+    # Returns to this specific match's Match Details, not just the main
+    # menu (UX-24) — the user almost certainly navigated here from there.
+    await callback.message.answer(msg, reply_markup=view_roster_keyboard(lang, game_id), parse_mode="Markdown")
     await callback.answer()

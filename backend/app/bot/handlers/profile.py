@@ -38,7 +38,11 @@ async def show_profile(message: Message, session: AsyncSession) -> None:
     lang = get_player_lang(player)
 
     if not player or not player.is_profile_complete:
-        await message.answer(t("profile_incomplete", lang), parse_mode="Markdown")
+        # Reuses the same honest, correct message every other guarded screen
+        # uses (UX-27) — the previous "profile_incomplete" text promised
+        # onboarding would start automatically, but nothing actually
+        # triggered it.
+        await message.answer(t("profile_not_complete_action", lang), parse_mode="Markdown")
         return
 
     courts = " • ".join(player.preferred_courts or []) or "—"

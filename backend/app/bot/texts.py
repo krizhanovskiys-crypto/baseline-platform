@@ -70,8 +70,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_cancelled": "🔴 Cancelled",
         "status_badge_expired": "🔴 Expired",
         # Available Matches
-        "btn_available_matches": "🎾 Available Matches",
-        "available_matches_header": "🎾 *Available Matches*\n{count} matches found",
+        "btn_available_matches": "🧭 Available Matches",
+        "available_matches_header": "🧭 *Available Matches*\n{count} matches found",
         "available_matches_empty": (
             "😔 No matches available right now.\n\n"
             "Organize one yourself, or check back later."
@@ -149,7 +149,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_self_rated": "Self Rated",
         "level_source_coach_verified": "Coach Verified",
         "btn_edit_profile": "✏️ Edit Profile",
-        "profile_incomplete": "⚠️ Profile incomplete. Starting onboarding...",
         # Edit Profile
         "edit_profile_header": "✏️ *Edit Profile*",
         "edit_profile_field_name": "👤 Name",
@@ -314,9 +313,22 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "confirmed_player_note_section": "\n\n*From the organizer:*\n{note}",
         # Cancel match
+        "cancel_match_confirm_ask": (
+            "⚠️ Cancel this match?\n\n"
+            "This cannot be undone, and every player who joined will be notified."
+        ),
+        "cancel_match_confirm_yes": "✅ Yes, Cancel",
+        "cancel_match_confirm_no": "⬅️ No, Go Back",
         "cancel_match_done": "❌ Match cancelled.",
         "cancel_match_not_yours": "Only the organizer can cancel this match.",
         "cancel_match_not_cancellable": "This match cannot be cancelled.",
+        "match_cancelled_notification": (
+            "❌ *Your match has been cancelled.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "The organizer cancelled this match."
+        ),
         # Leave match
         "leave_match_done": "✅ You left the match.",
         "leave_match_organizer": "⚠️ Organizer cannot leave. Use Cancel Match instead.",
@@ -325,6 +337,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "leave_match_notification": "👤 {name} left your match.",
         # View roster
         "view_roster_header": "👥 *Match Roster*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
+        "btn_back_to_match_details": "⬅️ Back to Match",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
         # Developer Mode
@@ -409,8 +422,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_cancelled": "🔴 Скасовано",
         "status_badge_expired": "🔴 Завершено",
         # Available Matches
-        "btn_available_matches": "🎾 Доступні матчі",
-        "available_matches_header": "🎾 *Доступні матчі*\n{count} матчів знайдено",
+        "btn_available_matches": "🧭 Доступні матчі",
+        "available_matches_header": "🧭 *Доступні матчі*\n{count} матчів знайдено",
         "available_matches_empty": (
             "😔 Зараз немає доступних матчів.\n\n"
             "Організуйте свій матч або перевірте пізніше."
@@ -478,7 +491,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
-        "profile_incomplete": "⚠️ Профіль не заповнено. Починаємо реєстрацію...",
         "edit_profile_header": "✏️ *Редагування профілю*",
         "edit_profile_field_name": "👤 Ім'я",
         "edit_profile_field_level": "⭐ Рівень",
@@ -640,9 +652,22 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "confirmed_player_note_section": "\n\n*Від організатора:*\n{note}",
         # Cancel match
+        "cancel_match_confirm_ask": (
+            "⚠️ Скасувати цей матч?\n\n"
+            "Цю дію не можна скасувати, і кожен гравець, який приєднався, отримає сповіщення."
+        ),
+        "cancel_match_confirm_yes": "✅ Так, скасувати",
+        "cancel_match_confirm_no": "⬅️ Ні, назад",
         "cancel_match_done": "❌ Матч скасовано.",
         "cancel_match_not_yours": "Тільки організатор може скасувати матч.",
         "cancel_match_not_cancellable": "Цей матч не можна скасувати.",
+        "match_cancelled_notification": (
+            "❌ *Ваш матч скасовано.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "Організатор скасував цей матч."
+        ),
         # Leave match
         "leave_match_done": "✅ Ви покинули матч.",
         "leave_match_organizer": "⚠️ Господар не може покинути матч. Скористайтесь скасуванням.",
@@ -651,6 +676,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "leave_match_notification": "👤 {name} покинув(-ла) ваш матч.",
         # View roster
         "view_roster_header": "👥 *Склад матчу*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
+        "btn_back_to_match_details": "⬅️ До матчу",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
@@ -735,8 +761,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "status_badge_cancelled": "🔴 Отменён",
         "status_badge_expired": "🔴 Завершён",
         # Available Matches
-        "btn_available_matches": "🎾 Доступные матчи",
-        "available_matches_header": "🎾 *Доступные матчи*\n{count} матчей найдено",
+        "btn_available_matches": "🧭 Доступные матчи",
+        "available_matches_header": "🧭 *Доступные матчи*\n{count} матчей найдено",
         "available_matches_empty": (
             "😔 Сейчас нет доступных матчей.\n\n"
             "Организуйте свой матч или проверьте позже."
@@ -804,7 +830,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",
-        "profile_incomplete": "⚠️ Профиль не заполнен. Запускаем регистрацию...",
         "edit_profile_header": "✏️ *Редактирование профиля*",
         "edit_profile_field_name": "👤 Имя",
         "edit_profile_field_level": "⭐ Уровень",
@@ -966,9 +991,22 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "confirmed_player_note_section": "\n\n*От организатора:*\n{note}",
         # Cancel match
+        "cancel_match_confirm_ask": (
+            "⚠️ Отменить этот матч?\n\n"
+            "Это действие необратимо, и каждый присоединившийся игрок получит уведомление."
+        ),
+        "cancel_match_confirm_yes": "✅ Да, отменить",
+        "cancel_match_confirm_no": "⬅️ Нет, назад",
         "cancel_match_done": "❌ Матч отменён.",
         "cancel_match_not_yours": "Только организатор может отменить матч.",
         "cancel_match_not_cancellable": "Этот матч нельзя отменить.",
+        "match_cancelled_notification": (
+            "❌ *Ваш матч отменён.*\n\n"
+            "📅 {date}\n"
+            "🕒 {time}\n"
+            "📍 {court}\n\n"
+            "Организатор отменил этот матч."
+        ),
         # Leave match
         "leave_match_done": "✅ Вы покинули матч.",
         "leave_match_organizer": "⚠️ Хозяин не может покинуть матч. Используйте отмену матча.",
@@ -977,6 +1015,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "leave_match_notification": "👤 {name} покинул(-а) ваш матч.",
         # View roster
         "view_roster_header": "👥 *Состав матча*\n\n📅 {date}\n🕒 {time}\n📍 {court}\n\n",
+        "btn_back_to_match_details": "⬅️ К матчу",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
         # Developer Mode

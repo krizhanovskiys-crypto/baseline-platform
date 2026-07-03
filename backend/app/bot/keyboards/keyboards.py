@@ -405,11 +405,16 @@ def fpm_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
 # ---------------------------------------------------------------------------
 
 def game_full_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
-    """Keyboard sent to the organizer when a match becomes full."""
+    """Keyboard sent to the organizer when a match becomes full.
+
+    Cancel uses the same match:cancel: callback as Match Details' Cancel
+    Match button — one Cancel Match flow (confirmation + notification),
+    not two independent implementations.
+    """
     builder = InlineKeyboardBuilder()
     builder.button(text=t("game_full_btn_confirm", lang), callback_data=f"confirm_match:{game_id}")
     builder.button(text=t("game_full_btn_players", lang), callback_data=f"view_game:{game_id}")
-    builder.button(text=t("game_full_btn_cancel", lang), callback_data=f"cancel_match:{game_id}")
+    builder.button(text=t("game_full_btn_cancel", lang), callback_data=f"match:cancel:{game_id}")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -450,6 +455,29 @@ def leave_match_done_keyboard(lang: str) -> InlineKeyboardMarkup:
     """Keyboard shown after a player successfully leaves a match."""
     builder = InlineKeyboardBuilder()
     builder.button(text=t("match_details_btn_back", lang), callback_data="my_matches:back")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def cancel_match_confirm_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard for the Cancel Match confirmation screen: Yes / No.
+
+    "No" returns to Match Details (match:open:{game_id}) rather than
+    cancelling anything — same pattern as join_confirmation_keyboard.
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("cancel_match_confirm_yes", lang), callback_data=f"match:cancel_confirm:{game_id}")
+    builder.button(text=t("cancel_match_confirm_no", lang), callback_data=f"match:open:{game_id}")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def view_roster_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
+    """Keyboard shown under the View Roster screen — returns to this
+    specific match's details, not just the main menu (UX-24)."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("btn_back_to_match_details", lang), callback_data=f"match:open:{game_id}")
     builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
     builder.adjust(1, 1)
     return builder.as_markup()

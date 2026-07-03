@@ -11,6 +11,7 @@ from aiogram.exceptions import TelegramAPIError
 
 from backend.app.bot.keyboards.keyboards import (
     back_to_menu_keyboard,
+    cancel_match_confirm_keyboard,
     join_confirmation_keyboard,
     leave_match_done_keyboard,
     match_details_keyboard,
@@ -192,23 +193,68 @@ async def my_matches_back_handler(callback: CallbackQuery, session: AsyncSession
     await _render_my_matches(callback.message, session, callback.from_user.id, lang)  # type: ignore[arg-type]
 
 
-# ── Match Details — cancel ────────────────────────────────────────────────────
+# ── Match Details — cancel (ask for confirmation first — UX-23) ───────────────
 
 @router.callback_query(F.data.regexp(r"^match:cancel:\d+$"))
-async def match_cancel_handler(callback: CallbackQuery, session: AsyncSession) -> None:
+async def match_cancel_ask_handler(callback: CallbackQuery, session: AsyncSession) -> None:
+    """Show a confirmation screen before cancelling — nothing is cancelled yet."""
     if not callback.data or not callback.message:
         return
     game_id = int(callback.data.split(":")[2])
     player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
     lang = get_player_lang(player)
 
-    _, error_key = await GameService(session).cancel_match(game_id, callback.from_user.id)
+    await callback.answer()
+    await callback.message.edit_text(
+        t("cancel_match_confirm_ask", lang),
+        reply_markup=cancel_match_confirm_keyboard(lang, game_id),
+        parse_mode="Markdown",
+    )
+
+
+# ── Match Details — cancel confirmed (executes + notifies every participant,
+#    UX-22) ────────────────────────────────────────────────────────────────────
+
+@router.callback_query(F.data.regexp(r"^match:cancel_confirm:\d+$"))
+async def match_cancel_confirm_handler(callback: CallbackQuery, session: AsyncSession) -> None:
+    if not callback.data or not callback.message:
+        return
+    game_id = int(callback.data.split(":")[2])
+    user_tid = callback.from_user.id
+    player = await PlayerService(session).get_by_telegram_id(user_tid)
+    lang = get_player_lang(player)
+
+    # Roster is fetched from the same GamePlayer rows regardless of game
+    # status, so it doesn't matter whether this runs before or after the
+    # status transition below.
+    game, participants = await GameService(session).get_roster(game_id)
+
+    _, error_key = await GameService(session).cancel_match(game_id, user_tid)
     if error_key:
         await callback.answer(t(error_key, lang), show_alert=True)
         return
 
     await callback.answer()
     await callback.message.edit_text(t("cancel_match_done", lang), parse_mode="Markdown")
+
+    if not game:
+        return
+    date_str = f"{game.date.strftime('%B')} {game.date.day}"
+    time_str = game.time.strftime("%H:%M")
+    for participant in participants:
+        if participant.telegram_id == user_tid:
+            continue
+        participant_lang = participant.language or "en"
+        try:
+            await callback.bot.send_message(
+                participant.telegram_id,
+                t("match_cancelled_notification", participant_lang, date=date_str, time=time_str, court=game.court),
+                parse_mode="Markdown",
+            )
+        except TelegramAPIError:
+            logger.warning(
+                "Could not notify participant telegram_id=%s of cancellation", participant.telegram_id
+            )
 
 
 # ── Match Details — leave ─────────────────────────────────────────────────────
