@@ -8,6 +8,56 @@ full standing picture.
 
 ---
 
+## Sprint 11 — AI Context Rebuild + Phase 3.1A (Empty State → Invite a Friend)
+
+**What changed:**
+- Introduced the mandatory AI Context Rebuild workflow: `docs/ai/PROJECT_STATE.md`,
+  `docs/ai/CTO_MEMORY.md`, `docs/ai/ACTIVE_SPRINT.md`, `docs/ai/AI_HANDOFF.md`,
+  and `PROMPT_START.md`, all wired into `CLAUDE.md` as a mandatory,
+  self-enforced process (Step 0 Repository Reality Check → Step 1 Context
+  Rebuild → Step 2 Project Summary → Step 3 CTO Review → Step 4
+  Implementation)
+- `docs/ai/PROJECT_STATE.md` is no longer hand-maintained — updating it
+  is now a standing part of every sprint's Definition of Done
+- Phase 3.1A — every player-discovery empty state (Find Partner "All
+  Players" and "Smart Filter" modes, Find Players for a Match) now shows
+  a working "➕ Invite a Friend" button (Telegram share-sheet URL
+  wrapping a bot deep link) instead of a dead-end message, plus a "⬅️
+  Back" button to the right destination per screen
+- Consolidated three near-duplicate/dead empty-state text keys
+  (`no_partners`, `no_partners_friendly`, `fpm_not_found`) into one
+  shared `player_discovery_no_results`, and one shared keyboard builder
+  (`player_discovery_empty_keyboard`)
+- Follow-up refinement: `player_discovery_no_results` copy updated to
+  the approved wording ("🎾 Know someone who'd like to play?..."); the
+  invite deep link's payload changed from a flat `?start=invite` to
+  `?start=invite_{telegram_id}`, identifying the inviter — format only,
+  still not parsed anywhere
+
+**Architecture changes:**
+- Repository > `docs/ai/PROJECT_STATE.md` > everything else — the
+  repository's actual state (git log, test count, migrations) always
+  wins over any document describing it
+- New shared helper `build_invite_share_url(bot, lang, telegram_id)`
+  (`bot/handlers/helpers.py`) — the deep link's payload is
+  `invite_{telegram_id}` by design, not parsed or acted on anywhere yet,
+  so referral tracking can be added later by parsing this same payload
+  in `/start`, never by changing the share mechanism or the button
+
+**New decisions:**
+- None recorded in `docs/PRODUCT_DECISIONS.md` this pass — Phase 3.1A
+  is UX/architecture-consistency work applying the existing "no
+  duplicated empty-state messages" principle, not a new product
+  decision in its own right
+
+**Current blockers:**
+- None
+
+**Next priority:**
+- Sprint 11 — Match Discovery Refactor (Phase 3.1A was its prerequisite)
+
+---
+
 ## Sprint 11 — Admin Center (Phases 2.1, 2.2, 3.0)
 
 **What changed:**

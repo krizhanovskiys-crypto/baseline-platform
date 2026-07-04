@@ -12,13 +12,15 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-04, end of Sprint 11 (Admin Center Phases 2.1/2.2/3.0).
+**Last updated:** 2026-07-04, end of Sprint 11 Phase 3.1A (Empty State →
+Invite a Friend) — pending commit/approval.
 
 ---
 
 ## Current Sprint
 
-Sprint 11 — Admin Center (`docs/BACKLOG.md` Epic 1).
+Sprint 11 — Admin Center (`docs/BACKLOG.md` Epic 1) + Match Discovery
+(Empty State → Invite a Friend, Phase 3.1A).
 
 ## Current Branch
 
@@ -26,32 +28,31 @@ Sprint 11 — Admin Center (`docs/BACKLOG.md` Epic 1).
 
 ## Current Production Commit
 
-`4feaceaff9c56f12c582c7a8be1657d1b28a0e2d` (pushed to `origin/master`)
+`ab6a61a5b92b394b74e3f4d5ebb4374d5f5d0ce6` (pushed to `origin/master`).
+Phase 3.1A's changes are implemented and tested locally but **not yet
+committed** — awaiting approval.
 
 ## Latest Test Count
 
-382 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer).
+389 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+locally, on the uncommitted Phase 3.1A working tree. 382 passed at the
+last committed state (`ab6a61a`).
 
 ## Current Priority
 
-Admin Center's Players module (Search/Browse/Details) is the reference
-implementation for every future record-type module. The current
-priority is deciding which comes next: the Players **Actions** layer
-(suspend/reinstate — `docs/BACKLOG.md` Epic 1 Phase 1), or the second
-record module (Matches), built the same shape as `players.py`
-(`docs/ARCHITECTURE.md` §12).
+**Sprint 11 — Match Discovery Refactor.** Phase 3.1A (this entry) was
+completed specifically as its prerequisite. Still open: whether the
+Players Actions layer (suspend/reinstate — `docs/BACKLOG.md` Epic 1
+Phase 1) happens before or after the Match Discovery Refactor.
 
 ## Current Task
 
-None in progress. The last shipped task (Player Details shows spoken
-Languages instead of interface language) was amended into the Players
-commit and pushed.
+None in progress. Phase 3.1A (Empty State → Invite a Friend) is
+implemented, tested, and awaiting commit approval.
 
 ## Next Task
 
-Not yet assigned — awaiting direction between Players Actions
-(suspend/reinstate) and the Matches module. See `docs/ai/ACTIVE_SPRINT.md`
-→ Next.
+Sprint 11 — Match Discovery Refactor.
 
 ## Completed Major Features
 
@@ -73,6 +74,16 @@ Not yet assigned — awaiting direction between Players Actions
 - **Admin Center Players module** — Search/Browse/Details, the
   reference implementation for all future record modules
   (Sprint 11 Phase 3.0)
+- **AI Context Rebuild workflow** — `docs/ai/*`, `PROMPT_START.md`,
+  Repository Reality Check, CTO Review (Sprint 11)
+- **Empty State → Invite a Friend** (Sprint 11 Phase 3.1A) — every
+  player-discovery empty state (Find Partner, Find Players for a Match)
+  offers a working Telegram share/deep-link "➕ Invite a Friend" button
+  instead of a dead end; consolidated three near-duplicate empty-state
+  text keys into one shared `player_discovery_no_results`. Deep-link
+  payload carries the inviting player's telegram_id
+  (`?start=invite_{telegram_id}`) — not parsed or acted on yet, format
+  only, ahead of future referral tracking.
 
 ## Critical Constraints
 
@@ -89,5 +100,13 @@ Not yet assigned — awaiting direction between Players Actions
   and future tournament name / coach bio / club name) must be escaped
   for its `parse_mode` before display.
 - Rating/reputation/ranking is a permanent product non-goal.
+- Player-discovery empty states share one text key
+  (`player_discovery_no_results`) and one keyboard builder
+  (`player_discovery_empty_keyboard`) — a new discovery flow reuses
+  these rather than adding a near-duplicate.
+- The invite deep link's payload is `?start=invite_{telegram_id}` —
+  identifies the inviter, but is not parsed or acted on anywhere yet
+  (no referral tracking). Adding it later means parsing this same
+  payload in `/start`; the share mechanism and button never change.
 - Never commit without explicit approval. Never push without explicit
   approval.

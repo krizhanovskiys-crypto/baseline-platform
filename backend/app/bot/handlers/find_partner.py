@@ -1,18 +1,19 @@
 """Find Partner handler — Search Mode entry, Smart Filter, one-at-a-time browsing."""
 import logging
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.available_matches import _edit_screen
-from backend.app.bot.handlers.helpers import get_player_lang, send_main_menu
+from backend.app.bot.handlers.helpers import build_invite_share_url, get_player_lang, send_main_menu
 from backend.app.bot.keyboards.keyboards import (
     area_keyboard,
     courts_keyboard,
     level_tolerance_keyboard,
     partner_card_keyboard,
+    player_discovery_empty_keyboard,
     search_mode_keyboard,
     smart_filter_keyboard,
 )
@@ -59,6 +60,7 @@ async def _run_search_and_show_first_card(
     session: AsyncSession,
     telegram_id: int,
     lang: str,
+    bot: Bot,
     *,
     area: str,
     skill_level: float,
@@ -81,7 +83,12 @@ async def _run_search_and_show_first_card(
     )
 
     if not partners:
-        await message.answer(t("no_partners_friendly", lang), parse_mode="Markdown")
+        share_url = await build_invite_share_url(bot, lang, telegram_id)
+        await message.answer(
+            t("player_discovery_no_results", lang),
+            reply_markup=player_discovery_empty_keyboard(lang, share_url, back_callback="menu:main"),
+            parse_mode="Markdown",
+        )
         return
 
     partner_ids = [p.telegram_id for p in partners]
@@ -116,7 +123,7 @@ async def find_partner(message: Message, session: AsyncSession) -> None:
 
 
 @router.callback_query(F.data == "fp:mode:all")
-async def fp_mode_all(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+async def fp_mode_all(callback: CallbackQuery, state: FSMContext, session: AsyncSession, bot: Bot) -> None:
     """All Players — the existing search, exactly as it behaved before this sprint."""
     if not callback.message:
         await callback.answer()
@@ -133,6 +140,7 @@ async def fp_mode_all(callback: CallbackQuery, state: FSMContext, session: Async
         session,
         callback.from_user.id,
         lang,
+        bot,
         area=player.home_area or "",
         skill_level=player.skill_level or 3.0,
         my_courts=player.preferred_courts or [],
@@ -376,7 +384,9 @@ async def fp_smartfilter_save_level(callback: CallbackQuery, state: FSMContext, 
 # ── Smart Filter — Find Players ─────────────────────────────────────────────────
 
 @router.callback_query(F.data == "fp:smartfilter:apply")
-async def fp_smartfilter_apply(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+async def fp_smartfilter_apply(
+    callback: CallbackQuery, state: FSMContext, session: AsyncSession, bot: Bot
+) -> None:
     if not callback.message:
         await callback.answer()
         return
@@ -397,6 +407,7 @@ async def fp_smartfilter_apply(callback: CallbackQuery, state: FSMContext, sessi
         session,
         callback.from_user.id,
         lang,
+        bot,
         area=area or "",
         skill_level=player.skill_level or 3.0,
         my_courts=filters["courts"],

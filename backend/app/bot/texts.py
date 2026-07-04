@@ -121,11 +121,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "smart_filter_header": "🎯 *Smart Filter*",
         "smart_filter_btn_find": "✅ Find Players",
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
-        "no_partners": (
-            "😔 We haven't found your ideal tennis partner yet.\n\n"
-            "🌱 The Baseline community is growing every day.\n\n"
-            "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
-        ),
         "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}",
         "btn_invite": "📨 Invite",
         "btn_view_profile": "👀 View Profile",
@@ -180,11 +175,15 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "level_source_card_self_rated": "✅ Self Rated",
         "level_source_card_coach_verified": "🏆 Coach Verified",
-        "no_partners_friendly": (
-            "😔 We haven't found your ideal tennis partner yet.\n\n"
-            "🌱 The Baseline community is growing every day.\n\n"
-            "🎁 Invite a friend to Baseline — they might be your next opponent on the court."
+        "player_discovery_no_results": (
+            "😔 No matching players found.\n\n"
+            "🎾 Know someone who'd like to play?\n\n"
+            "Invite them to Baseline.\n"
+            "Maybe they'll become your next tennis partner."
         ),
+        "btn_invite_friend": "➕ Invite a Friend",
+        "btn_back": "⬅️ Back",
+        "invite_share_text": "Join me on Baseline — the tennis matchmaking bot! 🎾",
         "btn_contact": "💬 Contact",
         "btn_next": "➡️ Next",
         "btn_menu_home": "🏠 Menu",
@@ -236,10 +235,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Players for Match
         "fpm_found": "👥 We found *{total}* suitable players",
         "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
-        "fpm_not_found": (
-            "😔 We couldn't find suitable players right now.\n\n"
-            "The Baseline community is growing — new players will appear soon."
-        ),
         "fpm_btn_select": "📨 Invite",
         "fpm_btn_prev": "⬅️ Previous",
         "fpm_btn_next": "➡️ Next",
@@ -527,11 +522,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "smart_filter_header": "🎯 *Розумний фільтр*",
         "smart_filter_btn_find": "✅ Знайти гравців",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
-        "no_partners": (
-            "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
-            "🌱 Спільнота Baseline постійно зростає.\n\n"
-            "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
-        ),
         "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}",
         "btn_invite": "📨 Запросити",
         "btn_view_profile": "👀 Профіль",
@@ -574,11 +564,15 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "level_source_card_self_rated": "✅ Самооцінка",
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
-        "no_partners_friendly": (
-            "😔 Поки що ми не знайшли для вас ідеального партнера.\n\n"
-            "🌱 Спільнота Baseline постійно зростає.\n\n"
-            "🎁 Запросіть друга до Baseline — можливо, саме він стане вашим наступним суперником на корті."
+        "player_discovery_no_results": (
+            "😔 Відповідних гравців не знайдено.\n\n"
+            "🎾 Знаєте когось, хто хотів би пограти?\n\n"
+            "Запросіть їх до Baseline.\n"
+            "Можливо, вони стануть вашим наступним партнером по тенісу."
         ),
+        "btn_invite_friend": "➕ Запросити друга",
+        "btn_back": "⬅️ Назад",
+        "invite_share_text": "Приєднуйся до Baseline — бота для пошуку партнерів з тенісу! 🎾",
         "btn_contact": "💬 Зв'язатися",
         "btn_next": "➡️ Далі",
         "btn_menu_home": "🏠 Меню",
@@ -630,10 +624,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Players for Match
         "fpm_found": "👥 Ми знайшли *{total}* гравців для вашого матчу",
         "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
-        "fpm_not_found": (
-            "😔 Наразі ми не знайшли підходящих гравців.\n\n"
-            "Спільнота Baseline постійно зростає — нові гравці з'являться незабаром."
-        ),
         "fpm_btn_select": "📨 Запросити",
         "fpm_btn_prev": "⬅️ Попередній",
         "fpm_btn_next": "➡️ Наступний",
@@ -921,11 +911,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "smart_filter_header": "🎯 *Умный фильтр*",
         "smart_filter_btn_find": "✅ Найти игроков",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
-        "no_partners": (
-            "😔 Пока мы не нашли для вас идеального партнёра.\n\n"
-            "🌱 Сообщество Baseline постоянно растёт.\n\n"
-            "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
-        ),
         "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}",
         "btn_invite": "📨 Пригласить",
         "btn_view_profile": "👀 Профиль",
@@ -968,11 +953,15 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "level_source_card_self_rated": "✅ Самооценка",
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
-        "no_partners_friendly": (
-            "😔 Пока мы не нашли для вас идеального партнёра.\n\n"
-            "🌱 Сообщество Baseline постоянно растёт.\n\n"
-            "🎁 Пригласите друга в Baseline — возможно, именно он станет вашим следующим соперником на корте."
+        "player_discovery_no_results": (
+            "😔 Подходящие игроки не найдены.\n\n"
+            "🎾 Знаете кого-то, кто хотел бы поиграть?\n\n"
+            "Пригласите их в Baseline.\n"
+            "Возможно, они станут вашим следующим партнёром по теннису."
         ),
+        "btn_invite_friend": "➕ Пригласить друга",
+        "btn_back": "⬅️ Назад",
+        "invite_share_text": "Присоединяйся к Baseline — боту для поиска партнёров по теннису! 🎾",
         "btn_contact": "💬 Связаться",
         "btn_next": "➡️ Далее",
         "btn_menu_home": "🏠 Меню",
@@ -1024,10 +1013,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Find Players for Match
         "fpm_found": "👥 Мы нашли *{total}* игроков для вашего матча",
         "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
-        "fpm_not_found": (
-            "😔 Сейчас мы не нашли подходящих игроков.\n\n"
-            "Сообщество Baseline постоянно растёт — новые игроки появятся совсем скоро."
-        ),
         "fpm_btn_select": "📨 Пригласить",
         "fpm_btn_prev": "⬅️ Предыдущий",
         "fpm_btn_next": "➡️ Следующий",

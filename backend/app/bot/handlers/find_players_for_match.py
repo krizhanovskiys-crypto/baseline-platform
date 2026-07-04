@@ -1,19 +1,19 @@
 """Find Players for Match handler — browse and select candidate players."""
 import logging
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.bot.handlers.helpers import get_player_lang, send_main_menu
+from backend.app.bot.handlers.helpers import build_invite_share_url, get_player_lang, send_main_menu
 from backend.app.bot.keyboards.keyboards import (
     fpm_after_select_keyboard,
     fpm_card_keyboard,
-    fpm_empty_keyboard,
     fpm_selected_list_keyboard,
     invitation_keyboard,
+    player_discovery_empty_keyboard,
 )
 from backend.app.bot.states.states import FindPlayersForMatchStates
 from backend.app.bot.texts import t
@@ -62,7 +62,7 @@ def _get_telegram_id(candidates: list[dict], player_id: int) -> int | None:
 # ── Entry: fpm:start:{game_id} ────────────────────────────────────────────────
 
 @router.callback_query(F.data.startswith("fpm:start:"))
-async def fpm_start(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+async def fpm_start(callback: CallbackQuery, state: FSMContext, session: AsyncSession, bot: Bot) -> None:
     if not callback.data or not callback.message:
         return
     game_id = int(callback.data.split(":")[-1])
@@ -87,9 +87,10 @@ async def fpm_start(callback: CallbackQuery, state: FSMContext, session: AsyncSe
 
     if not candidates:
         await state.clear()
+        share_url = await build_invite_share_url(bot, lang, user.id)
         await callback.message.answer(
-            t("fpm_not_found", lang),
-            reply_markup=fpm_empty_keyboard(lang),
+            t("player_discovery_no_results", lang),
+            reply_markup=player_discovery_empty_keyboard(lang, share_url, back_callback="fpm:menu"),
             parse_mode="Markdown",
         )
         await callback.answer()

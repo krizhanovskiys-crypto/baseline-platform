@@ -52,6 +52,14 @@ class _FakeCallback:
         self.answer = AsyncMock()
 
 
+class _FakeBot:
+    """Stands in for aiogram's injected `bot: Bot` — only get_me() is
+    exercised, by build_invite_share_url() in the empty-state path."""
+
+    async def get_me(self):
+        return SimpleNamespace(username="baseline_test_bot")
+
+
 async def _make_player(session, telegram_id: int, first_name: str = "Player", area: str = "Downtown") -> None:
     service = PlayerService(session)
     await service.get_or_create(PlayerCreate(telegram_id=telegram_id, first_name=first_name))
@@ -100,12 +108,54 @@ async def test_fp_mode_all_runs_existing_search(session):
 
     state = _make_state(900101)
     callback = _FakeCallback(data="fp:mode:all", user_id=900101)
-    await fp_mode_all(callback, state, session)
+    await fp_mode_all(callback, state, session, _FakeBot())
 
     callback.answer.assert_awaited_once()
     assert await state.get_state() == FindPartnerStates.browsing.state
     text, _ = callback.message.sent[0]
     assert "Carol" in text
+
+
+# ── Empty state — Invite a Friend (Sprint 11 Phase 3.1A) ────────────────────────
+
+async def test_fp_mode_all_empty_state_offers_invite_a_friend(session):
+    """No candidates at all — the empty state must offer a real,
+    working next action, not just a dead-end message."""
+    await _make_player(session, 900103, "Owen", area="Downtown")
+    await session.commit()
+
+    state = _make_state(900103)
+    callback = _FakeCallback(data="fp:mode:all", user_id=900103)
+    await fp_mode_all(callback, state, session, _FakeBot())
+
+    text, markup = callback.message.sent[0]
+    assert text == t("player_discovery_no_results", "en")
+    buttons = _buttons(markup)
+    assert len(buttons) == 2
+    invite_button = next(b for b in markup.inline_keyboard[0])
+    assert invite_button.text == t("btn_invite_friend", "en")
+    assert invite_button.url is not None
+    assert invite_button.url.startswith("https://t.me/share/url?")
+    assert "baseline_test_bot" in invite_button.url
+    back_texts_callbacks = {(b.text, b.callback_data) for row in markup.inline_keyboard for b in row}
+    assert (t("btn_back", "en"), "menu:main") in back_texts_callbacks
+
+
+async def test_fp_smartfilter_apply_empty_state_offers_invite_a_friend(session):
+    await _make_player(session, 900803, "Nora", area="Downtown")
+    await session.commit()
+
+    state = _make_state(900803)
+    await state.set_state(FindPartnerStates.smart_filter)
+    await state.update_data(filters={"area": "home", "courts": None, "level": "default"})
+
+    callback = _FakeCallback(data="fp:smartfilter:apply", user_id=900803)
+    await fp_smartfilter_apply(callback, state, session, _FakeBot())
+
+    text, markup = callback.message.sent[0]
+    assert text == t("player_discovery_no_results", "en")
+    callbacks = {b.callback_data for row in markup.inline_keyboard for b in row}
+    assert "menu:main" in callbacks
 
 
 # ── Smart Filter — defaults ──────────────────────────────────────────────────
@@ -299,7 +349,7 @@ async def test_fp_smartfilter_apply_uses_resolved_filters_and_starts_browsing(se
     await state.update_data(filters={"area": "North York", "courts": ["Stanley Park"], "level": "any"})
 
     callback = _FakeCallback(data="fp:smartfilter:apply", user_id=900801)
-    await fp_smartfilter_apply(callback, state, session)
+    await fp_smartfilter_apply(callback, state, session, _FakeBot())
 
     assert await state.get_state() == FindPartnerStates.browsing.state
     text, _ = callback.message.sent[0]

@@ -474,9 +474,17 @@ def fpm_selected_list_keyboard(lang: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def fpm_empty_keyboard(lang: str) -> InlineKeyboardMarkup:
+def player_discovery_empty_keyboard(
+    lang: str, share_url: str, back_callback: str
+) -> InlineKeyboardMarkup:
+    """Shared "no players found" keyboard for every player-discovery empty
+    state (Find Partner, Find Players for a Match): Invite a Friend (a
+    Telegram share-sheet URL button) + Back. Each caller supplies its own
+    back_callback since the right destination differs per screen."""
     builder = InlineKeyboardBuilder()
-    builder.button(text=t("btn_menu_home", lang), callback_data="fpm:menu")
+    builder.button(text=t("btn_invite_friend", lang), url=share_url)
+    builder.button(text=t("btn_back", lang), callback_data=back_callback)
+    builder.adjust(1)
     return builder.as_markup()
 
 
