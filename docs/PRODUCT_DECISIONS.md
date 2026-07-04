@@ -277,6 +277,61 @@ intended" can still be revisited once its real usage is considered. See
 
 ---
 
+## Admin Center Architecture
+
+**Decision (Sprint 11):** Admin Center is a standalone administrative
+product inside Baseline — the umbrella decision the rest of this section
+and the narrower entry below both fall under.
+
+- Administrative functionality must never duplicate business logic.
+- Admin handlers may only access domain functionality through existing
+  Services.
+- Administrative permissions are completely independent from Player.
+- `OperatorPermission` is the only source of operator authorization.
+- Authentication (PIN/session) and authorization (permissions) remain
+  separate responsibilities.
+- Admin Center is implemented as modular packages:
+
+  ```
+  handlers/admin/
+      auth.py
+      common.py
+      players.py
+      matches.py
+      courts.py
+      tournaments.py
+      coaches.py
+      testing.py
+      system.py
+  ```
+
+  This modular architecture is mandatory for all future Admin Center
+  features.
+
+**Why:** Admin Center is the foundation for a growing list of future
+domains (Players, Matches, Courts, Tournaments, Coaches, System), each
+touching real player/match data through an operator who is not that
+data's owner. Every principle above closes a specific risk that shape of
+feature creates: duplicated business logic would mean a bug fixed in
+`GameService` but not in whatever an admin handler reimplemented;
+permissions coupled to `Player` would tie operator access to profile-
+completeness rules that have nothing to do with operating the platform;
+authentication and authorization being the same responsibility would
+make it harder to add 2FA or per-operator PINs later without also
+touching role logic.
+
+**Where it shows up in the code:** `backend/app/services/permission_service.py`
+(authorization only), `backend/app/services/admin_session_service.py`
+(authentication/session only — never merged into `PermissionService`),
+`backend/app/database/models/operator_permission.py` (no `is_admin` or
+`role` field was added to `Player`), and every handler in
+`backend/app/bot/handlers/admin/` calling into `PlayerService`,
+`GameService`, `MatchLifecycleService`, etc. rather than querying a
+repository directly. See `docs/ARCHITECTURE.md` §11 for the full module
+layout rule.
+
+---
+
 ## Admin Center is a package, not a growing file
 
 **Decision (Sprint 11 Phase 2.1):** every Admin Center capability —
@@ -284,7 +339,8 @@ Players, Matches, Courts, Tournaments, Coaches, System, Testing — is its
 own module under `backend/app/bot/handlers/admin/`, registered in that
 package's `__init__.py`. `dev.py` (the original hidden-command handler)
 was retired the same sprint it was introduced, before a second tool
-could be added to it.
+could be added to it. This is the modular-packages principle from
+"Admin Center Architecture" above, in more implementation detail.
 
 **Why:** Admin Center is the foundation for a growing list of future
 domains (Sprint 11's own architecture proposal lists Tournaments,
@@ -297,6 +353,6 @@ chance to grow past two tools.
 
 **Where it shows up in the code:** `backend/app/bot/handlers/admin/` —
 `common.py` (shared `authorized_role()`/`lang_for()`), `auth.py` (the
-access flow), `testing.py` (today's only tool module). See
+access flow), `testing.py` and `system.py` (today's tool modules). See
 `docs/ARCHITECTURE.md` §11 for the full module layout rule and the
 future module list.

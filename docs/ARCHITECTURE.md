@@ -350,7 +350,12 @@ ever loaded while working on the project locally.
 **Rule (Sprint 11):** every Admin Center capability is its own module in
 `backend/app/bot/handlers/admin/` — never added to an existing file.
 `dev.py` MUST NOT become a single growing file for every admin tool ever
-built.
+built. This is the concrete layout for one principle of the "Admin
+Center Architecture" decision in `docs/PRODUCT_DECISIONS.md` — see that
+entry for the full set of rules (Services-only access, permissions
+independent of `Player`, `OperatorPermission` as the sole authorization
+source, authentication/authorization kept separate) that every module
+below must also follow, not just its file location.
 
 ```
 backend/app/bot/handlers/admin/
@@ -371,9 +376,9 @@ backend/app/bot/handlers/admin/
   `testing.py`.
 - Every module imports `authorized_role()`/`lang_for()` from `common.py`
   rather than re-implementing the session check — the same discipline
-  `PermissionService` already enforces for role checks (see §3 of the
-  Admin Center security model in `docs/PRODUCT_DECISIONS.md`), applied to
-  module boundaries instead of call sites.
+  `PermissionService` already enforces for role checks (see the "Admin
+  Center Architecture" decision in `docs/PRODUCT_DECISIONS.md`), applied
+  to module boundaries instead of call sites.
 - `auth.py` stays cross-cutting (the access flow every module depends on)
   and never accumulates tool-specific logic itself.
 - `testing.py` owns `show_admin_menu()` — the Admin Center root screen —

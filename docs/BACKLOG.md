@@ -35,7 +35,7 @@ plan (→ `docs/IDEAS.md`), or an accepted, shipped decision (→
 
 ---
 
-## Epic 1 — Admin & Trust Operations
+## Epic 1 — Admin Center
 
 **Goal:** give an operator real tools to run the platform as it grows,
 beyond direct database access (`MANIFESTO.md`'s Permissions: User,
