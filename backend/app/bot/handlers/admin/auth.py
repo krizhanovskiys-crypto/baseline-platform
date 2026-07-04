@@ -6,14 +6,16 @@ first — an unknown Telegram ID gets no reply at all, exactly like an
 unrecognized command (CLAUDE.md's existing "never add a fallback
 handler" rule, not a new exception to it). A confirmed operator with no
 active session is prompted for the Admin PIN; only a correct PIN opens
-Admin Center. Session/PIN/lockout state and auth-event auditing all live
-in AdminSessionService — this module never touches that state directly.
+Admin Center — landing on dashboard.py's Dashboard, the permanent root
+screen (Sprint 11 Phase 2.2). Session/PIN/lockout state and auth-event
+auditing all live in AdminSessionService — this module never touches
+that state directly.
 
-Every other Admin Center module (testing.py today; players.py,
-matches.py, courts.py, tournaments.py, coaches.py, system.py as they
-ship) imports `authorized_role`/`lang_for` from `admin/common.py` rather
-than re-implementing the session check — see docs/ARCHITECTURE.md's
-Admin Center module layout rule.
+Every other Admin Center module (dashboard.py, testing.py, system.py
+today; players.py, matches.py, courts.py, tournaments.py, coaches.py as
+they ship) imports `authorized_role`/`lang_for` from `admin/common.py`
+rather than re-implementing the session check — see
+docs/ARCHITECTURE.md's Admin Center module layout rule.
 """
 import logging
 import math
@@ -25,7 +27,7 @@ from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.common import lang_for
-from backend.app.bot.handlers.admin.testing import show_admin_menu
+from backend.app.bot.handlers.admin.dashboard import show_dashboard
 from backend.app.bot.states.states import AdminAuthStates
 from backend.app.bot.texts import t
 from backend.app.database.models.operator_permission import OperatorRole
@@ -64,7 +66,7 @@ async def cmd_dev(message: Message, session: AsyncSession, state: FSMContext) ->
 
     if await admin_sessions.validate_session(user.id) is not None:
         await message.answer(t("admin_session_active", lang), parse_mode="Markdown")
-        await show_admin_menu(message, lang)
+        await show_dashboard(message, session, lang)
         return
 
     await state.set_state(AdminAuthStates.enter_pin)
@@ -88,7 +90,7 @@ async def admin_enter_pin(message: Message, session: AsyncSession, state: FSMCon
     if result is LoginResult.SUCCESS:
         await state.clear()
         await message.answer(t("admin_session_started", lang), parse_mode="Markdown")
-        await show_admin_menu(message, lang)
+        await show_dashboard(message, session, lang)
         logger.info("Admin Center session started for telegram_id=%s", user.id)
         return
 

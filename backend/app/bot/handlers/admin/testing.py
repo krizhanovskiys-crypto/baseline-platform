@@ -3,11 +3,9 @@ Database Statistics). Unchanged from before Admin Center existed — only
 now reachable behind the PIN/session gate in auth.py instead of the old
 flat DEVELOPER_IDS check.
 
-Also owns `show_admin_menu()`: the Admin Center root screen. Today its
-only content is this module's own buttons; as players.py, matches.py,
-courts.py, tournaments.py, and coaches.py ship, their buttons join this
-same root screen (see docs/ARCHITECTURE.md's Admin Center module layout
-rule) rather than each module growing its own competing entry point.
+As of Sprint 11 Phase 2.2, this module's own submenu is no longer the
+Admin Center root — dashboard.py owns that screen now and calls
+`show_testing_menu()` when the operator taps "Testing" there.
 """
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
@@ -22,8 +20,8 @@ from backend.app.services.dev_service import DevService
 router = Router(name="admin_testing")
 
 
-async def show_admin_menu(message: Message, lang: str) -> None:
-    """The Admin Center root screen."""
+async def show_testing_menu(message: Message, lang: str) -> None:
+    """Testing's own submenu — reached via the Dashboard's Testing button."""
     await message.answer(
         t("dev_menu_header", lang),
         reply_markup=dev_menu_keyboard(lang),

@@ -68,3 +68,50 @@ async def test_set_available(session: AsyncSession) -> None:
     assert updated is not None
     assert updated.available_now is True
     assert updated.available_until is not None
+
+
+# ---------------------------------------------------------------------------
+# Admin Center Players module additions
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_count_all(session: AsyncSession) -> None:
+    repo = PlayerRepository(session)
+    assert await repo.count_all() == 0
+
+    await repo.add(Player(telegram_id=1, first_name="Alice"))
+    await repo.add(Player(telegram_id=2, first_name="Bob"))
+    await session.commit()
+
+    assert await repo.count_all() == 2
+
+
+@pytest.mark.asyncio
+async def test_get_paginated_orders_by_id_and_respects_offset_limit(session: AsyncSession) -> None:
+    repo = PlayerRepository(session)
+    for i in range(5):
+        await repo.add(Player(telegram_id=i, first_name=f"Player{i}"))
+    await session.commit()
+
+    first_page = await repo.get_paginated(offset=0, limit=2)
+    second_page = await repo.get_paginated(offset=2, limit=2)
+
+    assert [p.first_name for p in first_page] == ["Player0", "Player1"]
+    assert [p.first_name for p in second_page] == ["Player2", "Player3"]
+
+
+@pytest.mark.asyncio
+async def test_search_by_name_or_username_is_case_insensitive_substring(session: AsyncSession) -> None:
+    repo = PlayerRepository(session)
+    await repo.add(Player(telegram_id=1, first_name="Alice Johnson", username="alicej"))
+    await repo.add(Player(telegram_id=2, first_name="Bob", username="bobby"))
+    await session.commit()
+
+    by_name = await repo.search_by_name_or_username("ALICE")
+    assert [p.first_name for p in by_name] == ["Alice Johnson"]
+
+    by_username = await repo.search_by_name_or_username("BOBBY")
+    assert [p.first_name for p in by_username] == ["Bob"]
+
+    no_match = await repo.search_by_name_or_username("zzz")
+    assert no_match == []

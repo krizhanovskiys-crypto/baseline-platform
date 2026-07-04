@@ -362,18 +362,19 @@ backend/app/bot/handlers/admin/
 ├── __init__.py   registers every module's router on the package router
 ├── common.py     lang_for(), authorized_role() — shared by every module below
 ├── auth.py       /dev, /exit_admin, PIN entry — the access flow itself
+├── dashboard.py  the permanent Admin Center root screen (Sprint 11 Phase 2.2)
 ├── testing.py    Create Test Players, Reset Test Data, Database Statistics
 ├── system.py     Environment visibility; Manage Operators is a later phase
-├── players.py    (future) player management tools
-├── matches.py    (future) match moderation tools
-├── courts.py     (future) Court Registry admin tools
-├── tournaments.py (future) tournament administration
-└── coaches.py    (future) coach verification tools
+├── players.py    Search Player, Browse Players, Player Details (Sprint 11 Phase 3.0)
+├── matches.py    (future) — Search / Browse / Details / Actions, per §12
+├── courts.py     (future) — Search / Browse / Details / Actions, per §12
+├── tournaments.py (future) — Search / Browse / Details / Actions, per §12
+└── coaches.py    (future) — Search / Browse / Details / Actions, per §12
 ```
 
 - A new admin tool means a new file in this package, registered in
-  `__init__.py` — not a new function appended to `auth.py` or
-  `testing.py`.
+  `__init__.py` — not a new function appended to `auth.py`, `testing.py`,
+  or `dashboard.py`.
 - Every module imports `authorized_role()`/`lang_for()` from `common.py`
   rather than re-implementing the session check — the same discipline
   `PermissionService` already enforces for role checks (see the "Admin
@@ -381,6 +382,61 @@ backend/app/bot/handlers/admin/
   to module boundaries instead of call sites.
 - `auth.py` stays cross-cutting (the access flow every module depends on)
   and never accumulates tool-specific logic itself.
-- `testing.py` owns `show_admin_menu()` — the Admin Center root screen —
-  since it's the only module today. As real modules ship, their buttons
-  join this same root screen; it does not get reinvented per module.
+- `dashboard.py` owns the Admin Center root screen — `show_dashboard()` —
+  reached after a successful PIN login or when `/dev` is re-invoked with
+  an already-valid session. Every stat shown (`AdminDashboardService`) is
+  computed live from the database at request time; nothing is cached or
+  hardcoded. A module not yet built (Players, Matches, Tournaments,
+  Coaches, Courts) gets a placeholder button routed to a single shared
+  "Coming Soon" handler in `dashboard.py`, replaced with a real
+  navigation call the moment that module ships — the dashboard itself
+  never grows a new module's content, only a button to it.
+
+---
+
+## 12. Admin Center record modules: Search / Browse / Details / Actions
+
+**Rule (Sprint 11):** every Admin Center module built around a record
+type — Players, Matches, Courts, Coaches, Tournaments — follows the same
+four-part shape, in the same order:
+
+```
+Module Root
+  ├── Search    find one record by an identifier (ID, name, code, ...)
+  ├── Browse    paginated list of every record, 20 per page
+  └── Details   a single record's full view
+        └── Actions   operations available on that specific record
+```
+
+`players.py` (Phase 3.0) is the reference implementation: Search Player,
+Browse Players, Player Details. It has no Actions yet — suspend/reinstate
+is `docs/BACKLOG.md` Epic 1's own Phase 1 item — but the shape is already
+in place for that layer to attach to Details without restructuring
+anything else.
+
+- **Search** always answers "is this exactly one record, several, or
+  none" the same way: one match opens Details directly, several show a
+  selectable list, none shows a plain "not found" message. A module MUST
+  NOT invent its own variant of this three-way branch.
+- **Browse** is always 20 per page, Previous/Next/Open/Back, landing on
+  the nearest valid page if the requested one no longer exists (the
+  pattern `players.py` already follows from `available_matches.py`).
+- **Details** is read-only data about the record — Actions is a
+  separate concern (see below), never folded into the Details screen
+  itself.
+- **Actions** — whatever a module lets an operator *do* to a record
+  (suspend a player, force-cancel a match, verify a coach, resolve a
+  tournament dispute) — hangs off Details, and every action MUST go
+  through that record's own existing service (`PlayerService`,
+  `GameService`, `MatchLifecycleService`, ...), never a new parallel
+  mutation path. This is the same rule as the "Admin Center Architecture"
+  decision's "administrative functionality must never duplicate business
+  logic," applied specifically to this layer.
+- **Back always returns to that module's own Root**, not to the exact
+  Browse page or Search result the operator came from — a deliberate
+  simplification (see `docs/PRODUCT_DECISIONS.md`), not an oversight, to
+  avoid every module needing its own "return context" state.
+- A module MAY skip a part that genuinely doesn't apply (e.g. Testing
+  and System aren't record types and don't follow this shape at all —
+  this rule governs record-centric modules only, not every module in the
+  package).

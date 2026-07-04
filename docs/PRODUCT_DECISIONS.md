@@ -356,3 +356,33 @@ chance to grow past two tools.
 access flow), `testing.py` and `system.py` (today's tool modules). See
 `docs/ARCHITECTURE.md` §11 for the full module layout rule and the
 future module list.
+
+---
+
+## Every Admin Center record module has the same shape
+
+**Decision (Sprint 11 Phase 3.0):** Players, Matches, Courts, Coaches,
+and Tournaments — every Admin Center module built around a record type,
+not a utility like Testing or System — follows one fixed structure:
+Search → Browse → Details → Actions, in that order, built the same way
+every time.
+
+**Why:** `players.py` (Search Player, Browse Players, Player Details)
+was built first and, only after the fact, was recognized as a pattern
+worth locking in before Matches, Courts, Coaches, and Tournaments each
+invent their own navigation shape independently. A year from now, a
+contributor opening `matches.py` for the first time should already know
+its structure from having read `players.py` — that's the entire value of
+this rule, and it only holds if it's written down now, while there's
+still exactly one module to compare against.
+
+**Where it shows up in the code:** `docs/ARCHITECTURE.md` §12 has the
+full structural rule — the Search three-way branch (one match/many
+match/no match), Browse's fixed 20-per-page + nearest-valid-page
+behavior, Details as read-only, and Actions as a later layer that always
+calls into that record's existing domain service
+(`PlayerService`/`GameService`/`MatchLifecycleService`/...) rather than
+a new mutation path. `players.py` has no Actions yet — that's
+`docs/BACKLOG.md` Epic 1's own Phase 1 item (player suspend/reinstate)
+— but Search/Browse/Details are already shaped so Actions attaches to
+Details without restructuring anything built in Phase 3.0.

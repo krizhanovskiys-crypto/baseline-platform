@@ -64,6 +64,15 @@ class AdminAuthStates(StatesGroup):
     enter_pin = State()
 
 
+class AdminPlayersStates(StatesGroup):
+    """Admin Center Players module. browsing stores current_page in FSM
+    data (same pattern as AvailableMatchesStates); enter_search is the
+    free-text Search Player input."""
+
+    browsing = State()
+    enter_search = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings / Edit Profile field-editing flow."""
 

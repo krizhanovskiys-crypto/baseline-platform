@@ -1,7 +1,7 @@
 """Player-specific database queries."""
 from datetime import datetime
 
-from sqlalchemy import and_, select, update
+from sqlalchemy import and_, func, or_, select, update
 
 from backend.app.database.models.player import Player
 from backend.app.database.repositories.base import BaseRepository
@@ -93,3 +93,27 @@ class PlayerRepository(BaseRepository[Player]):
         )
         await self._session.execute(stmt)
         await self._session.flush()
+
+    async def count_all(self) -> int:
+        """Total registered players — used by Admin Center's Players module."""
+        result = await self._session.execute(select(func.count()).select_from(Player))
+        return result.scalar() or 0
+
+    async def get_paginated(self, offset: int, limit: int) -> list[Player]:
+        """A stable, ordered page of players (Admin Center Browse Players)."""
+        stmt = select(Player).order_by(Player.id).offset(offset).limit(limit)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def search_by_name_or_username(self, query: str) -> list[Player]:
+        """Case-insensitive substring match against first_name or username
+        (Admin Center Search Player). `.ilike()` rather than `.like()` so
+        this stays correct on Postgres too, where LIKE is case-sensitive."""
+        pattern = f"%{query}%"
+        stmt = (
+            select(Player)
+            .where(or_(Player.first_name.ilike(pattern), Player.username.ilike(pattern)))
+            .order_by(Player.first_name)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())

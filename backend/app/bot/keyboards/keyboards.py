@@ -277,12 +277,91 @@ def spoken_languages_keyboard(lang: str, selected: list[str] | None = None) -> I
 
 
 def dev_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Testing module's own submenu — System moved to the Dashboard as a
+    peer button (Sprint 11 Phase 2.2), not nested inside Testing."""
     builder = InlineKeyboardBuilder()
     builder.button(text=t("dev_btn_create_players", lang), callback_data="dev:create_players")
     builder.button(text=t("dev_btn_reset_data", lang), callback_data="dev:reset_data")
     builder.button(text=t("dev_btn_stats", lang), callback_data="dev:stats")
-    builder.button(text=t("dev_btn_system", lang), callback_data="dev:system")
     builder.button(text=t("dev_btn_exit", lang), callback_data="dev:exit")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def dashboard_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """Admin Center Dashboard — the permanent root of Admin Center.
+    Players (Sprint 11 Phase 3.0) is the first real module; Matches,
+    Tournaments, Coaches, and Courts still plug into their own "Coming
+    Soon" placeholder until each ships. The dashboard itself never grows
+    a module's content, only the button to it."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("dashboard_btn_players", lang), callback_data="dashboard:players")
+    builder.button(text=t("dashboard_btn_matches", lang), callback_data="dashboard:matches")
+    builder.button(text=t("dashboard_btn_tournaments", lang), callback_data="dashboard:tournaments")
+    builder.button(text=t("dashboard_btn_coaches", lang), callback_data="dashboard:coaches")
+    builder.button(text=t("dashboard_btn_courts", lang), callback_data="dashboard:courts")
+    builder.button(text=t("dashboard_btn_testing", lang), callback_data="dashboard:testing")
+    builder.button(text=t("dev_btn_system", lang), callback_data="dev:system")
+    builder.button(text=t("dev_btn_exit", lang), callback_data="dashboard:exit")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+# ---------------------------------------------------------------------------
+# Admin Center — Players module
+# ---------------------------------------------------------------------------
+
+def players_root_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("players_btn_search", lang), callback_data="players:search")
+    builder.button(text=t("players_btn_browse", lang), callback_data="players:browse")
+    builder.button(text=t("players_btn_back", lang), callback_data="players:back_to_dashboard")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def players_browse_keyboard(
+    lang: str, players: list[PlayerRead], page: int, has_prev: bool, has_next: bool
+) -> InlineKeyboardMarkup:
+    """One "Open" row per listed player, then Previous/Next, then Back."""
+    builder = InlineKeyboardBuilder()
+    for player in players:
+        builder.button(
+            text=t("players_btn_open", lang, name=player.first_name),
+            callback_data=f"players:open:{player.id}",
+        )
+    open_rows = len(players)
+
+    nav_row = 0
+    if has_prev:
+        builder.button(text=t("players_btn_prev", lang), callback_data=f"players:page:{page - 1}")
+        nav_row += 1
+    if has_next:
+        builder.button(text=t("players_btn_next", lang), callback_data=f"players:page:{page + 1}")
+        nav_row += 1
+
+    builder.button(text=t("players_btn_back", lang), callback_data="players:root")
+
+    sizes = [1] * open_rows + ([nav_row] if nav_row else []) + [1]
+    builder.adjust(*sizes)
+    return builder.as_markup()
+
+
+def players_search_results_keyboard(lang: str, players: list[PlayerRead]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for player in players:
+        builder.button(
+            text=t("players_btn_open", lang, name=player.first_name),
+            callback_data=f"players:open:{player.id}",
+        )
+    builder.button(text=t("players_btn_back", lang), callback_data="players:root")
+    builder.adjust(*([1] * len(players)), 1)
+    return builder.as_markup()
+
+
+def player_details_keyboard(lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("players_btn_back", lang), callback_data="players:root")
     builder.adjust(1)
     return builder.as_markup()
 

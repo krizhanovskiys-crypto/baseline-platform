@@ -361,6 +361,51 @@ _TEXTS: dict[str, dict[str, str]] = {
         "admin_system_info": "⚙️ *System*\n\n🌍 Environment: {environment}\n🏷 Version: {version}",
         "admin_env_production": "Production",
         "admin_env_development": "Development",
+        "admin_dashboard": (
+            "🛡 *Admin Center*\n\n"
+            "🌍 Environment: {environment}\n"
+            "🏷 Version: {version}\n"
+            "⏱ Uptime: {uptime}\n"
+            "──────────────\n"
+            "👥 Users: {users}\n"
+            "🎾 Active Matches: {active_matches}\n"
+            "🔥 Available Now: {available_now}\n"
+            "🏟 Courts: {courts}"
+        ),
+        "dashboard_btn_players": "👥 Players",
+        "dashboard_btn_matches": "🎾 Matches",
+        "dashboard_btn_tournaments": "🏆 Tournaments",
+        "dashboard_btn_coaches": "🎓 Coaches",
+        "dashboard_btn_courts": "🏟 Courts",
+        "dashboard_btn_testing": "🧪 Testing",
+        "dashboard_coming_soon": "🚧 Coming Soon",
+        "players_header": "👥 *Players*\n\nTotal Players: {total}",
+        "players_btn_search": "🔍 Search Player",
+        "players_btn_browse": "📋 Browse Players",
+        "players_btn_back": "⬅️ Back",
+        "players_btn_open": "👤 {name}",
+        "players_btn_prev": "⬅️ Previous",
+        "players_btn_next": "➡️ Next",
+        "players_search_prompt": "🔍 Enter Telegram ID, first name, or username:",
+        "players_no_results": "😔 No players found.",
+        "players_search_results_header": "🔍 *Search Results* ({count})",
+        "players_browse_header": "📋 *Browse Players* (Page {page}/{total_pages})",
+        "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
+        "players_details_header": (
+            "👤 *Player Details*\n\n"
+            "🆔 Telegram ID: `{telegram_id}`\n"
+            "👤 Name: {name}\n"
+            "📎 Username: {username}\n"
+            "🗣️ Languages: {languages}\n"
+            "⭐ Level: {level}\n"
+            "📍 Home Area: {home_area}\n"
+            "🎾 Preferred Courts: {courts}\n"
+            "🔥 Available Now: {available_now}\n"
+            "{profile_complete_emoji} Profile Complete: {profile_complete}\n"
+            "📅 Registration Date: {registration_date}"
+        ),
+        "players_yes": "Yes",
+        "players_no": "No",
         "admin_pin_prompt": "🔒 Enter Admin PIN:",
         "admin_pin_wrong": "❌ Incorrect PIN. Try again:",
         "admin_locked_out": "🔒 Too many failed attempts. Admin login is locked for {minutes} more minute(s).",
@@ -710,6 +755,51 @@ _TEXTS: dict[str, dict[str, str]] = {
         "admin_system_info": "⚙️ *Система*\n\n🌍 Середовище: {environment}\n🏷 Версія: {version}",
         "admin_env_production": "Продакшн",
         "admin_env_development": "Розробка",
+        "admin_dashboard": (
+            "🛡 *Адмін-центр*\n\n"
+            "🌍 Середовище: {environment}\n"
+            "🏷 Версія: {version}\n"
+            "⏱ Час роботи: {uptime}\n"
+            "──────────────\n"
+            "👥 Користувачі: {users}\n"
+            "🎾 Активні матчі: {active_matches}\n"
+            "🔥 Доступні зараз: {available_now}\n"
+            "🏟 Корти: {courts}"
+        ),
+        "dashboard_btn_players": "👥 Гравці",
+        "dashboard_btn_matches": "🎾 Матчі",
+        "dashboard_btn_tournaments": "🏆 Турніри",
+        "dashboard_btn_coaches": "🎓 Тренери",
+        "dashboard_btn_courts": "🏟 Корти",
+        "dashboard_btn_testing": "🧪 Тестування",
+        "dashboard_coming_soon": "🚧 Незабаром",
+        "players_header": "👥 *Гравці*\n\nВсього гравців: {total}",
+        "players_btn_search": "🔍 Пошук гравця",
+        "players_btn_browse": "📋 Перегляд гравців",
+        "players_btn_back": "⬅️ Назад",
+        "players_btn_open": "👤 {name}",
+        "players_btn_prev": "⬅️ Попередня",
+        "players_btn_next": "➡️ Наступна",
+        "players_search_prompt": "🔍 Введіть Telegram ID, ім'я або юзернейм:",
+        "players_no_results": "😔 Гравців не знайдено.",
+        "players_search_results_header": "🔍 *Результати пошуку* ({count})",
+        "players_browse_header": "📋 *Перегляд гравців* (Сторінка {page}/{total_pages})",
+        "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
+        "players_details_header": (
+            "👤 *Профіль гравця*\n\n"
+            "🆔 Telegram ID: `{telegram_id}`\n"
+            "👤 Ім'я: {name}\n"
+            "📎 Юзернейм: {username}\n"
+            "🗣️ Мови: {languages}\n"
+            "⭐ Рівень: {level}\n"
+            "📍 Район: {home_area}\n"
+            "🎾 Улюблені корти: {courts}\n"
+            "🔥 Доступний зараз: {available_now}\n"
+            "{profile_complete_emoji} Профіль заповнено: {profile_complete}\n"
+            "📅 Дата реєстрації: {registration_date}"
+        ),
+        "players_yes": "Так",
+        "players_no": "Ні",
         "admin_pin_prompt": "🔒 Введіть Admin PIN:",
         "admin_pin_wrong": "❌ Невірний PIN. Спробуйте ще раз:",
         "admin_locked_out": "🔒 Забагато невдалих спроб. Вхід в Адмін-центр заблоковано ще на {minutes} хв.",
@@ -1059,6 +1149,51 @@ _TEXTS: dict[str, dict[str, str]] = {
         "admin_system_info": "⚙️ *Система*\n\n🌍 Среда: {environment}\n🏷 Версия: {version}",
         "admin_env_production": "Продакшн",
         "admin_env_development": "Разработка",
+        "admin_dashboard": (
+            "🛡 *Админ-центр*\n\n"
+            "🌍 Среда: {environment}\n"
+            "🏷 Версия: {version}\n"
+            "⏱ Время работы: {uptime}\n"
+            "──────────────\n"
+            "👥 Пользователи: {users}\n"
+            "🎾 Активные матчи: {active_matches}\n"
+            "🔥 Доступны сейчас: {available_now}\n"
+            "🏟 Корты: {courts}"
+        ),
+        "dashboard_btn_players": "👥 Игроки",
+        "dashboard_btn_matches": "🎾 Матчи",
+        "dashboard_btn_tournaments": "🏆 Турниры",
+        "dashboard_btn_coaches": "🎓 Тренеры",
+        "dashboard_btn_courts": "🏟 Корты",
+        "dashboard_btn_testing": "🧪 Тестирование",
+        "dashboard_coming_soon": "🚧 Скоро",
+        "players_header": "👥 *Игроки*\n\nВсего игроков: {total}",
+        "players_btn_search": "🔍 Поиск игрока",
+        "players_btn_browse": "📋 Просмотр игроков",
+        "players_btn_back": "⬅️ Назад",
+        "players_btn_open": "👤 {name}",
+        "players_btn_prev": "⬅️ Предыдущая",
+        "players_btn_next": "➡️ Следующая",
+        "players_search_prompt": "🔍 Введите Telegram ID, имя или юзернейм:",
+        "players_no_results": "😔 Игроки не найдены.",
+        "players_search_results_header": "🔍 *Результаты поиска* ({count})",
+        "players_browse_header": "📋 *Просмотр игроков* (Страница {page}/{total_pages})",
+        "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
+        "players_details_header": (
+            "👤 *Профиль игрока*\n\n"
+            "🆔 Telegram ID: `{telegram_id}`\n"
+            "👤 Имя: {name}\n"
+            "📎 Юзернейм: {username}\n"
+            "🗣️ Языки: {languages}\n"
+            "⭐ Уровень: {level}\n"
+            "📍 Район: {home_area}\n"
+            "🎾 Любимые корты: {courts}\n"
+            "🔥 Доступен сейчас: {available_now}\n"
+            "{profile_complete_emoji} Профиль заполнен: {profile_complete}\n"
+            "📅 Дата регистрации: {registration_date}"
+        ),
+        "players_yes": "Да",
+        "players_no": "Нет",
         "admin_pin_prompt": "🔒 Введите Admin PIN:",
         "admin_pin_wrong": "❌ Неверный PIN. Попробуйте ещё раз:",
         "admin_locked_out": "🔒 Слишком много неудачных попыток. Вход в Админ-центр заблокирован ещё на {minutes} мин.",
