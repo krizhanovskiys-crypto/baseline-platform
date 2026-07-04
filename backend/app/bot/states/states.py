@@ -57,6 +57,13 @@ class ConfirmMatchStates(StatesGroup):
     enter_note = State()
 
 
+class AdminAuthStates(StatesGroup):
+    """Admin Center PIN entry — /dev prompts this only for a confirmed
+    operator with no active session and no active lockout."""
+
+    enter_pin = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings / Edit Profile field-editing flow."""
 

@@ -274,3 +274,29 @@ intended" can still be revisited once its real usage is considered. See
   replaced the old Area list's values without a database migration or
   forced re-selection — old data keeps working, and a player only sees
   the new vocabulary when they next touch that field.
+
+---
+
+## Admin Center is a package, not a growing file
+
+**Decision (Sprint 11 Phase 2.1):** every Admin Center capability —
+Players, Matches, Courts, Tournaments, Coaches, System, Testing — is its
+own module under `backend/app/bot/handlers/admin/`, registered in that
+package's `__init__.py`. `dev.py` (the original hidden-command handler)
+was retired the same sprint it was introduced, before a second tool
+could be added to it.
+
+**Why:** Admin Center is the foundation for a growing list of future
+domains (Sprint 11's own architecture proposal lists Tournaments,
+Coaches, and System tools as later phases). Letting every one of those
+land in a single file was the exact shape of problem CLAUDE.md's
+architecture rule already exists to prevent for the rest of the
+bot (`handlers/` is one file per feature) — this decision makes the same
+discipline explicit for Admin Center specifically, before the file had a
+chance to grow past two tools.
+
+**Where it shows up in the code:** `backend/app/bot/handlers/admin/` —
+`common.py` (shared `authorized_role()`/`lang_for()`), `auth.py` (the
+access flow), `testing.py` (today's only tool module). See
+`docs/ARCHITECTURE.md` §11 for the full module layout rule and the
+future module list.

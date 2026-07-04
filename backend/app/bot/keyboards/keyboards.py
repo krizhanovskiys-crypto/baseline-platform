@@ -281,6 +281,7 @@ def dev_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
     builder.button(text=t("dev_btn_create_players", lang), callback_data="dev:create_players")
     builder.button(text=t("dev_btn_reset_data", lang), callback_data="dev:reset_data")
     builder.button(text=t("dev_btn_stats", lang), callback_data="dev:stats")
+    builder.button(text=t("dev_btn_system", lang), callback_data="dev:system")
     builder.button(text=t("dev_btn_exit", lang), callback_data="dev:exit")
     builder.adjust(1)
     return builder.as_markup()

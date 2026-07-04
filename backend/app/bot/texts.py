@@ -340,12 +340,13 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_back_to_match_details": "⬅️ Back to Match",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "You haven't created any matches yet.",
-        # Developer Mode
-        "dev_menu_header": "🛠 *Developer Menu*",
+        # Admin Center
+        "dev_menu_header": "🛠 *Admin Center*",
         "dev_btn_create_players": "👥 Create Test Players",
         "dev_btn_reset_data": "🗑 Reset Test Data",
         "dev_btn_stats": "📊 Database Statistics",
-        "dev_btn_exit": "🚪 Exit Developer Mode",
+        "dev_btn_system": "⚙️ System",
+        "dev_btn_exit": "🚪 Exit Admin Center",
         "dev_players_created": "✅ Created {count} test player(s).",
         "dev_players_already_exist": "ℹ️ All test players already exist.",
         "dev_data_reset": "✅ Deleted {count} test player(s).",
@@ -357,6 +358,15 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 Games: {games}\n"
             "🔥 Available now: {available}"
         ),
+        "admin_system_info": "⚙️ *System*\n\n🌍 Environment: {environment}\n🏷 Version: {version}",
+        "admin_env_production": "Production",
+        "admin_env_development": "Development",
+        "admin_pin_prompt": "🔒 Enter Admin PIN:",
+        "admin_pin_wrong": "❌ Incorrect PIN. Try again:",
+        "admin_locked_out": "🔒 Too many failed attempts. Admin login is locked for {minutes} more minute(s).",
+        "admin_session_started": "✅ Admin session started.",
+        "admin_session_active": "ℹ️ Admin session already active.",
+        "admin_session_ended": "🚪 Admin session ended.",
     },
     "uk": {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
@@ -680,11 +690,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Ви ще не створили жодного матчу.",
         # Developer Mode
-        "dev_menu_header": "🛠 *Меню розробника*",
+        "dev_menu_header": "🛠 *Адмін-центр*",
         "dev_btn_create_players": "👥 Створити тестових гравців",
         "dev_btn_reset_data": "🗑 Скинути тестові дані",
         "dev_btn_stats": "📊 Статистика бази даних",
-        "dev_btn_exit": "🚪 Вийти з режиму розробника",
+        "dev_btn_system": "⚙️ Система",
+        "dev_btn_exit": "🚪 Вийти з Адмін-центру",
         "dev_players_created": "✅ Створено {count} тестовий(-их) гравець(-ів).",
         "dev_players_already_exist": "ℹ️ Усі тестові гравці вже існують.",
         "dev_data_reset": "✅ Видалено {count} тестовий(-их) гравець(-ів).",
@@ -696,6 +707,15 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 Ігри: {games}\n"
             "🔥 Доступні зараз: {available}"
         ),
+        "admin_system_info": "⚙️ *Система*\n\n🌍 Середовище: {environment}\n🏷 Версія: {version}",
+        "admin_env_production": "Продакшн",
+        "admin_env_development": "Розробка",
+        "admin_pin_prompt": "🔒 Введіть Admin PIN:",
+        "admin_pin_wrong": "❌ Невірний PIN. Спробуйте ще раз:",
+        "admin_locked_out": "🔒 Забагато невдалих спроб. Вхід в Адмін-центр заблоковано ще на {minutes} хв.",
+        "admin_session_started": "✅ Адмін-сесію розпочато.",
+        "admin_session_active": "ℹ️ Адмін-сесія вже активна.",
+        "admin_session_ended": "🚪 Адмін-сесію завершено.",
     },
     "ru": {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
@@ -1018,12 +1038,13 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_back_to_match_details": "⬅️ К матчу",
         "om_match_item": "📅 {date_label} • {time}\n📍 {court}\n👥 {players_joined}/{players_total}",
         "om_no_matches": "Вы ещё не создали ни одного матча.",
-        # Developer Mode
-        "dev_menu_header": "🛠 *Меню разработчика*",
+        # Admin Center
+        "dev_menu_header": "🛠 *Админ-центр*",
         "dev_btn_create_players": "👥 Создать тестовых игроков",
         "dev_btn_reset_data": "🗑 Сбросить тестовые данные",
         "dev_btn_stats": "📊 Статистика базы данных",
-        "dev_btn_exit": "🚪 Выйти из режима разработчика",
+        "dev_btn_system": "⚙️ Система",
+        "dev_btn_exit": "🚪 Выйти из Админ-центра",
         "dev_players_created": "✅ Создано {count} тестовый(-ых) игрок(-ов).",
         "dev_players_already_exist": "ℹ️ Все тестовые игроки уже существуют.",
         "dev_data_reset": "✅ Удалено {count} тестовый(-ых) игрок(-ов).",
@@ -1035,6 +1056,15 @@ _TEXTS: dict[str, dict[str, str]] = {
             "📋 Игры: {games}\n"
             "🔥 Доступны сейчас: {available}"
         ),
+        "admin_system_info": "⚙️ *Система*\n\n🌍 Среда: {environment}\n🏷 Версия: {version}",
+        "admin_env_production": "Продакшн",
+        "admin_env_development": "Разработка",
+        "admin_pin_prompt": "🔒 Введите Admin PIN:",
+        "admin_pin_wrong": "❌ Неверный PIN. Попробуйте ещё раз:",
+        "admin_locked_out": "🔒 Слишком много неудачных попыток. Вход в Админ-центр заблокирован ещё на {minutes} мин.",
+        "admin_session_started": "✅ Админ-сессия начата.",
+        "admin_session_active": "ℹ️ Админ-сессия уже активна.",
+        "admin_session_ended": "🚪 Админ-сессия завершена.",
     },
 }
 

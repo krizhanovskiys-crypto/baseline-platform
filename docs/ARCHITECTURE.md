@@ -342,3 +342,40 @@ touched without a dedicated, reviewed change.
 Local development should export `ENV=development` (e.g. in a shell
 profile or a `direnv .envrc`) so `.env.dev` — and only `.env.dev` — is
 ever loaded while working on the project locally.
+
+---
+
+## 11. Admin Center module layout
+
+**Rule (Sprint 11):** every Admin Center capability is its own module in
+`backend/app/bot/handlers/admin/` — never added to an existing file.
+`dev.py` MUST NOT become a single growing file for every admin tool ever
+built.
+
+```
+backend/app/bot/handlers/admin/
+├── __init__.py   registers every module's router on the package router
+├── common.py     lang_for(), authorized_role() — shared by every module below
+├── auth.py       /dev, /exit_admin, PIN entry — the access flow itself
+├── testing.py    Create Test Players, Reset Test Data, Database Statistics
+├── system.py     Environment visibility; Manage Operators is a later phase
+├── players.py    (future) player management tools
+├── matches.py    (future) match moderation tools
+├── courts.py     (future) Court Registry admin tools
+├── tournaments.py (future) tournament administration
+└── coaches.py    (future) coach verification tools
+```
+
+- A new admin tool means a new file in this package, registered in
+  `__init__.py` — not a new function appended to `auth.py` or
+  `testing.py`.
+- Every module imports `authorized_role()`/`lang_for()` from `common.py`
+  rather than re-implementing the session check — the same discipline
+  `PermissionService` already enforces for role checks (see §3 of the
+  Admin Center security model in `docs/PRODUCT_DECISIONS.md`), applied to
+  module boundaries instead of call sites.
+- `auth.py` stays cross-cutting (the access flow every module depends on)
+  and never accumulates tool-specific logic itself.
+- `testing.py` owns `show_admin_menu()` — the Admin Center root screen —
+  since it's the only module today. As real modules ship, their buttons
+  join this same root screen; it does not get reinvented per module.

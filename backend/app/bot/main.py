@@ -11,11 +11,13 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from backend.app.bot.handlers import available_matches, available_now, confirm_match, dev, find_partner, find_players_for_match, invitation, my_matches, organize_match, profile, start
+from backend.app.bot.handlers import available_matches, available_now, confirm_match, find_partner, find_players_for_match, invitation, my_matches, organize_match, profile, start
+from backend.app.bot.handlers import admin
 from backend.app.bot.middlewares.database import DatabaseMiddleware
 from backend.app.core.config import get_settings
 from backend.app.core.logging import setup_logging
-from backend.app.database.session import create_all_tables
+from backend.app.database.session import create_all_tables, get_session
+from backend.app.services.permission_service import PermissionService
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ def build_dispatcher() -> Dispatcher:
     dp.update.middleware(DatabaseMiddleware())
 
     # Register all routers
-    dp.include_router(dev.router)
+    dp.include_router(admin.router)
     dp.include_router(start.router)
     dp.include_router(profile.router)
     dp.include_router(find_partner.router)
@@ -53,6 +55,13 @@ async def main() -> None:
 
     # Ensure DB tables exist on startup
     await create_all_tables()
+
+    # Bootstrap Owner(s) from config — every grant after this happens in-app.
+    if settings.owner_ids_list:
+        async with get_session() as db_session:
+            granted = await PermissionService(db_session).seed_owners(settings.owner_ids_list)
+            if granted:
+                logger.info("Admin Center: seeded %d Owner(s) from OWNER_IDS", granted)
 
     bot = Bot(
         token=settings.bot_token,

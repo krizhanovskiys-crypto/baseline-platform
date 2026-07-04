@@ -77,6 +77,20 @@ class Settings(BaseSettings):
             return []
         return [int(x.strip()) for x in self.developer_ids.split(",") if x.strip()]
 
+    # ── Admin Center ─────────────────────────────────────────────────────────
+    # Comma-separated Telegram user IDs seeded as Owner on startup — bootstrap
+    # only; every grant after the first Owner exists happens in-app.
+    owner_ids: str = ""
+
+    @property
+    def owner_ids_list(self) -> list[int]:
+        if not self.owner_ids.strip():
+            return []
+        return [int(x.strip()) for x in self.owner_ids.split(",") if x.strip()]
+
+    # Shared MVP PIN gating Admin Center entry. Never hardcoded, never logged.
+    admin_pin: str = ""
+
     # ── Application ──────────────────────────────────────────────────────────
     app_env: str = Field(default_factory=_default_app_env)
     app_host: str = "0.0.0.0"

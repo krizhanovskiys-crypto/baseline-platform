@@ -1,33 +1,14 @@
-"""Tests for DevService and developer access guard."""
+"""Tests for DevService.
+
+The old flat DEVELOPER_IDS access guard (_is_developer) was replaced in
+Sprint 11 Phase 2.1 by PermissionService + AdminSessionService — see
+test_permission_service.py, test_admin_session_service.py, and
+test_admin_center_auth.py for the new access-flow coverage.
+"""
 import pytest
-from unittest.mock import patch
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.bot.handlers.dev import _is_developer
 from backend.app.services.dev_service import DevService, _TEST_PLAYERS, _TEST_TELEGRAM_ID_BASE
-
-
-# ---------------------------------------------------------------------------
-# Access guard
-# ---------------------------------------------------------------------------
-
-def test_is_developer_allowed() -> None:
-    with patch("backend.app.bot.handlers.dev.get_settings") as mock:
-        mock.return_value.developer_ids_list = [111, 222]
-        assert _is_developer(111) is True
-        assert _is_developer(222) is True
-
-
-def test_is_developer_denied() -> None:
-    with patch("backend.app.bot.handlers.dev.get_settings") as mock:
-        mock.return_value.developer_ids_list = [111]
-        assert _is_developer(999) is False
-
-
-def test_is_developer_empty_list() -> None:
-    with patch("backend.app.bot.handlers.dev.get_settings") as mock:
-        mock.return_value.developer_ids_list = []
-        assert _is_developer(111) is False
 
 
 # ---------------------------------------------------------------------------
