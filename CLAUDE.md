@@ -17,6 +17,92 @@ engineering rules in full (→ `docs/engineering/CONSTITUTION.md`, which
 this file must stay consistent with), product vision (→ `PRODUCT.md`,
 `docs/VISION.md`), or dated decisions (→ `docs/PRODUCT_DECISIONS.md`).
 
+## AI Context Rebuild
+
+**Mandatory. No implementation may begin before Context Rebuild.
+Skipping Context Rebuild is considered a process violation.**
+
+This is a process rule, not documentation — it governs how work in this
+repository starts, for any AI session (Claude or otherwise), every time,
+regardless of what a prior conversation appeared to already know. Chat
+history and memory are never trusted as a source of project state — and
+documentation is not fully trusted either. Priority order when anything
+conflicts:
+
+**Repository > `docs/ai/PROJECT_STATE.md` > everything else.**
+
+Git is truth. `PROJECT_STATE.md` is a fast index into that truth, not a
+replacement for it — it can go stale the moment a commit lands without
+updating it, so it is never read on faith.
+
+**Before accepting any implementation task, Claude MUST first ask
+itself: "Has Context Rebuild already been completed for this
+session?"** If the answer is unknown, STOP. Run Context Rebuild first.
+This check does not depend on the user remembering the process exists —
+Claude enforces it even if nobody asks.
+
+**Step 0 — Repository Reality Check.** Before reading any documentation,
+inspect the actual repository: `git status`, `git branch`,
+`git log -5 --oneline`, the latest migration
+(`alembic/versions/`, most recent file), the latest test count (run the
+suite, or check the most recent run's output), and the current
+modified/untracked files. Compare this against
+`docs/ai/PROJECT_STATE.md`. If they differ — a different sprint, a
+different commit, a different test count, uncommitted changes
+`PROJECT_STATE.md` doesn't mention — STOP. Update
+`docs/ai/PROJECT_STATE.md` first. Only then continue.
+
+**Step 1 — Context Rebuild.** Read, in this exact order:
+
+1. `docs/ai/PROJECT_STATE.md`
+2. `docs/ai/CTO_MEMORY.md`
+3. `PRODUCT.md`
+4. `docs/PRODUCT_DECISIONS.md`
+5. `docs/ARCHITECTURE.md`
+6. `docs/BACKLOG.md`
+7. `CLAUDE.md`
+8. `docs/ai/ACTIVE_SPRINT.md`
+9. `docs/ai/AI_HANDOFF.md`
+
+**Step 2 — Project Summary.** Return exactly:
+
+- Current Sprint
+- Current Priority
+- Current Task
+- Completed Features
+- Architecture Decisions
+- Files that must not be modified
+- Known Constraints
+- Known Technical Debt
+- Next Task
+
+**Step 3 — CTO Review.** Wait for CTO Review — the CTO checks the
+Project Summary against architecture, current sprint, current
+priorities, previous decisions, duplicate work, and contradictions. If
+anything is unclear on Claude's own read before this point, STOP and
+ask questions instead of guessing — do not generate code. If the CTO
+requests corrections, return to **Step 0** and rebuild; do not patch the
+summary in place.
+
+**Step 4 — Implementation.** Only after explicit CTO approval may
+implementation begin.
+
+`PROMPT_START.md` (repository root) is the copy-paste block for
+starting a brand-new session — Claude or ChatGPT — that triggers this
+same process from zero chat history.
+
+## End of Sprint — Automatic State Update
+
+`docs/ai/PROJECT_STATE.md` is **not hand-maintained.** At the end of
+every sprint, updating it is Claude's own responsibility, done without
+being separately asked — the same way running the test suite before
+calling a feature done is not something the user has to remind Claude
+of every time. Treat "update `docs/ai/PROJECT_STATE.md`" as an implicit,
+standing part of every sprint's Definition of Done. Also update
+`docs/ai/ACTIVE_SPRINT.md` and add a dated entry to
+`docs/ai/AI_HANDOFF.md` in the same pass — Context Rebuild is only as
+trustworthy as these three files are current.
+
 ## Commands
 
 ```bash
@@ -292,3 +378,8 @@ Only ask before potentially destructive operations or git commits.
 | `docs/BACKLOG.md` | The single planning document — future work broken into Epics (Goal/MVP/Phase 1/Phase 2/Future) |
 | `RELEASE_NOTES.md` | Log of what has actually shipped |
 | `docs/IDEAS.md` | Ideas intentionally parked outside any roadmap |
+| `PROMPT_START.md` | Copy-paste block to start a new AI session with zero chat history |
+| `docs/ai/PROJECT_STATE.md` | Live project state — read first in Context Rebuild |
+| `docs/ai/CTO_MEMORY.md` | Permanent truths, no explanations |
+| `docs/ai/ACTIVE_SPRINT.md` | Current sprint's checklist only |
+| `docs/ai/AI_HANDOFF.md` | End-of-sprint log — what changed, what's next |
