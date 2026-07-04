@@ -386,3 +386,38 @@ a new mutation path. `players.py` has no Actions yet — that's
 `docs/BACKLOG.md` Epic 1's own Phase 1 item (player suspend/reinstate)
 — but Search/Browse/Details are already shaped so Actions attaches to
 Details without restructuring anything built in Phase 3.0.
+
+---
+
+## User-entered text must be escaped for its parse_mode before display
+
+**Decision (Sprint 11 Phase 3.0):** any value that originated as free-form
+user input — `Player.first_name`, `Player.username`, a custom court
+name, and (once built) a tournament name, coach bio, club name, or any
+other user-entered text — MUST be escaped for the message's `parse_mode`
+before it is interpolated into a Telegram message. This applies to every
+current and future screen, not only Players.
+
+**Why:** Player Details (Phase 3.0) crashed with `TelegramBadRequest:
+can't parse entities` for any player whose `first_name` or `username`
+contained a single, unpaired Markdown special character — which is the
+*ordinary* case, not an edge case: Telegram usernames routinely contain
+underscores (`john_doe`), and Legacy Markdown reads a lone `_` as an
+unterminated italic span. This is a security/stability rule, not a
+one-off bug fix — any screen that renders user-entered text through
+`parse_mode="Markdown"` (or `MarkdownV2`/`HTML`) without escaping it is
+one ordinary underscore away from crashing for a real user, and every
+planned future module introduces new free-text fields with the identical
+risk (a tournament name, a coach bio, a club name — all as unrestricted
+as `first_name` already is).
+
+**Where it shows up in the code:** `backend/app/bot/handlers/admin/players.py`'s
+`_md()` wraps aiogram's own `aiogram.utils.markdown.markdown_decoration.quote()`
+— aiogram is already a project dependency, so this is reuse, not a new
+escaping library. Applied to `first_name`, `username`, and custom court
+names in both `_format_details()` and `_format_browse_row()`. `_md()`
+currently lives in `players.py` since it's the only module using it
+today; the moment a second module (Matches, Tournaments, Coaches, ...)
+needs the same escaping, it MUST be promoted to a shared location (e.g.
+`admin/common.py`, alongside `authorized_role()`/`lang_for()`) rather
+than reimplemented per module.
