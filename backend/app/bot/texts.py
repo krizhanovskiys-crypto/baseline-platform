@@ -190,27 +190,30 @@ _TEXTS: dict[str, dict[str, str]] = {
         "no_contact_available": "This player has no public username yet. Try creating a game instead!",
         # Organize Match
         "btn_organize_match": "🎾 Organize Match",
-        "om_choose_date": "📅 *Choose Date* (1/6)",
+        "om_choose_date": "📅 *Choose Date* (1/7)",
         "om_btn_today": "Today",
         "om_btn_tomorrow": "Tomorrow",
         "om_btn_other_date": "📅 Other Date",
         "om_enter_date": "Enter the date (DD.MM.YYYY):",
         "om_error_date": "❌ Invalid date. Use DD.MM.YYYY format.",
-        "om_choose_time": "🕒 *Choose Time* (2/6)",
+        "om_choose_time": "🕒 *Choose Time* (2/7)",
         "om_btn_other_time": "🕒 Other Time",
         "om_enter_time": "Enter the time (HH:MM):",
         "om_error_time": "❌ Invalid time. Use HH:MM format.",
-        "om_choose_court": "📍 *Choose Court* (3/6)",
+        "om_choose_area": "📍 *Choose Area* (3/7)",
+        "om_btn_use_my_area": "✅ Use my area ({area})",
+        "om_btn_change_area": "✏️ Change area",
+        "om_choose_court": "📍 *Choose Court* (4/7)",
         "om_btn_other_court": "➕ Add my own court",
         "om_enter_court": "Enter the court name:\n\n_Example: High Park Bubble_",
-        "om_choose_level": "📊 *Skill Level* (4/6)\n\nYour profile level: NTRP *{level}*",
+        "om_choose_level": "📊 *Skill Level* (5/7)\n\nYour profile level: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Use my level (NTRP {level})",
         "om_btn_change_level": "✏️ Change level",
-        "om_choose_players": "👥 *Number of Players* (5/6)",
+        "om_choose_players": "👥 *Number of Players* (6/7)",
         "om_match_type_singles": "🎾 Singles",
         "om_match_type_doubles": "🎾 Doubles",
         "om_confirm": (
-            "✅ *Confirm Match* (6/6)\n\n"
+            "✅ *Confirm Match* (7/7)\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
@@ -579,27 +582,30 @@ _TEXTS: dict[str, dict[str, str]] = {
         "no_contact_available": "У цього гравця ще немає публічного username. Спробуйте створити гру!",
         # Organize Match
         "btn_organize_match": "🎾 Організувати матч",
-        "om_choose_date": "📅 *Оберіть дату* (1/6)",
+        "om_choose_date": "📅 *Оберіть дату* (1/7)",
         "om_btn_today": "Сьогодні",
         "om_btn_tomorrow": "Завтра",
         "om_btn_other_date": "📅 Інша дата",
         "om_enter_date": "Введіть дату (ДД.ММ.РРРР):",
         "om_error_date": "❌ Невірна дата. Використайте формат ДД.ММ.РРРР.",
-        "om_choose_time": "🕒 *Оберіть час* (2/6)",
+        "om_choose_time": "🕒 *Оберіть час* (2/7)",
         "om_btn_other_time": "🕒 Інший час",
         "om_enter_time": "Введіть час (ГГ:ХХ):",
         "om_error_time": "❌ Невірний час. Використайте формат ГГ:ХХ.",
-        "om_choose_court": "📍 *Оберіть корт* (3/6)",
+        "om_choose_area": "📍 *Оберіть район* (3/7)",
+        "om_btn_use_my_area": "✅ Мій район ({area})",
+        "om_btn_change_area": "✏️ Змінити район",
+        "om_choose_court": "📍 *Оберіть корт* (4/7)",
         "om_btn_other_court": "➕ Додати свій корт",
         "om_enter_court": "Введіть назву корту:\n\n_Наприклад: High Park Bubble_",
-        "om_choose_level": "📊 *Рівень гри* (4/6)\n\nВаш рівень: NTRP *{level}*",
+        "om_choose_level": "📊 *Рівень гри* (5/7)\n\nВаш рівень: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Мій рівень (NTRP {level})",
         "om_btn_change_level": "✏️ Змінити рівень",
-        "om_choose_players": "👥 *Кількість гравців* (5/6)",
+        "om_choose_players": "👥 *Кількість гравців* (6/7)",
         "om_match_type_singles": "🎾 Одиночний матч",
         "om_match_type_doubles": "🎾 Парний матч",
         "om_confirm": (
-            "✅ *Підтвердити матч* (6/6)\n\n"
+            "✅ *Підтвердити матч* (7/7)\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"
@@ -968,27 +974,30 @@ _TEXTS: dict[str, dict[str, str]] = {
         "no_contact_available": "У этого игрока нет публичного username. Попробуйте создать игру!",
         # Organize Match
         "btn_organize_match": "🎾 Организовать матч",
-        "om_choose_date": "📅 *Выберите дату* (1/6)",
+        "om_choose_date": "📅 *Выберите дату* (1/7)",
         "om_btn_today": "Сегодня",
         "om_btn_tomorrow": "Завтра",
         "om_btn_other_date": "📅 Другая дата",
         "om_enter_date": "Введите дату (ДД.ММ.ГГГГ):",
         "om_error_date": "❌ Неверная дата. Используйте формат ДД.ММ.ГГГГ.",
-        "om_choose_time": "🕒 *Выберите время* (2/6)",
+        "om_choose_time": "🕒 *Выберите время* (2/7)",
         "om_btn_other_time": "🕒 Другое время",
         "om_enter_time": "Введите время (ЧЧ:ММ):",
         "om_error_time": "❌ Неверное время. Используйте формат ЧЧ:ММ.",
-        "om_choose_court": "📍 *Выберите корт* (3/6)",
+        "om_choose_area": "📍 *Выберите район* (3/7)",
+        "om_btn_use_my_area": "✅ Мой район ({area})",
+        "om_btn_change_area": "✏️ Изменить район",
+        "om_choose_court": "📍 *Выберите корт* (4/7)",
         "om_btn_other_court": "➕ Добавить свой корт",
         "om_enter_court": "Введите название корта:\n\n_Например: High Park Bubble_",
-        "om_choose_level": "📊 *Уровень игры* (4/6)\n\nВаш уровень: NTRP *{level}*",
+        "om_choose_level": "📊 *Уровень игры* (5/7)\n\nВаш уровень: NTRP *{level}*",
         "om_btn_use_my_level": "✅ Мой уровень (NTRP {level})",
         "om_btn_change_level": "✏️ Изменить уровень",
-        "om_choose_players": "👥 *Количество игроков* (5/6)",
+        "om_choose_players": "👥 *Количество игроков* (6/7)",
         "om_match_type_singles": "🎾 Одиночный матч",
         "om_match_type_doubles": "🎾 Парный матч",
         "om_confirm": (
-            "✅ *Подтвердить матч* (6/6)\n\n"
+            "✅ *Подтвердить матч* (7/7)\n\n"
             "📅 {date_label}\n"
             "🕒 {time}\n"
             "📍 {court}\n"

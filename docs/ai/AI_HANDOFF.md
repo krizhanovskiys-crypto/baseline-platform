@@ -8,6 +8,54 @@ full standing picture.
 
 ---
 
+## Sprint 11 — Match Discovery Refactor, Phase 1 (Organize Match Area step)
+
+**What changed:**
+- Architecture analysis (no code changed) traced all 6 player-discovery
+  flows Entry→Service→Repository→Filter→Model. Key finding: the
+  discovery *queries* (`find_partners`, `find_players_for_match`) were
+  already Match/Player Context–correct at query time — the actual
+  player-profile leak was one layer upstream, in Organize Match's
+  creation wizard silently setting `game.area = player.home_area` with
+  no step ever asking, and scoping the Court step to
+  `player.preferred_courts` only
+- Implemented Phase 1 only, per CTO approval: Organize Match gained a
+  mandatory Area step (`OrganizeMatchStates.choose_area`, wizard is now
+  7 steps not 6) — "✅ Use my area ({home_area})" as the one-tap default,
+  "✏️ Change area" opens the full Tennis Zone list
+  (`area_keyboard(callback_prefix="om_area_zone")`). `game.area` now
+  always reflects this explicit choice
+- Court step now shows one merged list scoped to the chosen Area:
+  favourite courts that fall within that zone are starred (⭐) and
+  ordered first (in the zone's own registry order), followed by the
+  rest of that zone's Court Registry — no separate/duplicated list, per
+  the CTO's UX refinement request
+- `find_players_for_match()`, `find_partners()`, `PlayerService`,
+  `GameService` discovery logic, and `is_profile_complete` were
+  explicitly untouched, per the approved scope
+
+**Architecture changes:**
+- None to the discovery/service/repository layers — this phase only
+  touches match *creation* (`organize_match.py`), confirming the
+  analysis's own conclusion that the query layer needed no change
+
+**New decisions:**
+- `game.area`/`game.court` must always come from the match's own
+  creation-time choice, never implicitly from the organizer's profile
+  — profile values are defaults only, always overridable per match
+  (recorded in `docs/ai/PROJECT_STATE.md` Critical Constraints)
+
+**Current blockers:**
+- None
+
+**Next priority:**
+- Sprint 11 — Match Discovery Refactor Phase 2 (optional repository
+  consolidation of the two near-duplicate discovery queries — pure
+  refactor, no behavior change, lower priority than Phase 1 was; no
+  Strategy pattern, per the CTO's explicit call)
+
+---
+
 ## Sprint 11 — AI Context Rebuild + Phase 3.1A (Empty State → Invite a Friend)
 
 **What changed:**

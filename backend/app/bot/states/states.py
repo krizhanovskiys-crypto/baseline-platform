@@ -14,12 +14,17 @@ class OnboardingStates(StatesGroup):
 
 
 class OrganizeMatchStates(StatesGroup):
-    """Organize-match guided wizard."""
+    """Organize-match guided wizard. choose_area covers both its own
+    "Use My Area"/"Change Area" screen and the full zone-list screen
+    (om_area:use_mine / om_area:change / om_area_zone:{zone}) — one
+    state, distinct callback_data, same pattern choose_court already
+    uses for its own custom-entry escape hatch."""
 
     choose_date = State()
     enter_custom_date = State()
     choose_time = State()
     enter_custom_time = State()
+    choose_area = State()
     choose_court = State()
     enter_custom_court = State()
     choose_level = State()

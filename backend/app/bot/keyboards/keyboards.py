@@ -388,10 +388,29 @@ def om_time_keyboard(lang: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def om_court_keyboard(lang: str, courts: list[str]) -> InlineKeyboardMarkup:
+def om_area_keyboard(lang: str, home_area: str | None) -> InlineKeyboardMarkup:
+    """Organize Match's Area step — same "Use mine / Change" shape as
+    om_level_keyboard. "Change" leads to the full zone list via
+    area_keyboard(callback_prefix="om_area_zone"), not a button here."""
+    builder = InlineKeyboardBuilder()
+    if home_area:
+        builder.button(text=t("om_btn_use_my_area", lang, area=home_area), callback_data="om_area:use_mine")
+    builder.button(text=t("om_btn_change_area", lang), callback_data="om_area:change")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def om_court_keyboard(lang: str, courts: list[str], favorite_courts: set[str] | None = None) -> InlineKeyboardMarkup:
+    """Courts for the selected Area's zone: the organizer's own favourite
+    courts that fall within this zone are starred and ordered first —
+    one list, no duplication — followed by the rest of that zone's
+    Court Registry. Favourites are a convenience shortcut; the Court
+    Registry for the chosen Area is the source of truth."""
+    favorite_courts = favorite_courts or set()
     builder = InlineKeyboardBuilder()
     for i, court in enumerate(courts):
-        builder.button(text=court, callback_data=f"om_court:{i}")
+        label = f"⭐ {court}" if court in favorite_courts else court
+        builder.button(text=label, callback_data=f"om_court:{i}")
     builder.button(text=t("om_btn_other_court", lang), callback_data="om:court_custom")
     builder.adjust(2)
     return builder.as_markup()

@@ -57,13 +57,16 @@ def test_available_now_button_renamed():
 # ── Item 2: Organize Match wizard step indicators ───────────────────────────────
 
 def test_organize_match_steps_show_progress_indicator():
+    """7 steps as of Sprint 11 Phase 1 (Match Discovery Refactor) — the
+    new Area step is (3/7), pushing Court/Level/Players/Confirm down."""
     for lang in _LANGS:
-        assert "(1/6)" in t("om_choose_date", lang)
-        assert "(2/6)" in t("om_choose_time", lang)
-        assert "(3/6)" in t("om_choose_court", lang)
-        assert "(4/6)" in t("om_choose_level", lang, level=3.5)
-        assert "(5/6)" in t("om_choose_players", lang)
-        assert "(6/6)" in t(
+        assert "(1/7)" in t("om_choose_date", lang)
+        assert "(2/7)" in t("om_choose_time", lang)
+        assert "(3/7)" in t("om_choose_area", lang)
+        assert "(4/7)" in t("om_choose_court", lang)
+        assert "(5/7)" in t("om_choose_level", lang, level=3.5)
+        assert "(6/7)" in t("om_choose_players", lang)
+        assert "(7/7)" in t(
             "om_confirm", lang, date_label="Today", time="18:00", court="X",
             level=3.5, players=2, match_type="Singles",
         )
@@ -75,6 +78,7 @@ def test_organize_match_step_headers_use_title_case_in_english():
     ("My Matches", "Edit Profile", "Confirm Match", ...)."""
     assert "*Choose Date*" in t("om_choose_date", "en")
     assert "*Choose Time*" in t("om_choose_time", "en")
+    assert "*Choose Area*" in t("om_choose_area", "en")
     assert "*Choose Court*" in t("om_choose_court", "en")
     assert "*Number of Players*" in t("om_choose_players", "en")
 

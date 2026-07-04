@@ -1,4 +1,4 @@
-"""Organize Match wizard handler — 6-step guided match creation."""
+"""Organize Match wizard handler — 7-step guided match creation."""
 import logging
 from datetime import date, datetime, time, timedelta
 
@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.helpers import get_player_lang, send_main_menu
 from backend.app.bot.keyboards.keyboards import (
+    area_keyboard,
+    om_area_keyboard,
     om_confirm_keyboard,
     om_court_keyboard,
     om_date_keyboard,
@@ -20,6 +22,7 @@ from backend.app.bot.keyboards.keyboards import (
 )
 from backend.app.bot.states.states import OrganizeMatchStates
 from backend.app.bot.texts import t
+from backend.app.data.courts import get_courts_for_zone
 from backend.app.database.models.game import MatchType
 from backend.app.schemas.game import GameCreate
 from backend.app.services.game_service import GameService
@@ -38,12 +41,33 @@ async def _go_to_time(target: Message, state: FSMContext, lang: str) -> None:
     await target.answer(t("om_choose_time", lang), reply_markup=om_time_keyboard(lang), parse_mode="Markdown")
 
 
-async def _go_to_court(target: Message, state: FSMContext, lang: str, session: AsyncSession, user_id: int) -> None:
+async def _go_to_area(target: Message, state: FSMContext, lang: str, session: AsyncSession, user_id: int) -> None:
+    await state.set_state(OrganizeMatchStates.choose_area)
+    player = await PlayerService(session).get_by_telegram_id(user_id)
+    home_area = player.home_area if player else None
+    await target.answer(
+        t("om_choose_area", lang), reply_markup=om_area_keyboard(lang, home_area), parse_mode="Markdown"
+    )
+
+
+async def _go_to_court(
+    target: Message, state: FSMContext, lang: str, session: AsyncSession, user_id: int, area: str
+) -> None:
+    """Courts for the match's own selected Area — never the organizer's
+    home_area implicitly. Favourite courts that fall within this zone
+    are starred and ordered first, in the same single list as the rest
+    of that zone's Court Registry (no separate/duplicated list)."""
     await state.set_state(OrganizeMatchStates.choose_court)
     player = await PlayerService(session).get_by_telegram_id(user_id)
-    courts = player.preferred_courts if player and player.preferred_courts else []
-    await state.update_data(courts_shown=courts)
-    await target.answer(t("om_choose_court", lang), reply_markup=om_court_keyboard(lang, courts), parse_mode="Markdown")
+    favorite_courts = set(player.preferred_courts or []) if player else set()
+    zone_courts = get_courts_for_zone(area)
+    ordered = [c for c in zone_courts if c in favorite_courts] + [c for c in zone_courts if c not in favorite_courts]
+    await state.update_data(courts_shown=ordered, area=area)
+    await target.answer(
+        t("om_choose_court", lang),
+        reply_markup=om_court_keyboard(lang, ordered, favorite_courts),
+        parse_mode="Markdown",
+    )
 
 
 async def _go_to_level(target: Message, state: FSMContext, lang: str, session: AsyncSession, user_id: int) -> None:
@@ -160,7 +184,7 @@ async def om_time_preset(callback: CallbackQuery, state: FSMContext, session: As
     lang = data.get("lang", "en")
     time_str = callback.data.split(":", 1)[1]  # type: ignore[union-attr]
     await state.update_data(time_str=time_str)
-    await _go_to_court(callback.message, state, lang, session, callback.from_user.id)  # type: ignore[arg-type]
+    await _go_to_area(callback.message, state, lang, session, callback.from_user.id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -175,10 +199,43 @@ async def om_custom_time(message: Message, state: FSMContext, session: AsyncSess
         await message.answer(t("om_error_time", lang), parse_mode="Markdown")
         return
     await state.update_data(time_str=text)
-    await _go_to_court(message, state, lang, session, message.from_user.id)  # type: ignore[union-attr]
+    await _go_to_area(message, state, lang, session, message.from_user.id)  # type: ignore[union-attr]
 
 
-# ── Step 3: Court ─────────────────────────────────────────────────────────────
+# ── Step 3: Area ──────────────────────────────────────────────────────────────
+
+@router.callback_query(OrganizeMatchStates.choose_area, F.data == "om_area:use_mine")
+async def om_area_use_mine(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    player = await PlayerService(session).get_by_telegram_id(callback.from_user.id)
+    area = player.home_area if player and player.home_area else "Other"
+    await _go_to_court(callback.message, state, lang, session, callback.from_user.id, area)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+@router.callback_query(OrganizeMatchStates.choose_area, F.data == "om_area:change")
+async def om_area_change(callback: CallbackQuery, state: FSMContext) -> None:
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    await callback.message.answer(  # type: ignore[union-attr]
+        t("choose_area", lang),
+        reply_markup=area_keyboard(lang, callback_prefix="om_area_zone"),
+        parse_mode="Markdown",
+    )
+    await callback.answer()
+
+
+@router.callback_query(OrganizeMatchStates.choose_area, F.data.startswith("om_area_zone:"))
+async def om_area_zone_pick(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
+    data = await state.get_data()
+    lang = data.get("lang", "en")
+    zone = callback.data.split(":", 1)[1]  # type: ignore[union-attr]
+    await _go_to_court(callback.message, state, lang, session, callback.from_user.id, zone)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+# ── Step 4: Court ─────────────────────────────────────────────────────────────
 
 @router.callback_query(OrganizeMatchStates.choose_court, F.data == "om:court_custom")
 async def om_court_other(callback: CallbackQuery, state: FSMContext) -> None:
@@ -214,7 +271,7 @@ async def om_custom_court(message: Message, state: FSMContext, session: AsyncSes
     await _go_to_level(message, state, lang, session, message.from_user.id)  # type: ignore[union-attr]
 
 
-# ── Step 4: Level ─────────────────────────────────────────────────────────────
+# ── Step 5: Level ─────────────────────────────────────────────────────────────
 
 @router.callback_query(OrganizeMatchStates.choose_level, F.data == "om_level:use_mine")
 async def om_level_use_mine(callback: CallbackQuery, state: FSMContext) -> None:
@@ -247,7 +304,7 @@ async def om_custom_level(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-# ── Step 5: Players ──────────────────────────────────────────────────────────
+# ── Step 6: Players ──────────────────────────────────────────────────────────
 
 @router.callback_query(OrganizeMatchStates.choose_players, F.data.startswith("om_players:"))
 async def om_players(callback: CallbackQuery, state: FSMContext) -> None:
@@ -259,7 +316,7 @@ async def om_players(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-# ── Step 6: Confirm ──────────────────────────────────────────────────────────
+# ── Step 7: Confirm ──────────────────────────────────────────────────────────
 
 @router.callback_query(OrganizeMatchStates.confirm, F.data == "om:confirm")
 async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
@@ -291,7 +348,7 @@ async def om_do_confirm(callback: CallbackQuery, state: FSMContext, session: Asy
         creator_telegram_id=user.id,
         data=GameCreate(
             court=data.get("court", ""),
-            area=player.home_area or "Other",
+            area=data.get("area") or player.home_area or "Other",
             date=match_date,
             time=match_time,
             match_type=match_type,
