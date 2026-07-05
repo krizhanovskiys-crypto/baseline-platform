@@ -47,9 +47,10 @@ async def show_profile(message: Message, session: AsyncSession) -> None:
 
     courts = " • ".join(player.preferred_courts or []) or "—"
     languages = " • ".join(player.spoken_languages or []) or "—"
+    header_key = "profile_header_coach" if player.is_verified_coach else "profile_header"
     await message.answer(
         t(
-            "profile_header",
+            header_key,
             lang,
             name=player.first_name,
             level=player.skill_level,

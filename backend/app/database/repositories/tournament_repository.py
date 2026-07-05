@@ -56,6 +56,33 @@ class TournamentRepository(BaseRepository[Tournament]):
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
+    async def count_by_organizer(self, organizer_player_id: int) -> int:
+        result = await self._session.execute(
+            select(func.count())
+            .select_from(Tournament)
+            .where(Tournament.organizer_player_id == organizer_player_id)
+        )
+        return result.scalar() or 0
+
+    async def get_paginated_by_organizer(
+        self, organizer_player_id: int, offset: int, limit: int
+    ) -> list[Tournament]:
+        """My Tournaments (Sprint 12.2) — same ordering as
+        get_paginated(), scoped to one organizer."""
+        status_rank = case(
+            *[(Tournament.status == status, rank) for status, rank in _STATUS_ORDER],
+            else_=len(_STATUS_ORDER),
+        )
+        stmt = (
+            select(Tournament)
+            .where(Tournament.organizer_player_id == organizer_player_id)
+            .order_by(status_rank, Tournament.start_date, Tournament.id)
+            .offset(offset)
+            .limit(limit)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def update_status(self, tournament_id: int, status: TournamentStatus) -> Tournament | None:
         """Persist a new status. The only method that may change Tournament.status."""
         stmt = update(Tournament).where(Tournament.id == tournament_id).values(status=status)

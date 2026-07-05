@@ -1,17 +1,30 @@
-"""Tournament Platform v1, Phase 1 (Sprint 12) — Admin/Coach management.
+"""Tournament Platform v1 (Sprint 12) — Admin Tournament Administration.
 
-Reached two ways: an Admin via Dashboard's "Tournaments" button (PIN
-session already active), or a Verified Coach directly via /dev with no
-PIN at all (auth.py's own branch). One shared screen, never a second
-admin interface — never authorized_role(), which strictly requires a
-PIN session a coach never has.
+Reached via Dashboard's "Tournaments" button (PIN session already
+active) — /dev is Admin/Owner only (Sprint 12.2 Coach UX Refactor
+removed the Verified Coach's direct /dev path; a Coach now reaches
+tournament features from the Main Menu's own role-aware 🏆 Tournaments
+menu, bot/handlers/tournament.py). Create Tournament's wizard here
+still serves both an Admin acting from Dashboard and a Coach who
+started the same wizard from the Main Menu — the permission checks
+below are unchanged and decide per-account, not per-entry-point. Never
+authorized_role(), which strictly requires a PIN session a coach never
+has.
+
+Tournament Details is one unified screen, not a separate Player/Admin
+variant — show_tournament_details() (bot/handlers/helpers.py) decides
+which buttons appear per-tournament via can_manage_tournament(); this
+module never renders Details itself. Sprint 12.2 also removed every
+remaining path that sent a Coach back to this module's own Tournament
+Center screen (tourn_do_cancel, tourn_delete) — a Coach now returns to
+the role-aware Tournament Menu instead (show_tournament_menu()); only
+an Admin still sees this screen, via Dashboard.
 
 Two separate, centralized permission checks, deliberately not merged
 (they answer different questions and will diverge further once a
 Tournament Organizer permission exists):
 - can_create_tournament() — blanket: gates Tournament Center access,
-  Create Tournament, and Browse (which lists every tournament
-  regardless of ownership).
+  Create Tournament, and (this module's own) Browse.
 - can_manage_tournament() — ownership-aware: gates every action on one
   specific, existing tournament (Edit, Open/Close Registration,
   View/Add/Remove Players, Generate Matches, Delete). Admin manages any
@@ -32,7 +45,11 @@ from aiogram.utils.markdown import markdown_decoration
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.common import lang_for
-from backend.app.bot.handlers.helpers import notify_tournament_registration_closed
+from backend.app.bot.handlers.helpers import (
+    notify_tournament_registration_closed,
+    show_tournament_details,
+    show_tournament_menu,
+)
 from backend.app.bot.keyboards.keyboards import (
     area_keyboard,
     tournament_add_player_results_keyboard,
@@ -40,13 +57,11 @@ from backend.app.bot.keyboards.keyboards import (
     tournament_center_keyboard,
     tournament_confirm_keyboard,
     tournament_court_keyboard,
-    tournament_details_admin_keyboard,
     tournament_registered_players_keyboard,
 )
 from backend.app.bot.states.states import AdminTournamentsStates, CreateTournamentStates
 from backend.app.bot.texts import t
 from backend.app.data.courts import get_courts_for_zone
-from backend.app.database.models.tournament import TournamentStatus
 from backend.app.schemas.tournament import TournamentCreate, TournamentUpdate
 from backend.app.services.permission_service import PermissionService
 from backend.app.services.players_service import PlayersService
@@ -87,48 +102,6 @@ async def show_tournament_center(message: Message, session: AsyncSession, lang: 
     await message.answer(
         t(header_key, lang),
         reply_markup=tournament_center_keyboard(lang, is_operator),
-        parse_mode="Markdown",
-    )
-
-
-def _status_label(status: TournamentStatus, lang: str) -> str:
-    return t(f"tournament_status_{status.value}", lang)
-
-
-async def _show_details(
-    message: Message, session: AsyncSession, bot: Bot, lang: str, telegram_id: int, tournament_id: int
-) -> None:
-    service = TournamentService(session)
-
-    # Lazy auto-close (deadline reached / max_players reached) — the
-    # same check the player-facing Details screen already runs. Without
-    # this, a tournament whose deadline has passed only ever closes
-    # when a *player* opens its Details, never when an Admin/Coach does.
-    just_closed = await service.check_and_auto_close(tournament_id)
-    if just_closed:
-        await notify_tournament_registration_closed(bot, session, tournament_id)
-
-    tournament = await service.get_tournament(tournament_id)
-    if tournament is None:
-        await message.answer(t("tournament_browse_empty", lang))
-        return
-    can_manage = await _can_manage_specific(session, telegram_id, tournament)
-    registered = await service.count_registered(tournament_id)
-    await message.answer(
-        t(
-            "tournament_details_admin",
-            lang,
-            name=_md(tournament.name),
-            area=tournament.area,
-            court=tournament.court,
-            start_date=tournament.start_date.strftime("%d.%m.%Y"),
-            start_time=tournament.start_time.strftime("%H:%M"),
-            deadline=tournament.registration_deadline.strftime("%d.%m.%Y"),
-            registered=registered,
-            max_players=tournament.max_players,
-            status=_status_label(tournament.status, lang),
-        ),
-        reply_markup=tournament_details_admin_keyboard(lang, tournament_id, tournament.status, can_manage),
         parse_mode="Markdown",
     )
 
@@ -190,11 +163,16 @@ async def tourn_menu(callback: CallbackQuery, session: AsyncSession, state: FSMC
 
 @router.callback_query(F.data.regexp(r"^tourn:open:\d+$"))
 async def tourn_open(callback: CallbackQuery, session: AsyncSession, bot: Bot) -> None:
-    if not callback.from_user or not await _can_create(session, callback.from_user.id):
+    """Opens the one Tournament Details screen (Sprint 12.2) — never
+    gated by can_create_tournament(): viewing/registering is open to
+    any player, not just Admin/Coach. show_tournament_details() decides
+    which management buttons appear, per-tournament, via
+    can_manage_tournament()."""
+    if not callback.from_user:
         return
     tournament_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
     lang = await lang_for(session, callback.from_user.id)
-    await _show_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -389,7 +367,7 @@ async def tourn_do_confirm(callback: CallbackQuery, session: AsyncSession, state
         )
         await state.clear()
         await callback.message.answer(t("tournament_created", lang), parse_mode="Markdown")  # type: ignore[union-attr]
-        await _show_details(callback.message, session, bot, lang, user.id, editing_id)  # type: ignore[arg-type]
+        await show_tournament_details(callback.message, session, bot, lang, user.id, editing_id)  # type: ignore[arg-type]
         await callback.answer()
         return
 
@@ -401,7 +379,7 @@ async def tourn_do_confirm(callback: CallbackQuery, session: AsyncSession, state
         return
 
     await callback.message.answer(t("tournament_created", lang), parse_mode="Markdown")  # type: ignore[union-attr]
-    await _show_details(callback.message, session, bot, lang, user.id, tournament.id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, user.id, tournament.id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -411,8 +389,14 @@ async def tourn_do_cancel(callback: CallbackQuery, session: AsyncSession, state:
     lang = data.get("lang", "en")
     await state.clear()
     await callback.message.answer(t("cancelled", lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    # Sprint 12.2: a Verified Coach must never land back on the old
+    # Tournament Center — only an Admin does. Everyone else returns to
+    # the role-aware Tournament Menu instead.
     is_operator = await _is_operator(session, callback.from_user.id)
-    await show_tournament_center(callback.message, session, lang, is_operator)  # type: ignore[arg-type]
+    if is_operator:
+        await show_tournament_center(callback.message, session, lang, is_operator)  # type: ignore[arg-type]
+    else:
+        await show_tournament_menu(callback.message, session, lang, callback.from_user.id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -450,7 +434,7 @@ async def tourn_open_registration(callback: CallbackQuery, session: AsyncSession
         return
     lang = await lang_for(session, callback.from_user.id)
     await service.open_registration(tournament_id)
-    await _show_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -467,7 +451,7 @@ async def tourn_close_registration(callback: CallbackQuery, session: AsyncSessio
     lang = await lang_for(session, callback.from_user.id)
     await service.close_registration(tournament_id)
     await notify_tournament_registration_closed(bot, session, tournament_id)
-    await _show_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -487,7 +471,7 @@ async def tourn_generate_matches(callback: CallbackQuery, session: AsyncSession,
         await callback.message.answer(t("tournament_generate_success", lang), parse_mode="Markdown")  # type: ignore[union-attr]
     else:
         await callback.message.answer(t(error_key, lang), parse_mode="Markdown")  # type: ignore[union-attr]
-    await _show_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -503,7 +487,7 @@ async def tourn_mark_completed(callback: CallbackQuery, session: AsyncSession, b
         return
     lang = await lang_for(session, callback.from_user.id)
     await service.mark_completed(tournament_id)
-    await _show_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -520,8 +504,13 @@ async def tourn_delete(callback: CallbackQuery, session: AsyncSession) -> None:
     lang = await lang_for(session, callback.from_user.id)
     await service.delete_tournament(tournament_id)
     await callback.message.answer(t("tournament_deleted", lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    # Sprint 12.2: same rule as tourn_do_cancel — a Coach never returns
+    # to the old Tournament Center, only an Admin does.
     is_operator = await _is_operator(session, callback.from_user.id)
-    await show_tournament_center(callback.message, session, lang, is_operator)  # type: ignore[arg-type]
+    if is_operator:
+        await show_tournament_center(callback.message, session, lang, is_operator)  # type: ignore[arg-type]
+    else:
+        await show_tournament_menu(callback.message, session, lang, callback.from_user.id)  # type: ignore[arg-type]
     await callback.answer()
 
 
@@ -604,7 +593,7 @@ async def _add_player_to_tournament(
     added = await TournamentService(session).admin_add_player(tournament_id, player.telegram_id)
     key = "tournament_add_player_success" if added else "tournament_add_player_not_registered"
     await message.answer(t(key, lang, name=_md(player.first_name)), parse_mode="Markdown")
-    await _show_details(message, session, bot, lang, acting_telegram_id, tournament_id)
+    await show_tournament_details(message, session, bot, lang, acting_telegram_id, tournament_id)
 
 
 @router.message(AdminTournamentsStates.enter_add_player_search)

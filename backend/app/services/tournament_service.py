@@ -136,6 +136,18 @@ class TournamentService:
         tournaments = await self._repo.get_paginated(offset, PAGE_SIZE)
         return [_tournament_to_schema(t) for t in tournaments], total
 
+    async def list_my_tournaments(self, organizer_telegram_id: int, page: int) -> tuple[list[TournamentRead], int]:
+        """My Tournaments (Sprint 12.2) — only tournaments organized by
+        this specific account, unlike list_tournaments() which lists
+        every visible tournament regardless of ownership."""
+        organizer = await self._player_repo.get_by_telegram_id(organizer_telegram_id)
+        if not organizer:
+            return [], 0
+        total = await self._repo.count_by_organizer(organizer.id)
+        offset = (page - 1) * PAGE_SIZE
+        tournaments = await self._repo.get_paginated_by_organizer(organizer.id, offset, PAGE_SIZE)
+        return [_tournament_to_schema(t) for t in tournaments], total
+
     async def delete_tournament(self, tournament_id: int) -> bool:
         tournament = await self._repo.get_by_id(tournament_id)
         if tournament is None:

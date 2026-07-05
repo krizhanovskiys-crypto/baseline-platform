@@ -1,8 +1,14 @@
-"""Tournament Platform v1, Phase 1 (Sprint 12) — player-facing Browse /
-Details / Register / Withdraw. Tournament creation and management are
-deliberately NOT here — they live under /dev only
-(bot/handlers/admin/tournaments.py), reached by Admins and Verified
-Coaches, never from the Main Menu.
+"""Tournament Platform v1 (Sprint 12) — Browse, plus (Sprint 12.2) the
+role-aware Tournament Menu that is the single entry point for Create
+Tournament and My Tournaments too. /dev no longer plays any part in
+reaching tournament features for a Verified Coach — the Role Resolver
+below is the one place that decides what a given account sees.
+
+Tournament Details itself does not live here or in
+bot/handlers/admin/tournaments.py — it's one unified screen,
+show_tournament_details() in bot/handlers/helpers.py, opened via
+tourn:open:<id> from Browse, My Tournaments, or Admin's own Tournament
+Administration alike. There is no separate Player/Admin Details.
 """
 from aiogram import Bot, F, Router
 from aiogram.fsm.context import FSMContext
@@ -10,9 +16,15 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.utils.markdown import markdown_decoration
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.bot.handlers.helpers import get_player_lang, notify_tournament_registration_closed, send_main_menu
-from backend.app.bot.keyboards.keyboards import tournament_browse_keyboard, tournament_player_details_keyboard
-from backend.app.bot.states.states import TournamentBrowseStates
+from backend.app.bot.handlers.admin.common import lang_for
+from backend.app.bot.handlers.helpers import (
+    get_player_lang,
+    notify_tournament_registration_closed,
+    send_main_menu,
+    show_tournament_details,
+)
+from backend.app.bot.keyboards.keyboards import tournament_browse_keyboard, tournament_menu_keyboard
+from backend.app.bot.states.states import CreateTournamentStates, MyTournamentsStates, TournamentBrowseStates
 from backend.app.bot.texts import t
 from backend.app.services.player_service import PlayerService
 from backend.app.services.tournament_service import PAGE_SIZE, TournamentService
@@ -23,7 +35,7 @@ router = Router(name="tournament")
 def _md(value: str) -> str:
     """Escape a free-text, organizer-entered value (tournament name)
     before it goes into parse_mode="Markdown" text — same rule as
-    Player Details' own escaping (docs/PRODUCT_DECISIONS.md)."""
+    Tournament Details' own escaping (docs/PRODUCT_DECISIONS.md)."""
     return markdown_decoration.quote(value)
 
 _TRIGGER_TEXTS = {"🏆 Tournaments", "🏆 Турніри", "🏆 Турниры"}
@@ -47,53 +59,37 @@ async def _show_browse(
         t("tournament_browse_header", lang, total=total),
         reply_markup=tournament_browse_keyboard(
             lang, tournaments, page, has_prev=page > 1, has_next=page < total_pages,
-            open_prefix="tourn_p:open", back_callback="tourn_p:menu",
+            open_prefix="tourn:open", back_callback="tourn_p:menu",
         ),
         parse_mode="Markdown",
     )
 
 
-async def _show_details(
-    message: Message, session: AsyncSession, bot: Bot, lang: str, telegram_id: int, tournament_id: int
+async def _show_my_tournaments(
+    message: Message, session: AsyncSession, state: FSMContext, lang: str, telegram_id: int, page: int
 ) -> None:
+    """My Tournaments (Sprint 12.2) — only tournaments organized by this
+    Coach, unlike Browse which lists every visible tournament. Opening
+    one routes through the existing admin-style Details
+    (tourn:open:<id>, bot/handlers/admin/tournaments.py) since these
+    are tournaments this account can manage, not just register for."""
     service = TournamentService(session)
+    tournaments, total = await service.list_my_tournaments(telegram_id, page)
+    total_pages = max(1, -(-total // PAGE_SIZE))
 
-    just_closed = await service.check_and_auto_close(tournament_id)
-    if just_closed:
-        await notify_tournament_registration_closed(bot, session, tournament_id)
+    await state.set_state(MyTournamentsStates.browsing)
+    await state.update_data(current_page=page)
 
-    tournament = await service.get_tournament(tournament_id)
-    if tournament is None:
+    if not tournaments:
         await message.answer(t("tournament_browse_empty", lang), parse_mode="Markdown")
         return
 
-    registered_count = await service.count_registered(tournament_id)
-    registrations = await service.get_registered_players(tournament_id)
-    is_registered = any(r.telegram_id == telegram_id for r in registrations)
-
-    from backend.app.database.models.tournament import TournamentStatus
-
-    note_key = (
-        "tournament_registration_open_note"
-        if tournament.status == TournamentStatus.REGISTRATION_OPEN
-        else "tournament_registration_closed_note"
-    )
-    note = t(note_key, lang, deadline=tournament.registration_deadline.strftime("%d.%m.%Y"))
-
     await message.answer(
-        t(
-            "tournament_details_player",
-            lang,
-            name=_md(tournament.name),
-            area=tournament.area,
-            court=tournament.court,
-            start_date=tournament.start_date.strftime("%d.%m.%Y"),
-            start_time=tournament.start_time.strftime("%H:%M"),
-            registered=registered_count,
-            max_players=tournament.max_players,
-            registration_note=note,
+        t("tournament_browse_header", lang, total=total),
+        reply_markup=tournament_browse_keyboard(
+            lang, tournaments, page, has_prev=page > 1, has_next=page < total_pages,
+            open_prefix="tourn:open", back_callback="tourn_p:menu",
         ),
-        reply_markup=tournament_player_details_keyboard(lang, tournament_id, is_registered),
         parse_mode="Markdown",
     )
 
@@ -101,13 +97,57 @@ async def _show_details(
 # ── Entry / navigation ────────────────────────────────────────────────────────
 
 @router.message(F.text.in_(_TRIGGER_TEXTS))
-async def tournament_browse_entry(message: Message, state: FSMContext, session: AsyncSession) -> None:
+async def tournament_menu_entry(message: Message, session: AsyncSession) -> None:
+    """The single Role Resolver (Sprint 12.2): one permission check,
+    reused unchanged (TournamentService.can_create_tournament), decides
+    whether this account sees the Player menu (Browse only) or the
+    Coach menu (Create / My Tournaments / Browse) — never duplicated
+    elsewhere."""
     user = message.from_user
     if not user:
         return
     player = await PlayerService(session).get_by_telegram_id(user.id)
     lang = get_player_lang(player)
-    await _show_browse(message, session, state, lang, page=1)
+    is_coach = await TournamentService(session).can_create_tournament(user.id)
+    await message.answer(
+        t("tournament_menu_header", lang),
+        reply_markup=tournament_menu_keyboard(lang, is_coach),
+        parse_mode="Markdown",
+    )
+
+
+@router.callback_query(F.data == "tourn_p:create")
+async def tourn_p_create_start(callback: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
+    """Create Tournament, started from the Main Menu (Sprint 12.2) —
+    same permission check and the same CreateTournamentStates wizard as
+    the Admin's own tourn:create (admin/tournaments.py); every step
+    after this one is state-gated and already shared."""
+    if not callback.from_user or not await TournamentService(session).can_create_tournament(callback.from_user.id):
+        return
+    lang = await lang_for(session, callback.from_user.id)
+    await state.set_state(CreateTournamentStates.enter_name)
+    await state.update_data(lang=lang, editing_id=None)
+    await callback.message.answer(t("tournament_enter_name", lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    await callback.answer()
+
+
+@router.callback_query(F.data == "tourn_p:mine")
+async def tourn_p_mine(callback: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
+    if not callback.from_user or not await TournamentService(session).can_create_tournament(callback.from_user.id):
+        return
+    lang = await lang_for(session, callback.from_user.id)
+    await _show_my_tournaments(callback.message, session, state, lang, callback.from_user.id, page=1)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+@router.callback_query(MyTournamentsStates.browsing, F.data.regexp(r"^tourn:page:\d+$"))
+async def tourn_p_mine_page(callback: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
+    if not callback.from_user or not await TournamentService(session).can_create_tournament(callback.from_user.id):
+        return
+    page = int(callback.data.split(":")[2])  # type: ignore[union-attr]
+    lang = await lang_for(session, callback.from_user.id)
+    await _show_my_tournaments(callback.message, session, state, lang, callback.from_user.id, page=page)  # type: ignore[arg-type]
+    await callback.answer()
 
 
 @router.callback_query(TournamentBrowseStates.browsing, F.data.regexp(r"^tourn:page:\d+$"))
@@ -145,22 +185,12 @@ async def tournament_back_to_browse(callback: CallbackQuery, state: FSMContext, 
     await _show_browse(callback.message, session, state, lang, page=1)
 
 
-@router.callback_query(F.data.regexp(r"^tourn_p:open:\d+$"))
-async def tournament_open_details(callback: CallbackQuery, session: AsyncSession, bot: Bot) -> None:
-    if not callback.data or not callback.message:
-        await callback.answer()
-        return
-    tournament_id = int(callback.data.split(":")[2])
-    user = callback.from_user
-    player = await PlayerService(session).get_by_telegram_id(user.id)
-    lang = get_player_lang(player)
-    await callback.answer()
-    await _show_details(callback.message, session, bot, lang, user.id, tournament_id)
-
-
 # ── Register / Withdraw ───────────────────────────────────────────────────────
+# Reached only from the one unified Tournament Details screen
+# (tournament_details_keyboard, bot/keyboards/keyboards.py) — same
+# callback namespace as Details itself (tourn:*), open to any player.
 
-@router.callback_query(F.data.regexp(r"^tourn_p:register:\d+$"))
+@router.callback_query(F.data.regexp(r"^tourn:register:\d+$"))
 async def tournament_register(callback: CallbackQuery, session: AsyncSession, bot: Bot) -> None:
     if not callback.data or not callback.message:
         await callback.answer()
@@ -185,10 +215,10 @@ async def tournament_register(callback: CallbackQuery, session: AsyncSession, bo
         await callback.message.answer(t("tournament_register_closed", lang), parse_mode="Markdown")
 
     await callback.answer()
-    await _show_details(callback.message, session, bot, lang, user.id, tournament_id)
+    await show_tournament_details(callback.message, session, bot, lang, user.id, tournament_id)
 
 
-@router.callback_query(F.data.regexp(r"^tourn_p:withdraw:\d+$"))
+@router.callback_query(F.data.regexp(r"^tourn:withdraw:\d+$"))
 async def tournament_withdraw(callback: CallbackQuery, session: AsyncSession, bot: Bot) -> None:
     if not callback.data or not callback.message:
         await callback.answer()
@@ -211,4 +241,4 @@ async def tournament_withdraw(callback: CallbackQuery, session: AsyncSession, bo
         await callback.message.answer(t("tournament_withdraw_failed", lang), parse_mode="Markdown")
 
     await callback.answer()
-    await _show_details(callback.message, session, bot, lang, user.id, tournament_id)
+    await show_tournament_details(callback.message, session, bot, lang, user.id, tournament_id)

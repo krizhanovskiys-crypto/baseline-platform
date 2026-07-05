@@ -50,6 +50,8 @@ types; a repository never contains an `if` that encodes a business rule.
 backend/app/
 ├── bot/
 │   ├── handlers/     one file per feature (find_partner.py, organize_match.py, ...)
+│   ├── presenters/     pure (data) -> (text, keyboard) builders for screens
+│   │                    complex enough to warrant one — see section 3a
 │   ├── keyboards/     keyboards.py — pure functions, no state, no side effects
 │   ├── states/        states.py — every FSM StatesGroup, one place
 │   ├── texts.py        all UI strings, keyed by language; t(key, lang, **kwargs)
@@ -100,6 +102,38 @@ A handler is responsible for:
 If you find yourself writing DB queries, status checks, or multi-step
 "do X then Y" logic inside a handler, stop — it belongs in
 `backend/app/services/`.
+
+### 3a. Presenters — when a screen's view-assembly outgrows the handler
+
+Most screens stay inline in their handler: fetch, format a `t()` call,
+call a keyboard factory, send. That's fine and is not a violation of
+anything above.
+
+A **presenter** (`backend/app/bot/presenters/`) is worth splitting out
+once a screen is shown from more than one entry point and its
+(text, keyboard) construction has real branching (e.g. Tournament
+Details — Sprint 12.2 — shown from Browse, My Tournaments, and Admin
+Tournament Administration alike, with buttons that vary by permission
+and registration status). A presenter function:
+
+- Takes only already-fetched, plain data (a schema, some booleans) —
+  never a session, never `Bot`, never a repository or service call.
+- Returns the view artifacts (text, keyboard) — makes no decision that
+  requires business/domain knowledge (permissions, ownership) itself;
+  the caller passes in the *results* of those decisions (e.g.
+  `can_manage: bool`, `back_callback: str`), already resolved.
+- Is trivially unit-testable with no database at all — see
+  `tests/test_coach_ux_refactor.py`'s presenter test for the shape.
+
+The orchestrating handler still owns everything a presenter doesn't:
+fetching data, deciding *which* list a "Back" button should point to
+(that's a business/domain question — ownership, role — even though the
+button itself is presentation), triggering side effects (an auto-close,
+a notification), and sending the message. A presenter is a narrower
+extraction than a service — it never touches the database — so most
+screens will never need one; reach for this only when a screen's view
+logic is genuinely shared and branchy enough that leaving it inline
+would mean duplicating it per entry point.
 
 ---
 

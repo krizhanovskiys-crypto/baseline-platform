@@ -795,14 +795,32 @@ def join_confirmation_keyboard(lang: str, game_id: int) -> InlineKeyboardMarkup:
 # ---------------------------------------------------------------------------
 
 def tournament_center_keyboard(lang: str, is_operator: bool) -> InlineKeyboardMarkup:
-    """Root screen for tournament management, reached via /dev. Verified
-    Coaches (is_operator=False) see only tournament actions — never
-    Players/Testing/System. Admins additionally get Back-to-Dashboard."""
+    """Admin Tournament Administration root, reached via Dashboard's
+    "Tournaments" button (Sprint 12.2: /dev is Admin/Owner only — a
+    Verified Coach no longer reaches this screen; see
+    tournament_menu_keyboard() for the Coach's own Main Menu path)."""
     builder = InlineKeyboardBuilder()
     builder.button(text=t("tournament_btn_create", lang), callback_data="tourn:create")
     builder.button(text=t("tournament_btn_browse", lang), callback_data="tourn:browse")
     if is_operator:
         builder.button(text=t("players_btn_back", lang), callback_data="players:back_to_dashboard")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def tournament_menu_keyboard(lang: str, is_coach: bool) -> InlineKeyboardMarkup:
+    """Role-aware Tournament Menu (Sprint 12.2) — the single Role
+    Resolver decision point reached from the Main Menu's own 🏆
+    Tournaments button. A Player sees Browse only; a Verified Coach
+    additionally sees Create and My Tournaments. This is the only place
+    that decision is made — every other Tournament screen is reached
+    from here, never duplicated."""
+    builder = InlineKeyboardBuilder()
+    if is_coach:
+        builder.button(text=t("tournament_btn_create", lang), callback_data="tourn_p:create")
+        builder.button(text=t("tournament_btn_my_tournaments", lang), callback_data="tourn_p:mine")
+    builder.button(text=t("tournament_btn_browse", lang), callback_data="tourn_p:browse")
+    builder.button(text=t("btn_menu_home", lang), callback_data="menu:main")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -830,8 +848,10 @@ def tournament_browse_keyboard(
     lang: str, tournaments: list, page: int, has_prev: bool, has_next: bool, open_prefix: str, back_callback: str
 ) -> InlineKeyboardMarkup:
     """One "Open" row per listed tournament, then Previous/Next, then
-    Back. open_prefix differs for the player-facing vs admin views so
-    each opens its own Details screen."""
+    Back. open_prefix is always "tourn:open" (Sprint 12.2 unified
+    Tournament Details) — kept as a parameter only so a caller could
+    still retarget it if ever needed, not because Browse/My Tournaments
+    open different screens today."""
     builder = InlineKeyboardBuilder()
     for tournament in tournaments:
         builder.button(text=tournament.name, callback_data=f"{open_prefix}:{tournament.id}")
@@ -851,40 +871,6 @@ def tournament_browse_keyboard(
     builder.adjust(*sizes)
     return builder.as_markup()
 
-
-def tournament_details_admin_keyboard(
-    lang: str, tournament_id: int, status, can_manage: bool = True
-) -> InlineKeyboardMarkup:
-    """Admin/Coach Tournament Details actions — shown contextually by
-    status, mirroring match_details_keyboard's role/status-based shape.
-    can_manage=False (a Verified Coach viewing a tournament they don't
-    own) hides every action — read-only, same minimal shape as
-    player_details_keyboard when there's nothing to do."""
-    from backend.app.database.models.tournament import TournamentStatus
-
-    builder = InlineKeyboardBuilder()
-    if not can_manage:
-        builder.button(text=t("players_btn_back", lang), callback_data="tourn:browse")
-        builder.adjust(1)
-        return builder.as_markup()
-
-    builder.button(text=t("tournament_btn_edit", lang), callback_data=f"tourn:edit:{tournament_id}")
-    if status == TournamentStatus.DRAFT:
-        builder.button(text=t("tournament_btn_open_registration", lang), callback_data=f"tourn:open_reg:{tournament_id}")
-    if status == TournamentStatus.REGISTRATION_OPEN:
-        builder.button(text=t("tournament_btn_close_registration", lang), callback_data=f"tourn:close_reg:{tournament_id}")
-    builder.button(text=t("tournament_btn_view_players", lang), callback_data=f"tourn:players:{tournament_id}")
-    if status in (TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED):
-        builder.button(text=t("tournament_btn_add_player", lang), callback_data=f"tourn:add_player:{tournament_id}")
-    if status == TournamentStatus.REGISTRATION_CLOSED:
-        builder.button(text=t("tournament_btn_generate_matches", lang), callback_data=f"tourn:generate:{tournament_id}")
-    if status == TournamentStatus.IN_PROGRESS:
-        builder.button(text=t("tournament_btn_mark_completed", lang), callback_data=f"tourn:complete:{tournament_id}")
-    if status not in (TournamentStatus.COMPLETED, TournamentStatus.CANCELLED):
-        builder.button(text=t("tournament_btn_delete", lang), callback_data=f"tourn:delete:{tournament_id}")
-    builder.button(text=t("players_btn_back", lang), callback_data="tourn:browse")
-    builder.adjust(1)
-    return builder.as_markup()
 
 
 def tournament_add_player_results_keyboard(
@@ -920,16 +906,3 @@ def tournament_registered_players_keyboard(
     return builder.as_markup()
 
 
-def tournament_player_details_keyboard(
-    lang: str, tournament_id: int, is_registered: bool
-) -> InlineKeyboardMarkup:
-    """Player-facing Tournament Details — Register or Withdraw depending
-    on the viewer's own registration status, plus Back."""
-    builder = InlineKeyboardBuilder()
-    if is_registered:
-        builder.button(text=t("tournament_btn_withdraw", lang), callback_data=f"tourn_p:withdraw:{tournament_id}")
-    else:
-        builder.button(text=t("tournament_btn_register", lang), callback_data=f"tourn_p:register:{tournament_id}")
-    builder.button(text=t("players_btn_back", lang), callback_data="tourn_p:browse")
-    builder.adjust(1)
-    return builder.as_markup()

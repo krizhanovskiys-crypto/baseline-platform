@@ -6,10 +6,10 @@ investigation:
 1. Verified Coach couldn't create tournaments — root cause was a schema
    drift (TECH-010: create_all_tables() created new tables but never
    altered players.is_verified_coach onto the existing table). No code
-   bug existed; this test proves the handler-level flow is correct
-   against a properly-migrated schema, for both a pure Coach and a
-   regular Player, so the two are not conflated with an Admin/Owner
-   account the way the real dev database's only real account is.
+   bug existed at the time; this test proves a Regular Player is
+   correctly refused (the Coach-specific half of this test was removed
+   in Sprint 12.2, which changed how a Coach reaches Create Tournament
+   in the first place — see tests/test_coach_ux_refactor.py).
 
 2 & 3. Registration Deadline didn't auto-close, and the Registration
    Closed Notification never fired for it — because
@@ -36,8 +36,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.auth import cmd_dev
 from backend.app.bot.handlers.admin.tournaments import tourn_close_registration, tourn_create_start, tourn_open
-from backend.app.bot.handlers.tournament import tournament_open_details
-from backend.app.bot.states.states import CreateTournamentStates
 from backend.app.database.models.operator_permission import OperatorRole
 from backend.app.database.models.tournament import TournamentStatus
 from backend.app.database.repositories.tournament_repository import TournamentRepository
@@ -47,7 +45,6 @@ from backend.app.services import admin_session_service as svc_module
 from backend.app.services.admin_session_service import AdminSessionService
 from backend.app.services.permission_service import PermissionService
 from backend.app.services.player_service import PlayerService
-from backend.app.services.players_service import PlayersService
 from backend.app.services.tournament_lifecycle_service import TournamentLifecycleService
 from backend.app.services.tournament_service import TournamentService
 
@@ -125,28 +122,6 @@ async def _make_tournament(
 # ---------------------------------------------------------------------------
 # Task 1 — Verified Coach can create tournaments; Regular Player cannot
 # ---------------------------------------------------------------------------
-
-@pytest.mark.asyncio
-async def test_verified_coach_reaches_tournament_center_via_dev_and_can_create(session: AsyncSession) -> None:
-    """End-to-end through the actual handlers (not just the service
-    check) for a Coach who holds no operator role at all — the exact
-    scenario the real dev database couldn't exercise, since its only
-    real account was also an Owner."""
-    player_id = await _make_player(session, 6001, "CoachOnly")
-    await PlayersService(session).set_verified_coach(player_id, True)
-    await session.commit()
-
-    dev_message = _FakeMessage(user_id=6001)
-    await cmd_dev(dev_message, session, _make_state(6001))
-    assert dev_message.sent == ["🏆 *My Tournaments*"]
-
-    create_callback = _FakeCallback(data="tourn:create", user_id=6001)
-    state = _make_state(6001)
-    await tourn_create_start(create_callback, session, state)
-
-    assert await state.get_state() == CreateTournamentStates.enter_name.state
-    assert create_callback.message.sent  # the "enter tournament name" prompt was sent
-
 
 @pytest.mark.asyncio
 async def test_regular_player_gets_no_dev_access_and_cannot_create(session: AsyncSession) -> None:
@@ -245,9 +220,9 @@ async def test_manual_close_notifies_every_registered_player_exactly_once(sessio
 
 @pytest.mark.asyncio
 async def test_player_opening_details_past_deadline_still_auto_closes_and_notifies(session: AsyncSession) -> None:
-    """Regression: the Admin-side fix must not have disturbed the
-    player-facing Details screen, which already called
-    check_and_auto_close() correctly before this sprint."""
+    """Regression: the unified Tournament Details screen (Sprint 12.2)
+    still runs check_and_auto_close() correctly when opened by a
+    Registrant with no management rights over this tournament."""
     organizer_id = await _make_player(session, 6301, "Organizer")
     tournament_id = await _make_tournament(session, 6301, max_players=10, deadline_days=7)
     await TournamentLifecycleService(session).transition(tournament_id, TournamentStatus.REGISTRATION_OPEN)
@@ -264,8 +239,8 @@ async def test_player_opening_details_past_deadline_still_auto_closes_and_notifi
     await session.commit()
 
     bot = _FakeBot()
-    callback = _FakeCallback(data=f"tourn_p:open:{tournament_id}", user_id=6302)
-    await tournament_open_details(callback, session, bot)
+    callback = _FakeCallback(data=f"tourn:open:{tournament_id}", user_id=6302)
+    await tourn_open(callback, session, bot)
 
     tournament = await TournamentService(session).get_tournament(tournament_id)
     assert tournament.status == TournamentStatus.REGISTRATION_CLOSED

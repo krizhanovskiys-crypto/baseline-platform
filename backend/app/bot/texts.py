@@ -142,6 +142,16 @@ _TEXTS: dict[str, dict[str, str]] = {
             "🎾 Favourite Courts: {courts}\n"
             "📊 Matches: {matches}"
         ),
+        # Verified Coach badge on Profile (Sprint 12.2)
+        "profile_header_coach": (
+            "👤 *Your Profile*\n\n"
+            "👤 Name: {name}\n"
+            "🏅 Verified Coach\n"
+            "⭐ Level {level}\n"
+            "🗣️ Languages: {languages}\n"
+            "🎾 Favourite Courts: {courts}\n"
+            "📊 Matches: {matches}"
+        ),
         "level_source_self_rated": "Self Rated",
         "level_source_coach_verified": "Coach Verified",
         "btn_edit_profile": "✏️ Edit Profile",
@@ -418,6 +428,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Tournament Platform v1 (Sprint 12, Phase 1)
         "tournament_center_header": "🏆 *Tournament Center*",
         "tournament_my_tournaments_header": "🏆 *My Tournaments*",
+        # Role-aware Tournament Menu (Sprint 12.2) — reached from the Main Menu
+        "tournament_menu_header": "🏆 *Tournaments*",
         "tournament_status_draft": "📝 Draft",
         "tournament_status_registration_open": "✅ Registration Open",
         "tournament_status_registration_closed": "🔒 Registration Closed",
@@ -425,7 +437,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_status_completed": "🏁 Completed",
         "tournament_status_cancelled": "❌ Cancelled",
         "tournament_btn_create": "➕ Create Tournament",
-        "tournament_btn_browse": "🏆 Browse Tournaments",
+        "tournament_btn_my_tournaments": "📋 My Tournaments",
+        "tournament_btn_browse": "🧭 Browse Tournaments",
         "tournament_btn_edit": "✏️ Edit",
         "tournament_btn_open_registration": "✅ Open Registration",
         "tournament_btn_close_registration": "🔒 Close Registration",
@@ -460,7 +473,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_created": "✅ *Tournament created.* It stays in Draft until you open registration.",
         "tournament_no_permission": "This action isn't available to you.",
-        "tournament_details_admin": (
+        # One unified Tournament Details screen (Sprint 12.2) — the same
+        # text and buttons vary only by what the viewer is allowed to do,
+        # never a separate Player/Admin template.
+        "tournament_details": (
             "🏆 *{name}*\n\n"
             "📍 {area} — {court}\n"
             "📅 Starts {start_date}, {start_time}\n"
@@ -468,15 +484,6 @@ _TEXTS: dict[str, dict[str, str]] = {
             "👥 {registered}/{max_players} registered\n"
             "📊 Status: {status}"
         ),
-        "tournament_details_player": (
-            "🏆 *{name}*\n\n"
-            "📍 {area} — {court}\n"
-            "📅 {start_date}, {start_time}\n"
-            "👥 {registered}/{max_players} registered\n\n"
-            "{registration_note}"
-        ),
-        "tournament_registration_open_note": "Registration is open until {deadline}.",
-        "tournament_registration_closed_note": "Registration is closed.",
         "tournament_browse_header": "🏆 *Tournaments* ({total})",
         "tournament_browse_empty": "😔 No tournaments yet.",
         "tournament_players_header": "👥 *Registered Players* ({count})",
@@ -632,6 +639,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
         "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень {level}\n🗣️ Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
+        "profile_header_coach": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n🏅 Верифікований тренер\n⭐ Рівень {level}\n🗣️ Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
@@ -905,6 +913,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Tournament Platform v1 (Sprint 12, Phase 1)
         "tournament_center_header": "🏆 *Центр турнірів*",
         "tournament_my_tournaments_header": "🏆 *Мої турніри*",
+        # Role-aware Tournament Menu (Sprint 12.2) — reached from the Main Menu
+        "tournament_menu_header": "🏆 *Турніри*",
         "tournament_status_draft": "📝 Чернетка",
         "tournament_status_registration_open": "✅ Реєстрація відкрита",
         "tournament_status_registration_closed": "🔒 Реєстрація закрита",
@@ -912,7 +922,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_status_completed": "🏁 Завершено",
         "tournament_status_cancelled": "❌ Скасовано",
         "tournament_btn_create": "➕ Створити турнір",
-        "tournament_btn_browse": "🏆 Турніри",
+        "tournament_btn_my_tournaments": "📋 Мої турніри",
+        "tournament_btn_browse": "🧭 Турніри",
         "tournament_btn_edit": "✏️ Редагувати",
         "tournament_btn_open_registration": "✅ Відкрити реєстрацію",
         "tournament_btn_close_registration": "🔒 Закрити реєстрацію",
@@ -947,7 +958,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_created": "✅ *Турнір створено.* Він залишається у чернетці, доки ви не відкриєте реєстрацію.",
         "tournament_no_permission": "Ця дія вам недоступна.",
-        "tournament_details_admin": (
+        "tournament_details": (
             "🏆 *{name}*\n\n"
             "📍 {area} — {court}\n"
             "📅 Початок {start_date}, {start_time}\n"
@@ -955,15 +966,6 @@ _TEXTS: dict[str, dict[str, str]] = {
             "👥 {registered}/{max_players} зареєстровано\n"
             "📊 Статус: {status}"
         ),
-        "tournament_details_player": (
-            "🏆 *{name}*\n\n"
-            "📍 {area} — {court}\n"
-            "📅 {start_date}, {start_time}\n"
-            "👥 {registered}/{max_players} зареєстровано\n\n"
-            "{registration_note}"
-        ),
-        "tournament_registration_open_note": "Реєстрація відкрита до {deadline}.",
-        "tournament_registration_closed_note": "Реєстрацію закрито.",
         "tournament_browse_header": "🏆 *Турніри* ({total})",
         "tournament_browse_empty": "😔 Турнірів поки немає.",
         "tournament_players_header": "👥 *Зареєстровані гравці* ({count})",
@@ -1119,6 +1121,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
         "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень {level}\n🗣️ Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
+        "profile_header_coach": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n🏅 Верифицированный тренер\n⭐ Уровень {level}\n🗣️ Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",
@@ -1392,6 +1395,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         # Tournament Platform v1 (Sprint 12, Phase 1)
         "tournament_center_header": "🏆 *Центр турниров*",
         "tournament_my_tournaments_header": "🏆 *Мои турниры*",
+        # Role-aware Tournament Menu (Sprint 12.2) — reached from the Main Menu
+        "tournament_menu_header": "🏆 *Турниры*",
         "tournament_status_draft": "📝 Черновик",
         "tournament_status_registration_open": "✅ Регистрация открыта",
         "tournament_status_registration_closed": "🔒 Регистрация закрыта",
@@ -1399,7 +1404,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_status_completed": "🏁 Завершён",
         "tournament_status_cancelled": "❌ Отменён",
         "tournament_btn_create": "➕ Создать турнир",
-        "tournament_btn_browse": "🏆 Турниры",
+        "tournament_btn_my_tournaments": "📋 Мои турниры",
+        "tournament_btn_browse": "🧭 Турниры",
         "tournament_btn_edit": "✏️ Редактировать",
         "tournament_btn_open_registration": "✅ Открыть регистрацию",
         "tournament_btn_close_registration": "🔒 Закрыть регистрацию",
@@ -1434,7 +1440,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_created": "✅ *Турнир создан.* Он остаётся в черновике, пока вы не откроете регистрацию.",
         "tournament_no_permission": "Это действие вам недоступно.",
-        "tournament_details_admin": (
+        "tournament_details": (
             "🏆 *{name}*\n\n"
             "📍 {area} — {court}\n"
             "📅 Начало {start_date}, {start_time}\n"
@@ -1442,15 +1448,6 @@ _TEXTS: dict[str, dict[str, str]] = {
             "👥 {registered}/{max_players} зарегистрировано\n"
             "📊 Статус: {status}"
         ),
-        "tournament_details_player": (
-            "🏆 *{name}*\n\n"
-            "📍 {area} — {court}\n"
-            "📅 {start_date}, {start_time}\n"
-            "👥 {registered}/{max_players} зарегистрировано\n\n"
-            "{registration_note}"
-        ),
-        "tournament_registration_open_note": "Регистрация открыта до {deadline}.",
-        "tournament_registration_closed_note": "Регистрация закрыта.",
         "tournament_browse_header": "🏆 *Турниры* ({total})",
         "tournament_browse_empty": "😔 Турниров пока нет.",
         "tournament_players_header": "👥 *Зарегистрированные игроки* ({count})",

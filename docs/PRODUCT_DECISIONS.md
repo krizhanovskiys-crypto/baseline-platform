@@ -421,3 +421,46 @@ today; the moment a second module (Matches, Tournaments, Coaches, ...)
 needs the same escaping, it MUST be promoted to a shared location (e.g.
 `admin/common.py`, alongside `authorized_role()`/`lang_for()`) rather
 than reimplemented per module.
+
+---
+
+## Coach UX — Tournament management belongs to the Player experience, not /dev
+
+**Decision (Sprint 12.2):** Verified Coach is a business role. Tournament
+management belongs to the Player experience. The `/dev` command is
+reserved exclusively for platform administration.
+
+**Reason:** A Coach is a platform user, not a platform administrator.
+
+**Status:** Accepted.
+
+**This supersedes Sprint 12's original shape**, which was:
+
+```
+Verified Coach
+    ↓
+/dev
+    ↓
+Tournament Center
+```
+
+That path no longer exists. A Coach now reaches Create Tournament, My
+Tournaments, and Browse from the Main Menu's own role-aware 🏆
+Tournaments button — the same entry point a Regular Player uses, which
+shows Browse only. `/dev` shows nothing at all to a non-operator,
+exactly as if the command didn't exist, matching how a Regular Player
+was already treated before this sprint. Only Admin/Owner still uses
+`/dev`, for Dashboard → Tournament Administration, unchanged.
+
+**Where it shows up in the code:** `backend/app/bot/handlers/admin/auth.py`'s
+`cmd_dev()` no longer has a Verified Coach branch at all.
+`backend/app/bot/handlers/tournament.py`'s `tournament_menu_entry()` is
+the single Role Resolver — one `TournamentService.can_create_tournament()`
+check decides whether the Main Menu's 🏆 Tournaments button shows the
+Player menu (Browse only) or the Coach menu (Create / My Tournaments /
+Browse); this is the only place that decision is made. See
+`docs/ai/AI_HANDOFF.md`'s Sprint 12.2 entry for the full change list,
+including the follow-up that unified Tournament Details into one screen
+(no separate Player/Admin variant) and fixed the Details screen's Back
+button to return to whichever list a tournament actually belongs to for
+the viewer, rather than a single hardcoded target.

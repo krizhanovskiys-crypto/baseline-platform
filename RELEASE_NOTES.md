@@ -15,6 +15,19 @@ scope.
 
 ---
 
+## v0.13.0
+
+Coach UX
+
+### Highlights
+
+* Verified Coaches now manage tournaments directly from the main
+  Tournament section — Create Tournament, My Tournaments, and Browse
+  are all one tap from the Main Menu.
+* The `/dev` command is now reserved for platform administrators.
+
+---
+
 ## v0.12.0
 
 Tournament Platform v1

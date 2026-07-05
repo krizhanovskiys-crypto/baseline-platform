@@ -13,18 +13,16 @@ asked. If this file's "Last updated" line is stale relative to
 flag during the next Context Rebuild.
 
 **Last updated:** 2026-07-05, end of the Schema Recovery ops-tooling
-addition — implemented and tested locally, not yet committed.
+work — committed.
 
 ---
 
 ## Current Sprint
 
-No active feature sprint. Most recent committed work: Sprint 11.1 —
-Tournament Stabilization Phase 1, bundled into the same commit as
-Sprint 12 — Tournament Platform v1, Phase 1 (`4359146`). On top of
-that, uncommitted: a permanent Schema Recovery tool for TECH-010's
-symptom (`scripts/schema_recovery.py`, `docs/operations/
-SCHEMA_RECOVERY.md`).
+No active feature sprint. Most recent committed work: the Schema
+Recovery tool (`a11f4c1`), on top of Sprint 11.1 — Tournament
+Stabilization Phase 1 bundled with Sprint 12 — Tournament Platform v1,
+Phase 1 (`4359146`).
 
 ## Current Branch
 
@@ -32,30 +30,29 @@ SCHEMA_RECOVERY.md`).
 
 ## Current Production Commit
 
-`43591467c93ae7c90d111601efcba00fb039e645` (short `4359146`) — Sprint 12
-Phase 1 + Sprint 11.1's stabilization fixes, committed locally.
-**Not yet pushed** to `origin/master` (last pushed commit is still
-`b0daea6`). The Schema Recovery tool is implemented and tested on top
-of this, **not yet committed**.
+`a11f4c1` — schema_recovery.py auto-detection UX refinement, on top of
+`350b935` (Schema Recovery tool) and `4359146` (Tournament Platform v1
++ Sprint 11.1 stabilization). **Not yet pushed** to `origin/master`
+(last pushed commit is still `b0daea6`).
 
 ## Latest Test Count
 
-426 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-locally, on the uncommitted working tree (424 at the last committed
-state, `4359146`).
+444 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+locally, on the uncommitted working tree (426 at the last committed
+state, `a11f4c1`).
 
 ## Current Priority
 
-Schema Recovery tool is approved and ready to commit. After that: Sprint
-12 Phase 2 (Round Robin format, Score Entry, Standings — per
-`docs/BACKLOG.md` Epic 2), explicitly out of scope for both Phase 1s.
+Sprint 12.2 — Coach UX Refactor is complete and awaiting CTO approval
+to commit. After that: Sprint 12 Phase 2 (Round Robin format, Score
+Entry, Standings — per `docs/BACKLOG.md` Epic 2).
 
 ## Current Task
 
-None in progress. Schema Recovery tool (`scripts/schema_recovery.py` +
-`docs/operations/SCHEMA_RECOVERY.md`) implemented, tested end-to-end
-against a precise reproduction of the reported production incident, and
-approved for commit.
+None in progress. Sprint 12.2 (decoupling Verified Coach from `/dev`,
+unifying Tournament Details into one screen) implemented, tested
+end-to-end against the two real accounts from the earlier diagnostic
+session, and approved for commit pending final review.
 
 ## Next Task
 

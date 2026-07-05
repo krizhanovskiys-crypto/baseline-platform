@@ -108,6 +108,16 @@ class AdminTournamentsStates(StatesGroup):
     enter_add_player_search = State()
 
 
+class MyTournamentsStates(StatesGroup):
+    """Verified Coach's My Tournaments (Sprint 12.2) — reached from the
+    Main Menu's role-aware Tournament Menu, not /dev. Same
+    tourn:page:N pagination callback pattern as TournamentBrowseStates/
+    AdminTournamentsStates, gated by its own state so all three coexist
+    without collision."""
+
+    browsing = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings / Edit Profile field-editing flow."""
 

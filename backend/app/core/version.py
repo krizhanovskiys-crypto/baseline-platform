@@ -4,4 +4,4 @@ Bumped by hand alongside RELEASE_NOTES.md — deliberately not derived
 from git or overridable via environment, so it always reflects exactly
 what was deployed, not what a config value happens to claim.
 """
-APP_VERSION = "v0.12.0"
+APP_VERSION = "v0.13.0"

@@ -8,6 +8,80 @@ full standing picture.
 
 ---
 
+## Sprint 12.2 — Coach UX Refactor (not yet committed)
+
+**What changed:**
+- Removed the Verified Coach's direct `/dev` path entirely
+  (`cmd_dev`) — `/dev` is Admin/Owner only now. A Coach reaches
+  tournament features from the Main Menu's own role-aware 🏆
+  Tournaments button (`tournament_menu_entry`, the single Role
+  Resolver — one `can_create_tournament()` check, one keyboard
+  builder, `tournament_menu_keyboard`).
+- Added My Tournaments (`TournamentService.list_my_tournaments`,
+  `TournamentRepository.count_by_organizer`/
+  `get_paginated_by_organizer`) — genuinely filtered to the current
+  account's own tournaments, unlike Browse.
+- **Follow-up refinement (this pass):** two remaining paths
+  (`tourn_do_cancel`, `tourn_delete`) still sent a Coach back to the
+  old Tournament Center screen — fixed to be role-aware
+  (`show_tournament_menu` for a Coach, unchanged `show_tournament_center`
+  for an Admin). No path back to the old screen remains for a Coach.
+- **Follow-up refinement (this pass): unified Tournament Details.**
+  There is no longer a separate Player Details / Admin Details —
+  one `show_tournament_details()` (`bot/handlers/helpers.py`), one
+  `tournament_details` text key, one `tournament_details_keyboard()`
+  that adds management buttons only if `can_manage_tournament()` is
+  True and always adds Register/Withdraw based on the viewer's own
+  registration status — an organizer who is also a registered
+  participant sees both groups on the same screen. Reached via one
+  callback prefix (`tourn:open:<id>`), open to any player, not gated
+  by `can_create_tournament()` — viewing/registering was never an
+  Admin/Coach-only action and must not become one.
+- Verified live against the two real accounts from the earlier
+  diagnostic session (Owner+Coach 243843943, pure Coach 9000000000)
+  and via a real dispatcher run of Create → Cancel and Create →
+  Confirm → Details for the pure Coach, not just unit tests.
+- **Second refinement pass:** extracted a new `backend/app/bot/
+  presenters/` package (documented in `docs/ARCHITECTURE.md` §3a) —
+  no such abstraction existed anywhere in Baseline before this;
+  `admin/players.py`'s own Details had the same "everything inline"
+  shape, confirmed by inspection rather than assumed. Tournament
+  Details' (text, keyboard) construction moved out of
+  `show_tournament_details()` into a pure
+  `build_tournament_details_view()` (takes only already-fetched data,
+  no session/Bot/repository) — trivially unit-testable with no
+  database, which the new presenter test in
+  `tests/test_coach_ux_refactor.py` demonstrates directly.
+- **Second refinement pass: Back navigation fixed.** Was hardcoded to
+  Browse regardless of context. Now computed by the orchestrating
+  handler (a business/domain decision — ownership, role — that a
+  presenter must not make itself) and only placed on the button by the
+  presenter: the tournament's own organizer → My Tournaments; an Admin
+  viewing someone else's tournament → Admin's own Browse; anyone else
+  → the general Browse. Verified live against the real pure-Coach
+  account (9000000000) opening their own tournament's Details.
+
+**Architecture changes:** Admin's own path (Dashboard → Tournament
+Administration) is completely unchanged. New: `backend/app/bot/
+presenters/` as a documented, reusable pattern for future screens
+whose view-assembly is shared across entry points and branchy enough
+to warrant separating from handler orchestration — see
+`docs/ARCHITECTURE.md` §3a for when to reach for one (and, just as
+importantly, when not to).
+
+**New decisions:** The presenter pattern itself (§3a) — narrower than a
+service, never touches the database, only worth it once a screen is
+genuinely shared and branchy.
+
+**Current blockers:** None. 444 passed locally, dispatcher builds
+clean. Not committed — waiting for CTO approval.
+
+**Next priority:** commit this sprint, then Sprint 12 Phase 2 (Round
+Robin, Score Entry, Standings) or Sprint 11's Match Discovery
+Refactor Phase 2 / Players Actions layer.
+
+---
+
 ## Ops tooling — Schema Recovery (TECH-010 mitigation)
 
 **What changed:**
