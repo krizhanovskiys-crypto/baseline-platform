@@ -8,6 +8,215 @@ full standing picture.
 
 ---
 
+## Sprint 11.1 — Tournament Stabilization, Phase 1
+
+**What changed:**
+- **Task 1 (Verified Coach couldn't create tournaments) — root cause was
+  environmental, not a code bug.** `docs/TECH_DEBT.md` TECH-010's schema
+  drift meant the local dev `baseline.db` was missing `players.
+  is_verified_coach` at the time this was reported (`create_all_tables()`
+  creates new tables but never alters existing ones). Confirmed via a
+  controlled test against a freshly-migrated schema that
+  `can_create_tournament()`, `/dev` routing, and `tourn_create_start`
+  all already work correctly for a genuine Coach-only account (no
+  operator role) — the live dev database's only real account happened
+  to also be an Owner, which meant the pure-Coach path had never
+  actually been exercised there. No permission architecture changed.
+- **Task 2 (Registration Deadline didn't auto-close) — real bug, fixed.**
+  `admin/tournaments.py`'s own `_show_details()` never called
+  `check_and_auto_close()` at all — only the player-facing Details
+  screen did. A tournament whose deadline had passed stayed
+  REGISTRATION_OPEN indefinitely from the Admin/Coach's own point of
+  view. Fixed by wiring the same lazy check (+ notification on close)
+  into the Admin/Coach Details screen, mirroring the player-side
+  pattern exactly. Required threading `bot: Bot` through 7 handler
+  functions that call `_show_details()` (aiogram's existing DI, no new
+  registration needed).
+- **Task 3 (Registration Closed notification) — fixed as a side effect
+  of Task 2's fix**, since the notification was already correctly wired
+  to every OTHER close trigger (manual close, player-facing lazy
+  check, register-reaching-max-players) — the only missing path was
+  the one Task 2 fixed. No notification logic was touched or redesigned.
+- **Follow-up verification pass**: confirmed both Details handlers
+  (Admin/Coach and Player) call the exact same
+  `TournamentService.check_and_auto_close()` — one shared service
+  method, not two independent implementations. Confirmed no handler
+  anywhere calls `TournamentLifecycleService`/`update_status` directly
+  — the lifecycle authority (`check_and_auto_close()` →
+  `close_registration()` → notify → status update) is untouched by
+  handlers. Added 2 more regression tests: the player-facing Details
+  path still auto-closes+notifies unchanged (parity confirmed, not just
+  assumed), and re-opening Details on an already-closed tournament
+  neither re-transitions it nor sends a second notification —
+  `check_and_auto_close()`'s own `status != REGISTRATION_OPEN` guard is
+  the single idempotency authority both handlers rely on.
+
+**Architecture changes:** None. No permission architecture, Player
+Discovery, Player Picker, Favorites, Tournament Results, Badges,
+Profile, or UX changed — bug fixing only, per scope.
+
+**New decisions:** None.
+
+**Validation status (Task 1):**
+- **Verified** on a correctly-migrated schema — the controlled test in
+  `tests/test_tournament_stabilization.py` proves the code path is
+  correct.
+- **Pending** validation on the real development database, specifically
+  *after* TECH-010 recovery is actually carried out there — a clean
+  test schema is not proof that the live dev environment's own drift
+  has been resolved the same way. Do not treat Task 1 as fully closed
+  end-to-end until that real-environment check happens.
+
+**Current blockers:**
+- None for the code itself. TECH-010 (the underlying schema-drift
+  mechanism) remains tracked and deferred — this sprint did not fix
+  TECH-010 itself, only confirmed it was the true cause of Task 1's
+  *symptom*, per the validation status above. 424 passed locally,
+  dispatcher builds clean.
+
+**Next priority:**
+- Return to Sprint 12 Tournament Platform v1 Phase 2 (Round Robin,
+  Score Entry, Standings) or Sprint 11's Match Discovery Refactor
+  Phase 2 / Players Actions layer — not yet decided.
+
+---
+
+## Sprint 12 — Tournament Platform v1, Phase 1
+
+**What changed (amended before commit, per CTO refinements):**
+- Game ownership fixed: `GameService.create_game()` gained an optional
+  `auto_join_creator: bool = True` (default preserves all existing
+  callers unchanged). Every match Generate Matches creates now belongs
+  to the Tournament Organizer (`tournament.organizer_player_id`), never
+  to either pair player — the organizer isn't auto-added as a
+  participant (`auto_join_creator=False`); both pair players are added
+  as CONFIRMED explicitly instead
+- Two centralized permission methods, deliberately kept separate (not
+  merged — they answer different questions and will diverge further
+  once a Tournament Organizer permission exists): `can_create_tournament()`
+  (blanket — Tournament Center access, Create, Browse) and
+  `can_manage_tournament(telegram_id, organizer_player_id)`
+  (ownership-aware — every action on one specific tournament: Edit,
+  Open/Close Registration, View/Add/Remove Players, Generate Matches,
+  Delete). Admin manages any tournament; Verified Coach manages only
+  tournaments they organized themselves. A Coach viewing a tournament
+  they don't own sees Details with no action buttons (`can_manage=False`
+  on `tournament_details_admin_keyboard`)
+- Add Player fixed to follow the established Admin Center Search
+  three-way branch (`ARCHITECTURE.md` §12: one match / several / none)
+  instead of silently taking the first search result — reuses the
+  existing `PlayersService.search()`, not a new one-off search flow
+- Coach's Tournament Center is now labeled "🏆 My Tournaments"
+  (`is_operator=False`), distinct from the Admin-facing "🏆 Tournament
+  Center" header, reinforcing the ownership scope in the UI itself
+- Browse ordering (both "My Tournaments" and player-facing Browse):
+  grouped by status — DRAFT, REGISTRATION_OPEN, REGISTRATION_CLOSED,
+  IN_PROGRESS, COMPLETED, CANCELLED — then by `start_date` within each
+  group, via `TournamentRepository.get_paginated()`'s `ORDER BY`. No
+  status is filtered out of the query — sorting only — so a future
+  archive view for COMPLETED tournaments never needs this query
+  touched, only how a caller paginates/filters its results. (Caught and
+  fixed a real bug while implementing this: a value-keyed `case()` dict
+  doesn't route a bound `Enum` member through the column's type
+  adapter and silently matches nothing — switched to the same
+  condition/value tuple `case()` shape already used by
+  `GameRepository.get_available_matches()`.)
+
+**What changed (final release verification, before commit):**
+- Removed 2 dead-code methods with zero call sites anywhere:
+  `TournamentService.cancel_tournament()` (never wired to any UI action
+  — CANCELLED remains a valid lifecycle transition, just not yet
+  reachable from any handler) and
+  `TournamentPlayerRepository.get_registered_player_ids()` (superseded
+  by `get_registered_players()`/`get_registrations_with_players()`)
+- Fixed a second Markdown-escaping gap: Add Player's and Remove
+  Player's success messages rendered `player.first_name` directly
+  without escaping — same bug class as Player Details' and the
+  Registration Closed Notification's own fixes. Added a dedicated
+  regression test (`tests/test_tournament_admin_escaping.py`)
+- Verified: every emitted `callback_data` has a registered handler and
+  vice versa (no unreachable callbacks, no missing registrations); the
+  Alembic migration produces a zero-diff `autogenerate` against current
+  models (confirmed by generating a throwaway revision with empty
+  upgrade/downgrade bodies, then discarding it — no real drift)
+
+**What changed (original implementation):**
+- New `Tournament`/`TournamentPlayer` entities. Tournament matches are
+  NOT a new entity — Generate Matches creates ordinary `Game` rows
+  (`Game.tournament_id`, nullable FK) via the existing
+  `GameService.create_game()`, no new match or invitation architecture
+- `TournamentLifecycleService` — strictly forward status transitions
+  (DRAFT → REGISTRATION_OPEN → REGISTRATION_CLOSED → IN_PROGRESS →
+  COMPLETED/CANCELLED), mirroring `MatchLifecycleService`'s pattern
+  exactly but with no backward transitions, per the approved diagram
+- Registration auto-closes on whichever comes first — deadline reached,
+  `max_players` reached, or manual Admin action — all funneling through
+  one `TournamentService.close_registration()` plus a shared,
+  handler-layer `notify_tournament_registration_closed()` helper (kept
+  out of the service layer, which stays transport-agnostic)
+- Generate Matches: shuffles registered players, requires an even
+  count > 0 (odd → user-facing error, no byes — out of scope), only
+  allowed once REGISTRATION_CLOSED, idempotent (checks
+  `GameRepository.get_games_by_tournament()` first), auto-transitions
+  to IN_PROGRESS on success
+- `Player.is_verified_coach` — the first Player Badge (Sprint 12
+  decision superseding Epic 3's earlier "Coach distinct from Player"
+  framing in `docs/BACKLOG.md`) — a boolean column, not a separate
+  model/repository/service. Granted/revoked from the existing Player
+  Details screen — its first real Actions-layer action
+  (`ARCHITECTURE.md` §12 had reserved this slot since Sprint 11)
+- Centralized `TournamentService.can_manage_tournaments()` — Admin
+  (active PIN session, same bar as every other Admin Center module) or
+  Verified Coach today; a future Tournament Organizer permission only
+  requires editing this one method's body
+- `/dev` gained a third branch in `auth.py::cmd_dev`: non-operators who
+  are Verified Coaches land on a Tournament Center with no PIN at all;
+  everyone else sees nothing, exactly as before. One shared
+  `show_tournament_center()` screen, reached either via Dashboard
+  (Admin, PIN already active) or directly via `/dev` (Coach) — not a
+  second admin interface
+- New player-facing Main Menu button "🏆 Tournaments" — Browse/Details/
+  Register/Withdraw only. Tournament *creation* deliberately does not
+  appear there; it stays under `/dev` only, per explicit CTO instruction
+- Caught and fixed during self-review, before presenting results:
+  tournament names are organizer-entered free text and were being
+  rendered unescaped in several Markdown screens (confirm screen,
+  Details, Edit prompt, Register/Withdraw success, the closed-
+  registration notification) — fixed with the same
+  `markdown_decoration.quote()` rule already established for
+  `first_name`/`username`/custom court names
+
+**Architecture changes:**
+- `GameCreate`/`Game` gained a nullable `tournament_id` — the only
+  change to existing match-creation code (`GameService.create_game()`
+  passes it straight through, one line)
+- New `InvalidTournamentTransitionError` (mirrors `InvalidTransitionError`
+  exactly, typed for `TournamentStatus` instead of `GameStatus`)
+- `PlayerRead`/`_player_to_schema()` gained `is_verified_coach`;
+  `player_details_keyboard()` signature changed to take `player_id` and
+  `is_verified_coach` (its Actions layer is no longer empty)
+
+**New decisions:**
+- Coach is a Player Badge (`is_verified_coach`), not a separate entity —
+  supersedes `docs/BACKLOG.md` Epic 3's earlier MVP wording ("distinct
+  from Player"), updated in the same pass
+- `docs/BACKLOG.md` Epic 2 now documents the tournament-creation
+  permission model (Admin + Coach today, Tournament Organizer later) and
+  Epic 3 documents the Player Badge decision — recorded there, not in
+  `docs/PRODUCT_DECISIONS.md` yet, since that file is reserved for
+  *shipped* decisions and this phase isn't committed yet
+
+**Current blockers:**
+- None. Awaiting CTO approval to commit (418 passed locally, dispatcher
+  builds clean)
+
+**Next priority:**
+- Sprint 12 — Tournament Platform v1 Phase 2 (Round Robin, Score Entry,
+  Standings), or returning to Sprint 11's Match Discovery Refactor
+  Phase 2 / Players Actions layer — not yet decided
+
+---
+
 ## Sprint 11 — Match Discovery Refactor, Phase 1 (Organize Match Area step)
 
 **What changed:**

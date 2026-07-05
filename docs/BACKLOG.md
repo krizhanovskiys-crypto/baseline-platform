@@ -60,11 +60,19 @@ Moderator, Admin, Owner).
 
 - **MVP:** Tournament model + registration flow — a player commits to a
   tournament, not a single game; this is the prerequisite everything else
-  in this Epic depends on.
+  in this Epic depends on. Tournament creation/management permission
+  today: Admin only (Coach doesn't exist as a checkable badge yet). One
+  extensible permission gate, not hardcoded per-role, so Coach (once its
+  Player Badge ships, Epic 3) and later a dedicated Tournament Organizer
+  permission (below) plug into the same check without touching call
+  sites.
 - **Phase 1:** Round Robin format, Score Entry, Standings (Round Robin is
   the simpler bracket type — the natural first format to support).
 - **Phase 2:** Knockout format.
-- **Future:** Club Events, League Seasons.
+- **Future:** Club Events, League Seasons, a dedicated Tournament
+  Organizer permission (today this capability is covered by Admin/Coach;
+  a first-class permission of its own is deferred until a real need for
+  organizers who are neither shows up).
 
 ---
 
@@ -73,12 +81,18 @@ Moderator, Admin, Owner).
 **Goal:** support Coach as a first-class user type (`MANIFESTO.md`), not
 a self-reported profile label.
 
-- **MVP:** Coach role/identity, distinct from Player.
+- **MVP:** Coach as a Player Badge — not a separate entity/model/service
+  (Sprint 12 decision, superseding this Epic's earlier "distinct from
+  Player" framing). A badge is enough to make Coach a checkable
+  permission source (e.g. for Epic 2's Tournament creation) without the
+  overhead of a parallel identity.
 - **Phase 1:** Coach verification workflow — replaces today's self-set
   `level_source="coach_verified"` flag, which nothing actually verifies.
 - **Phase 2:** Coach discovery, coach-specific profile fields.
 - **Future:** Lesson organization & scheduling, player recommendation
-  from a coach.
+  from a coach. If Coach ever needs its own lifecycle/credentials beyond
+  a badge, revisit the separate-entity option then — not speculatively
+  now.
 
 ---
 

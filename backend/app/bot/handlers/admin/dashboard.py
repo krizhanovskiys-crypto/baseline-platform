@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.common import authorized_role, lang_for
 from backend.app.bot.handlers.admin.testing import show_testing_menu
+from backend.app.bot.handlers.admin.tournaments import show_tournament_center
 from backend.app.bot.handlers.helpers import send_main_menu
 from backend.app.bot.keyboards.keyboards import dashboard_keyboard
 from backend.app.bot.texts import t
@@ -28,7 +29,6 @@ router = Router(name="admin_dashboard")
 
 _COMING_SOON_CALLBACKS = {
     "dashboard:matches",
-    "dashboard:tournaments",
     "dashboard:coaches",
     "dashboard:courts",
 }
@@ -71,6 +71,16 @@ async def dashboard_open_testing(callback: CallbackQuery, session: AsyncSession)
 
     lang = await lang_for(session, callback.from_user.id)
     await show_testing_menu(callback.message, lang)  # type: ignore[union-attr]
+    await callback.answer()
+
+
+@router.callback_query(F.data == "dashboard:tournaments")
+async def dashboard_open_tournaments(callback: CallbackQuery, session: AsyncSession) -> None:
+    if not callback.from_user or not await authorized_role(session, callback.from_user.id):
+        return
+
+    lang = await lang_for(session, callback.from_user.id)
+    await show_tournament_center(callback.message, session, lang, is_operator=True)  # type: ignore[union-attr]
     await callback.answer()
 
 

@@ -203,6 +203,25 @@ If a third workflow requires identical lifecycle advancement after a player join
 
 ---
 
+## TECH-010
+
+**Title:** `create_all_tables()` startup safety net causes schema drift with Alembic
+
+**Problem:**  
+`create_all_tables()` (`Base.metadata.create_all()`) runs unconditionally on every startup of both `bot/main.py` and `api/app.py`. It can silently create new tables without ever advancing `alembic_version`, and — because `metadata.create_all()` only creates missing tables and never alters existing ones — it can also leave a table's *new columns* unapplied even when the table itself already exists. The result is a local SQLite file whose physical schema and Alembic's own record of that schema disagree, discovered concretely during Tournament Platform v1's Repository Reality Check: `tournaments`/`tournament_players` existed in full, but `players.is_verified_coach` and `games.tournament_id` were missing, while `alembic_version` still claimed the database was two revisions behind all of it.
+
+**Impact:**  
+High. Can leave local databases in a partially migrated state — new tables appear to exist and work, while columns silently never get added to existing tables, with no error at the time it happens. `alembic upgrade head` then fails outright once it reaches a migration whose tables already exist via this path.
+
+**Priority:** High
+
+**Suggested solution (long-term decision):**  
+Production and development databases must evolve exclusively through Alembic migrations. `create_all_tables()` should only be allowed for tests and disposable in-memory databases — never invoked against a persistent, on-disk database file.
+
+**Status:** Deferred
+
+---
+
 *Items without a source `TODO`/`FIXME` annotation are tracked here only. Items with a source annotation are listed under both the code comment and this register.*
 
 ---

@@ -12,15 +12,18 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-04, end of Sprint 11 — Match Discovery
-Refactor Phase 1 (Organize Match Area step) — pending commit/approval.
+**Last updated:** 2026-07-05, end of Sprint 11.1 — Tournament
+Stabilization Phase 1 — pending commit/approval (bundled with the still-
+uncommitted Sprint 12 Tournament Platform v1 Phase 1 working tree).
 
 ---
 
 ## Current Sprint
 
-Sprint 11 — Admin Center (`docs/BACKLOG.md` Epic 1) + Match Discovery
-Refactor (Phase 1 complete; Phase 2 repository consolidation not started).
+Sprint 11.1 — Tournament Stabilization Phase 1 (bug-fixing pass on top
+of Sprint 12 — Tournament Platform v1, Phase 1, still uncommitted).
+Sprint 11 (Admin Center, Match Discovery Refactor Phase 1) is committed
+and pushed (`b0daea6`).
 
 ## Current Branch
 
@@ -28,34 +31,37 @@ Refactor (Phase 1 complete; Phase 2 repository consolidation not started).
 
 ## Current Production Commit
 
-`9d15ece1955061e6e78b27100f023417659814e9` (pushed to `origin/master`).
-Match Discovery Refactor Phase 1's changes are implemented and tested
-locally but **not yet committed** — awaiting approval.
+`b0daea66495bbc3f1d2a51afc680aaa17f189c88` (pushed to `origin/master`).
+Sprint 12 Phase 1 + Sprint 11.1's stabilization fixes are implemented
+and tested locally but **not yet committed** — awaiting approval.
 
 ## Latest Test Count
 
-396 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-locally, on the uncommitted Phase 1 working tree. 389 passed at the
-last committed state (`9d15ece`).
+424 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+locally, on the uncommitted working tree. 396 passed at the last
+committed state (`b0daea6`).
 
 ## Current Priority
 
-**Sprint 11 — Match Discovery Refactor, Phase 2** (repository
-consolidation — optional, pure refactor, lower priority than Phase 1
-was). Still open: whether the Players Actions layer (suspend/reinstate —
-`docs/BACKLOG.md` Epic 1 Phase 1) happens before or after this.
+**Sprint 11.1 — Tournament Stabilization Phase 1** is complete and
+awaiting CTO approval to commit (bundled with Sprint 12 Phase 1, since
+neither has been committed yet). Next priority after that: Sprint 12
+Phase 2 (Round Robin format, Score Entry, Standings — per
+`docs/BACKLOG.md` Epic 2), explicitly out of scope for both Phase 1s.
 
 ## Current Task
 
-None in progress. Match Discovery Refactor Phase 1 (mandatory Area step
-in Organize Match; Court step shows one merged, starred Favourite+
-Registry list scoped to the chosen Area) is implemented, tested, and
+None in progress. Two real bugs fixed (Registration Deadline auto-close
++ its notification never firing on the Admin/Coach side) and one
+reported bug found to be environmental, not a code defect (Verified
+Coach tournament creation — see TECH-010). Implemented, tested, and
 awaiting commit approval.
 
 ## Next Task
 
-Sprint 11 — Match Discovery Refactor Phase 2 (optional repository
-consolidation), or the Players Actions layer — not yet decided.
+Sprint 12 — Tournament Platform v1 Phase 2 (Round Robin, Score Entry,
+Standings), or returning to Sprint 11's Match Discovery Refactor Phase 2
+/ Players Actions layer — not yet decided.
 
 ## Completed Major Features
 
@@ -98,6 +104,39 @@ consolidation), or the Players Actions layer — not yet decided.
   `find_players_for_match()`, `find_partners()`, and every other
   discovery query were untouched — analysis found the query layer was
   already Match Context–correct; only match *creation* needed fixing.
+- **Tournament Platform v1, Phase 1** (Sprint 12) — new `Tournament`/
+  `TournamentPlayer` entities; tournament matches are ordinary `Game`
+  rows (`Game.tournament_id`, nullable FK), not a new match system.
+  Registration auto-closes on deadline OR max_players OR manual Admin
+  action, whichever comes first, always firing the Registration Closed
+  Notification. Generate Matches shuffles registered players, requires
+  an even count, is idempotent, and auto-transitions the tournament to
+  IN_PROGRESS. Coach is `Player.is_verified_coach` — a boolean badge,
+  not a separate entity — granted/revoked from the existing Player
+  Details screen. Tournament creation/management lives only under
+  `/dev` (never the Main Menu): Admin gets full Admin Center via PIN
+  ("🏆 Tournaments"); Verified Coach gets a narrower Tournament Center
+  with no PIN ("🏆 My Tournaments") and no access to Players/Testing/
+  System. Two deliberately separate, centralized permission methods —
+  `can_create_tournament()` (blanket: Center access/Create/Browse) and
+  `can_manage_tournament(telegram_id, organizer_player_id)`
+  (ownership-aware: Admin manages any tournament, Verified Coach only
+  ones they organized). Every generated match's Game.creator_id is the
+  Tournament Organizer, never a pair player (GameService.create_game()
+  gained `auto_join_creator: bool = True` for this).
+- **Tournament Stabilization Phase 1** (Sprint 11.1) — Admin/Coach's own
+  Tournament Details screen now runs the same lazy
+  `check_and_auto_close()` + Registration Closed Notification the
+  player-facing Details screen already did; previously it never did,
+  so a tournament whose deadline had passed stayed REGISTRATION_OPEN
+  indefinitely unless a *player* happened to open it. Verified Coach
+  tournament creation was confirmed architecturally correct against a
+  correctly-migrated schema — the reported failure was TECH-010's
+  schema drift (a dev database missing `players.is_verified_coach`), not
+  a code defect. **Verified** on a clean schema; **pending** validation
+  on the real development database specifically after TECH-010 recovery
+  is actually carried out there — not to be treated as fully closed
+  end-to-end until that happens.
 
 ## Critical Constraints
 
@@ -126,5 +165,10 @@ consolidation), or the Players Actions layer — not yet decided.
   steps, never implicitly from `player.home_area`/`preferred_courts` —
   the organizer's profile is only ever a *default*, always overridable,
   never the source of truth for a specific match.
+- `TournamentService.can_create_tournament()` (blanket) and
+  `can_manage_tournament()` (ownership-aware) must stay two separate
+  methods — never merged, per explicit CTO instruction, since a future
+  Tournament Organizer permission will answer these two questions
+  differently.
 - Never commit without explicit approval. Never push without explicit
   approval.

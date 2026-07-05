@@ -15,6 +15,7 @@ class GameCreate(BaseModel):
     time: time
     match_type: MatchType = MatchType.SINGLES
     required_level: float | None = None
+    tournament_id: int | None = None
 
 
 class GameRead(BaseModel):
@@ -24,6 +25,7 @@ class GameRead(BaseModel):
 
     id: int
     creator_id: int
+    tournament_id: int | None
     court: str
     area: str
     date: date

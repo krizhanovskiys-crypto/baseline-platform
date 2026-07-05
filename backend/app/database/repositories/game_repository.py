@@ -26,6 +26,11 @@ class GameRepository(BaseRepository[Game]):
         """Return all games created by this player."""
         return await self._all(Game.creator_id == creator_id)
 
+    async def get_games_by_tournament(self, tournament_id: int) -> list[Game]:
+        """Return every Game generated for this tournament — used by
+        Generate Matches to stay idempotent (Sprint 12)."""
+        return await self._all(Game.tournament_id == tournament_id)
+
     async def update_status(self, game_id: int, status: GameStatus) -> Game | None:
         """Persist a new status for the given game. Returns the updated Game or None."""
         stmt = update(Game).where(Game.id == game_id).values(status=status)

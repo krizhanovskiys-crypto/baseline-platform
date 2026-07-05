@@ -28,11 +28,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.common import lang_for
 from backend.app.bot.handlers.admin.dashboard import show_dashboard
+from backend.app.bot.handlers.admin.tournaments import show_tournament_center
 from backend.app.bot.states.states import AdminAuthStates
 from backend.app.bot.texts import t
 from backend.app.database.models.operator_permission import OperatorRole
 from backend.app.services.admin_session_service import AdminSessionService, LoginResult
 from backend.app.services.permission_service import PermissionService
+from backend.app.services.player_service import PlayerService
 
 logger = logging.getLogger(__name__)
 router = Router(name="admin_auth")
@@ -53,7 +55,13 @@ async def cmd_dev(message: Message, session: AsyncSession, state: FSMContext) ->
 
     role = await PermissionService(session).get_role(user.id)
     if role is None:
-        # Behave exactly as if /dev does not exist. No "Access denied".
+        # Not an operator. A Verified Coach (Sprint 12 Player Badge) still
+        # gets a Tournament Center, no PIN — everyone else sees nothing,
+        # exactly as if /dev does not exist.
+        player = await PlayerService(session).get_by_telegram_id(user.id)
+        if player and player.is_verified_coach:
+            lang = await lang_for(session, user.id)
+            await show_tournament_center(message, session, lang, is_operator=False)
         return
 
     admin_sessions = AdminSessionService(session)

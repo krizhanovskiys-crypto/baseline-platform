@@ -30,8 +30,17 @@ class GameService:
         self._player_repo = PlayerRepository(session)
         self._analytics = AnalyticsService(session)
 
-    async def create_game(self, creator_telegram_id: int, data: GameCreate) -> GameRead | None:
-        """Create a new game.  Returns None if creator player not found."""
+    async def create_game(
+        self, creator_telegram_id: int, data: GameCreate, auto_join_creator: bool = True
+    ) -> GameRead | None:
+        """Create a new game.  Returns None if creator player not found.
+
+        auto_join_creator=False skips adding the creator as a CONFIRMED
+        participant — used by TournamentService.generate_matches(),
+        where the Game's creator_id must be the Tournament Organizer
+        (ownership), but the organizer isn't necessarily one of the two
+        players actually playing that specific match.
+        """
         creator = await self._player_repo.get_by_telegram_id(creator_telegram_id)
         if not creator:
             logger.warning("create_game called for unknown telegram_id=%s", creator_telegram_id)
@@ -39,6 +48,7 @@ class GameService:
 
         game = Game(
             creator_id=creator.id,
+            tournament_id=data.tournament_id,
             court=data.court,
             area=data.area,
             date=data.date,
@@ -49,12 +59,12 @@ class GameService:
         )
         game = await self._game_repo.add(game)
 
-        # Creator automatically joins the game
-        await self._gp_repo.add_player_to_game(
-            game_id=game.id,
-            player_id=creator.id,
-            status=GamePlayerStatus.CONFIRMED,
-        )
+        if auto_join_creator:
+            await self._gp_repo.add_player_to_game(
+                game_id=game.id,
+                player_id=creator.id,
+                status=GamePlayerStatus.CONFIRMED,
+            )
 
         # A created match must be immediately visible/joinable — DRAFT is a
         # construction-only state. This is the single point that opens every

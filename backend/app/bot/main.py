@@ -11,7 +11,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from backend.app.bot.handlers import available_matches, available_now, confirm_match, find_partner, find_players_for_match, invitation, my_matches, organize_match, profile, start
+from backend.app.bot.handlers import available_matches, available_now, confirm_match, find_partner, find_players_for_match, invitation, my_matches, organize_match, profile, start, tournament
 from backend.app.bot.handlers import admin
 from backend.app.bot.middlewares.database import DatabaseMiddleware
 from backend.app.core.config import get_settings
@@ -41,6 +41,7 @@ def build_dispatcher() -> Dispatcher:
     dp.include_router(my_matches.router)
     dp.include_router(available_now.router)
     dp.include_router(available_matches.router)
+    dp.include_router(tournament.router)
 
     return dp
 

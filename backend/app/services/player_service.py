@@ -53,6 +53,7 @@ def _player_to_schema(player: Player) -> PlayerRead:
         "rating": player.rating,
         "matches_played": player.matches_played,
         "is_profile_complete": player.is_profile_complete,
+        "is_verified_coach": player.is_verified_coach,
         "created_at": player.created_at,
         "updated_at": player.updated_at,
     }

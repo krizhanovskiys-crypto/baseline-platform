@@ -1,13 +1,19 @@
 """Handler utilities — common helpers used across multiple handlers."""
+import logging
 from urllib.parse import quote
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramAPIError
 from aiogram.types import Message
+from aiogram.utils.markdown import markdown_decoration
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.keyboards.keyboards import main_menu_keyboard
 from backend.app.bot.texts import t
 from backend.app.schemas.player import PlayerRead
 from backend.app.services.player_service import PlayerService
+
+logger = logging.getLogger(__name__)
 
 
 async def send_main_menu(message: Message, lang: str) -> None:
@@ -40,3 +46,33 @@ async def build_invite_share_url(bot: Bot, lang: str, telegram_id: int) -> str:
     deep_link = f"https://t.me/{me.username}?start=invite_{telegram_id}"
     share_text = t("invite_share_text", lang)
     return f"https://t.me/share/url?url={quote(deep_link, safe='')}&text={quote(share_text, safe='')}"
+
+
+async def notify_tournament_registration_closed(bot: Bot, session: AsyncSession, tournament_id: int) -> None:
+    """Registration Closed Notification (Sprint 12) — shared by every
+    trigger that closes a tournament's registration: the Admin's manual
+    Close action, and the lazy deadline/max_players check on Browse/
+    Details/Register. Transport-aware, so it lives here rather than in
+    TournamentService, which stays transport-agnostic."""
+    from backend.app.services.tournament_service import TournamentService
+
+    service = TournamentService(session)
+    tournament = await service.get_tournament(tournament_id)
+    if tournament is None:
+        return
+    registrations = await service.get_registered_players(tournament_id)
+    for reg in registrations:
+        text = t(
+            "tournament_registration_closed_notification",
+            reg.language or "en",
+            name=markdown_decoration.quote(tournament.name),
+            date=tournament.start_date.strftime("%d.%m.%Y"),
+            time=tournament.start_time.strftime("%H:%M"),
+            court=tournament.court,
+        )
+        try:
+            await bot.send_message(reg.telegram_id, text, parse_mode="Markdown")
+        except TelegramAPIError:
+            logger.warning(
+                "Could not notify telegram_id=%s of tournament %s closing", reg.telegram_id, tournament_id
+            )

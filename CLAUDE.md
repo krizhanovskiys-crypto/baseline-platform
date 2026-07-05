@@ -371,6 +371,7 @@ Only ask before potentially destructive operations or git commits.
 | `docs/RELEASE_CHECKLIST.md` | Mandatory pre-commit gate for user-facing features |
 | `docs/TECH_DEBT.md` | Known technical debt — consult before scoping a fix |
 | `docs/telegram_conflict_error.md` | Runbook for TelegramConflictError (duplicate polling instance) |
+| `docs/tournaments/TOURNAMENT_FLOW.md` | Product-level tournament lifecycle diagram, no technical detail |
 | `PRODUCT.md` | Founder's product philosophy, mission, non-goals |
 | `docs/VISION.md` | Long-term direction and product pillars |
 | `MANIFESTO.md` | Widest-lens statement of why Baseline exists (multi-role, multi-city end state) |

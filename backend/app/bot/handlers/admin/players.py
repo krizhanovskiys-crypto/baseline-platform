@@ -135,7 +135,7 @@ async def _show_details(message: Message, session: AsyncSession, lang: str, play
 
     await message.answer(
         _format_details(player, lang),
-        reply_markup=player_details_keyboard(lang),
+        reply_markup=player_details_keyboard(lang, player.id, player.is_verified_coach),
         parse_mode="Markdown",
     )
 
@@ -254,5 +254,47 @@ async def players_open_details(callback: CallbackQuery, session: AsyncSession) -
 
     player_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
     lang = await lang_for(session, callback.from_user.id)
+    await _show_details(callback.message, session, lang, player_id)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+# ---------------------------------------------------------------------------
+# Coach Verification (Sprint 12) — Player Details' first Actions-layer
+# action. Coach is a Player Badge, not a separate entity: this only ever
+# flips Player.is_verified_coach through PlayersService.
+# ---------------------------------------------------------------------------
+
+@router.callback_query(F.data.regexp(r"^players:verify_coach:\d+$"))
+async def players_verify_coach(callback: CallbackQuery, session: AsyncSession) -> None:
+    if not callback.from_user or not await authorized_role(session, callback.from_user.id):
+        return
+
+    player_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
+    lang = await lang_for(session, callback.from_user.id)
+    player = await PlayersService(session).set_verified_coach(player_id, True)
+    if player is None:
+        await callback.answer()
+        return
+    await callback.message.answer(  # type: ignore[union-attr]
+        t("players_coach_verified", lang, name=_md(player.first_name)), parse_mode="Markdown"
+    )
+    await _show_details(callback.message, session, lang, player_id)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+@router.callback_query(F.data.regexp(r"^players:revoke_coach:\d+$"))
+async def players_revoke_coach(callback: CallbackQuery, session: AsyncSession) -> None:
+    if not callback.from_user or not await authorized_role(session, callback.from_user.id):
+        return
+
+    player_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
+    lang = await lang_for(session, callback.from_user.id)
+    player = await PlayersService(session).set_verified_coach(player_id, False)
+    if player is None:
+        await callback.answer()
+        return
+    await callback.message.answer(  # type: ignore[union-attr]
+        t("players_coach_revoked", lang, name=_md(player.first_name)), parse_mode="Markdown"
+    )
     await _show_details(callback.message, session, lang, player_id)  # type: ignore[arg-type]
     await callback.answer()

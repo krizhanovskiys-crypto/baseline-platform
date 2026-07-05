@@ -30,6 +30,11 @@ class Player(Base):
     available_now: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     available_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Badges — the first Player Badge (Sprint 12): a Coach is not a
+    # separate entity, just a verified flag on an existing Player,
+    # granted/revoked by an Admin from Player Details in Admin Center.
+    is_verified_coach: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
     # Stats
     rating: Mapped[float] = mapped_column(Float, default=1000.0, nullable=False)
     matches_played: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

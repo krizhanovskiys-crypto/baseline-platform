@@ -9,54 +9,80 @@ file is reset for the next sprint.
 
 ## Current Sprint
 
-Sprint 11 — Admin Center (`docs/BACKLOG.md` Epic 1)
+Sprint 11.1 — Tournament Stabilization Phase 1, a bug-fixing pass on
+top of the still-uncommitted Sprint 12 — Tournament Platform v1 (Phase
+1) below. Sprint 11 (Admin Center, Match Discovery Refactor Phase 1) is
+complete, committed, and pushed (`b0daea6`).
 
-## Completed
+## Completed — Sprint 11.1 (Tournament Stabilization Phase 1)
 
-- Phase 2.1 — Auth foundation: `OperatorPermission`, `PermissionService`,
-  `AdminSessionService` (PIN, 30-minute session, 3-strike/10-minute
-  lockout, audit log), hidden `/dev` + `/exit_admin`
-- `handlers/admin/` package structure rule (`common.py`, `auth.py`, one
-  file per module) — mandatory for all future modules
-- Phase 2.2 — Dashboard: live Environment/Version/Uptime + Users/Active
-  Matches/Available Now/Courts stats, the permanent Admin Center root
-- Phase 3.0 — Players module: Search Player, Browse Players (20/page),
-  Player Details — reference implementation for the Search/Browse/
-  Details/Actions module shape
-- Bugfix: unescaped `first_name`/`username` crashed Player Details
-  (`TelegramBadRequest`) — fixed with aiogram's own
-  `markdown_decoration.quote()`
-- Decision recorded: all user-entered text must be escaped for its
-  `parse_mode` before display, project-wide
-- UX polish: Player Details shows spoken Languages, not interface
-  language (no operational value for an admin)
-- `docs/ai/` AI Context Rebuild workflow — `PROJECT_STATE.md`,
-  `CTO_MEMORY.md`, `ACTIVE_SPRINT.md`, `AI_HANDOFF.md`, `PROMPT_START.md`,
-  Repository Reality Check (Step 0), CTO Review (Step 3)
-- Phase 3.1A — Empty State → Invite a Friend: every player-discovery
-  empty state (Find Partner, Find Players for a Match) now offers a
-  working "➕ Invite a Friend" Telegram share/deep-link button instead of
-  a dead end; consolidated three near-duplicate empty-state text keys
-  into one shared `player_discovery_no_results`
-- Phase 3.1A follow-up: deep-link payload now carries the inviting
-  player's telegram_id (`?start=invite_{telegram_id}`, format only — not
-  parsed or acted on yet); empty-state copy updated to the approved
-  wording ("🎾 Know someone who'd like to play?")
-- Architecture Analysis (no code changed): traced all 6 player-discovery
-  flows Entry→Service→Repository→Filter→Model; found the discovery
-  *queries* were already Match Context–correct, and the actual
-  player-profile dependency was one layer upstream, in Organize Match's
-  creation wizard (`game.area` silently set from `player.home_area`,
-  Court step scoped only to `player.preferred_courts`)
-- **Match Discovery Refactor Phase 1** — Organize Match gained a
-  mandatory Area step (default = organizer's home area, always
-  changeable via the full Tennis Zone list); `game.area` now reflects
-  that explicit choice, never silently the organizer's home_area. Court
-  step shows one merged list per the chosen Area — favourite courts
-  starred and listed first, then the rest of that zone's Court
-  Registry, no duplicated/separate list. `find_players_for_match()`,
-  `find_partners()`, and all repository/service discovery logic left
-  untouched, per the approved Phase 1 scope.
+- **Task 1 (Verified Coach couldn't create tournaments)** — found to be
+  environmental, not a code bug: TECH-010's schema drift left the dev
+  database missing `players.is_verified_coach`. Confirmed via a
+  controlled test against a correctly-migrated schema that
+  `/dev` routing, `can_create_tournament()`, and `tourn_create_start`
+  are all already correct for a genuine Coach-only account. No
+  permission architecture changed.
+- **Task 2 (Registration Deadline didn't auto-close)** — real bug:
+  `admin/tournaments.py`'s own Details screen never called
+  `check_and_auto_close()`, only the player-facing one did. Fixed by
+  wiring the same lazy check into the Admin/Coach Details screen.
+- **Task 3 (Registration Closed notification)** — fixed as a direct
+  consequence of Task 2's fix; every other close trigger already
+  notified correctly. No notification logic redesigned.
+- 4 new regression tests (`tests/test_tournament_stabilization.py`):
+  Verified Coach can create / Regular Player cannot (both through the
+  real handlers, not just the service check), auto-close+notify via
+  Admin Details, manual-close notifies every registrant exactly once.
+
+## Completed — Sprint 12 (Tournament Platform v1, Phase 1)
+
+- **Phase 1 — Tournament Platform v1**: `Tournament`/`TournamentPlayer`
+  entities; tournament matches are ordinary `Game` rows
+  (`Game.tournament_id`, nullable FK) — no new match or invitation
+  system
+- Registration lifecycle (DRAFT → REGISTRATION_OPEN →
+  REGISTRATION_CLOSED → IN_PROGRESS → COMPLETED/CANCELLED), strictly
+  forward, mirroring `MatchLifecycleService`'s own pattern
+  (`TournamentLifecycleService`)
+- Registration auto-closes on whichever comes first: deadline reached,
+  `max_players` reached, or manual Admin action — all three funnel
+  through one `close_registration()` + the shared Registration Closed
+  Notification helper
+- Generate Matches: shuffles registered players, requires an even
+  count (odd → user-friendly error, no byes), only allowed once
+  REGISTRATION_CLOSED, idempotent (checks for existing tournament
+  Games first), auto-transitions the tournament to IN_PROGRESS on
+  success
+- `Player.is_verified_coach` — the first Player Badge, not a separate
+  entity — granted/revoked from the existing Player Details screen
+  (its first real Actions-layer action)
+- Two deliberately separate centralized permission methods:
+  `can_create_tournament()` (blanket — Center access/Create/Browse) and
+  `can_manage_tournament(telegram_id, organizer_player_id)`
+  (ownership-aware — Admin manages any tournament, Verified Coach only
+  ones they organized). A Coach viewing a tournament they don't own
+  sees Details with no action buttons
+- Every generated match's Game always belongs to the Tournament
+  Organizer (`GameService.create_game()` gained `auto_join_creator`)
+- Tournament creation/management lives only under `/dev`, never the
+  Main Menu: Admin gets the full Admin Center via PIN ("🏆
+  Tournaments"); Verified Coach gets a narrower Tournament Center with
+  no PIN ("🏆 My Tournaments") and no access to Players/Testing/System
+- Player-facing Browse/Details/Register/Withdraw reachable from a new
+  Main Menu "🏆 Tournaments" button (browsing/registering only — never
+  creation)
+- Browse ordering: grouped by status (DRAFT → REGISTRATION_OPEN →
+  REGISTRATION_CLOSED → IN_PROGRESS → COMPLETED → CANCELLED), then by
+  date within each group — sorting only, no status ever filtered out
+- Bugfixes caught during self-review and final release verification:
+  tournament names and player first_names are free text and were being
+  rendered unescaped in several Markdown screens — fixed with the same
+  `markdown_decoration.quote()` rule already established elsewhere;
+  removed 2 dead-code methods with zero call sites
+  (`cancel_tournament()`, `get_registered_player_ids()`); confirmed
+  zero Alembic drift and that every callback is reachable and every
+  handler is registered
 
 ## In Progress
 
@@ -68,10 +94,8 @@ Nothing currently blocked.
 
 ## Next
 
-**Sprint 11 — Match Discovery Refactor Phase 2** (repository
-consolidation of `find_partners`/`find_players_for_match` — optional,
-pure refactor, lower priority than Phase 1 was; no Strategy pattern).
-
-Still undecided, to surface at the next Context Rebuild rather than
-assume: whether the Players module Actions layer (suspend/reinstate —
-`docs/BACKLOG.md` Epic 1 Phase 1) happens before or after Phase 2.
+**Sprint 12 — Tournament Platform v1, Phase 2** (Round Robin format,
+Score Entry, Standings — per `docs/BACKLOG.md` Epic 2), or returning to
+Sprint 11's Match Discovery Refactor Phase 2 (repository consolidation)
+/ Players Actions layer (suspend/reinstate) — not yet decided, surface
+at the next Context Rebuild.

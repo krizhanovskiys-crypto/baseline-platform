@@ -78,6 +78,36 @@ class AdminPlayersStates(StatesGroup):
     enter_search = State()
 
 
+class CreateTournamentStates(StatesGroup):
+    """Create/Edit Tournament wizard (Admin Center + Verified Coach's
+    Tournament Center) — mirrors OrganizeMatchStates' step shape."""
+
+    enter_name = State()
+    choose_area = State()
+    choose_court = State()
+    enter_custom_court = State()
+    enter_date = State()
+    enter_time = State()
+    enter_deadline = State()
+    enter_max_players = State()
+    confirm = State()
+
+
+class TournamentBrowseStates(StatesGroup):
+    """Player-facing Browse Tournaments — stores current_page in FSM
+    data, same pattern as AvailableMatchesStates/AdminPlayersStates."""
+
+    browsing = State()
+
+
+class AdminTournamentsStates(StatesGroup):
+    """Admin Center / Tournament Center — Browse Tournaments pagination
+    and the Add Player search prompt."""
+
+    browsing = State()
+    enter_add_player_search = State()
+
+
 class SettingsStates(StatesGroup):
     """Settings / Edit Profile field-editing flow."""
 

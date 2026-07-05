@@ -23,6 +23,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_find_partner": "🔍 Find Partner",
         "btn_available_now": "🔥 I'm Available",
         "btn_my_matches": "📋 My Matches",
+        "btn_tournaments": "🏆 Tournaments",
         "btn_my_profile": "👤 My Profile",
         "btn_settings": "⚙️ Settings",
         # My Matches
@@ -404,12 +405,106 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "players_yes": "Yes",
         "players_no": "No",
+        "players_btn_verify_coach": "✅ Verify as Coach",
+        "players_btn_revoke_coach": "❌ Revoke Coach Verification",
+        "players_coach_verified": "✅ {name} is now a Verified Coach.",
+        "players_coach_revoked": "❌ Coach verification revoked for {name}.",
         "admin_pin_prompt": "🔒 Enter Admin PIN:",
         "admin_pin_wrong": "❌ Incorrect PIN. Try again:",
         "admin_locked_out": "🔒 Too many failed attempts. Admin login is locked for {minutes} more minute(s).",
         "admin_session_started": "✅ Admin session started.",
         "admin_session_active": "ℹ️ Admin session already active.",
         "admin_session_ended": "🚪 Admin session ended.",
+        # Tournament Platform v1 (Sprint 12, Phase 1)
+        "tournament_center_header": "🏆 *Tournament Center*",
+        "tournament_my_tournaments_header": "🏆 *My Tournaments*",
+        "tournament_status_draft": "📝 Draft",
+        "tournament_status_registration_open": "✅ Registration Open",
+        "tournament_status_registration_closed": "🔒 Registration Closed",
+        "tournament_status_in_progress": "🎾 In Progress",
+        "tournament_status_completed": "🏁 Completed",
+        "tournament_status_cancelled": "❌ Cancelled",
+        "tournament_btn_create": "➕ Create Tournament",
+        "tournament_btn_browse": "🏆 Browse Tournaments",
+        "tournament_btn_edit": "✏️ Edit",
+        "tournament_btn_open_registration": "✅ Open Registration",
+        "tournament_btn_close_registration": "🔒 Close Registration",
+        "tournament_btn_view_players": "👥 View Registered Players",
+        "tournament_btn_add_player": "➕ Add Player",
+        "tournament_btn_remove_player": "❌ Remove {name}",
+        "tournament_btn_generate_matches": "🎾 Generate Matches",
+        "tournament_btn_mark_completed": "🏁 Mark Completed",
+        "tournament_btn_delete": "🗑 Delete Tournament",
+        "tournament_btn_register": "✅ Register",
+        "tournament_btn_withdraw": "❌ Withdraw",
+        "tournament_btn_confirm_create": "✅ Create Tournament",
+        "tournament_enter_name": "🏆 Enter the tournament name:",
+        "tournament_choose_court": "📍 *Choose Court*",
+        "tournament_enter_court": "Enter the court name:\n\n_Example: High Park Bubble_",
+        "tournament_enter_date": "📅 Enter the start date (DD.MM.YYYY):",
+        "tournament_error_date": "❌ Invalid date. Use DD.MM.YYYY format.",
+        "tournament_enter_time": "🕒 Enter the start time (HH:MM):",
+        "tournament_error_time": "❌ Invalid time. Use HH:MM format.",
+        "tournament_enter_deadline": "📅 Enter the registration deadline (DD.MM.YYYY):",
+        "tournament_error_deadline": "❌ Invalid date, or the deadline is after the start date.",
+        "tournament_enter_max_players": "👥 Enter the maximum number of players (an even number):",
+        "tournament_error_max_players": "❌ Enter a positive even number.",
+        "tournament_confirm": (
+            "✅ *Confirm Tournament*\n\n"
+            "🏆 {name}\n"
+            "📍 {area} — {court}\n"
+            "📅 Starts {start_date}, {start_time}\n"
+            "📅 Registration deadline: {deadline}\n"
+            "👥 Max players: {max_players}\n\n"
+            "Create tournament?"
+        ),
+        "tournament_created": "✅ *Tournament created.* It stays in Draft until you open registration.",
+        "tournament_no_permission": "This action isn't available to you.",
+        "tournament_details_admin": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 Starts {start_date}, {start_time}\n"
+            "📅 Registration deadline: {deadline}\n"
+            "👥 {registered}/{max_players} registered\n"
+            "📊 Status: {status}"
+        ),
+        "tournament_details_player": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 {start_date}, {start_time}\n"
+            "👥 {registered}/{max_players} registered\n\n"
+            "{registration_note}"
+        ),
+        "tournament_registration_open_note": "Registration is open until {deadline}.",
+        "tournament_registration_closed_note": "Registration is closed.",
+        "tournament_browse_header": "🏆 *Tournaments* ({total})",
+        "tournament_browse_empty": "😔 No tournaments yet.",
+        "tournament_players_header": "👥 *Registered Players* ({count})",
+        "tournament_players_empty": "😔 No players registered yet.",
+        "tournament_player_row": "{index}. {name}",
+        "tournament_register_success": "✅ You're registered for *{name}*!",
+        "tournament_register_already": "You're already registered for this tournament.",
+        "tournament_register_closed": "Registration for this tournament isn't open.",
+        "tournament_withdraw_success": "You've withdrawn from *{name}*.",
+        "tournament_withdraw_failed": "You can't withdraw from this tournament right now.",
+        "tournament_registration_closed_notification": (
+            "🎾 You're officially registered!\n\n"
+            "Tournament:\n{name}\n\n"
+            "📅 {date}\n\n"
+            "🕗 {time}\n\n"
+            "📍 {court}\n\n"
+            "We look forward to seeing you!\n\n"
+            "Good luck and have fun! 🎾"
+        ),
+        "tournament_generate_success": "✅ Matches generated. Tournament is now In Progress.",
+        "tournament_generate_wrong_status": "❌ Matches can only be generated once registration is closed.",
+        "tournament_generate_odd_players": "❌ The number of registered players must be even and greater than zero. Add or remove a player and try again.",
+        "tournament_generate_already_done": "❌ Matches have already been generated for this tournament.",
+        "tournament_deleted": "🗑 Tournament deleted.",
+        "tournament_add_player_prompt": "Enter the player's name, username, or Telegram ID:",
+        "tournament_add_player_success": "✅ {name} added to the tournament.",
+        "tournament_add_player_not_registered": "❌ Could not add this player (already registered, or registration isn't open).",
+        "tournament_remove_player_success": "✅ {name} removed from the tournament.",
     },
     "uk": {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
@@ -428,6 +523,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_find_partner": "🔍 Знайти партнера",
         "btn_available_now": "🔥 Я готовий(-а) грати",
         "btn_my_matches": "📋 Мої матчі",
+        "btn_tournaments": "🏆 Турніри",
         "btn_my_profile": "👤 Мій профіль",
         "btn_settings": "⚙️ Налаштування",
         # My Matches
@@ -796,12 +892,106 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "players_yes": "Так",
         "players_no": "Ні",
+        "players_btn_verify_coach": "✅ Підтвердити як тренера",
+        "players_btn_revoke_coach": "❌ Скасувати підтвердження тренера",
+        "players_coach_verified": "✅ {name} тепер підтверджений тренер.",
+        "players_coach_revoked": "❌ Підтвердження тренера скасовано для {name}.",
         "admin_pin_prompt": "🔒 Введіть Admin PIN:",
         "admin_pin_wrong": "❌ Невірний PIN. Спробуйте ще раз:",
         "admin_locked_out": "🔒 Забагато невдалих спроб. Вхід в Адмін-центр заблоковано ще на {minutes} хв.",
         "admin_session_started": "✅ Адмін-сесію розпочато.",
         "admin_session_active": "ℹ️ Адмін-сесія вже активна.",
         "admin_session_ended": "🚪 Адмін-сесію завершено.",
+        # Tournament Platform v1 (Sprint 12, Phase 1)
+        "tournament_center_header": "🏆 *Центр турнірів*",
+        "tournament_my_tournaments_header": "🏆 *Мої турніри*",
+        "tournament_status_draft": "📝 Чернетка",
+        "tournament_status_registration_open": "✅ Реєстрація відкрита",
+        "tournament_status_registration_closed": "🔒 Реєстрація закрита",
+        "tournament_status_in_progress": "🎾 Триває",
+        "tournament_status_completed": "🏁 Завершено",
+        "tournament_status_cancelled": "❌ Скасовано",
+        "tournament_btn_create": "➕ Створити турнір",
+        "tournament_btn_browse": "🏆 Турніри",
+        "tournament_btn_edit": "✏️ Редагувати",
+        "tournament_btn_open_registration": "✅ Відкрити реєстрацію",
+        "tournament_btn_close_registration": "🔒 Закрити реєстрацію",
+        "tournament_btn_view_players": "👥 Зареєстровані гравці",
+        "tournament_btn_add_player": "➕ Додати гравця",
+        "tournament_btn_remove_player": "❌ Прибрати {name}",
+        "tournament_btn_generate_matches": "🎾 Сформувати матчі",
+        "tournament_btn_mark_completed": "🏁 Позначити завершеним",
+        "tournament_btn_delete": "🗑 Видалити турнір",
+        "tournament_btn_register": "✅ Зареєструватися",
+        "tournament_btn_withdraw": "❌ Скасувати участь",
+        "tournament_btn_confirm_create": "✅ Створити турнір",
+        "tournament_enter_name": "🏆 Введіть назву турніру:",
+        "tournament_choose_court": "📍 *Оберіть корт*",
+        "tournament_enter_court": "Введіть назву корту:\n\n_Наприклад: High Park Bubble_",
+        "tournament_enter_date": "📅 Введіть дату початку (ДД.ММ.РРРР):",
+        "tournament_error_date": "❌ Невірна дата. Використайте формат ДД.ММ.РРРР.",
+        "tournament_enter_time": "🕒 Введіть час початку (ГГ:ХХ):",
+        "tournament_error_time": "❌ Невірний час. Використайте формат ГГ:ХХ.",
+        "tournament_enter_deadline": "📅 Введіть дедлайн реєстрації (ДД.ММ.РРРР):",
+        "tournament_error_deadline": "❌ Невірна дата, або дедлайн пізніше дати початку.",
+        "tournament_enter_max_players": "👥 Введіть максимальну кількість гравців (парне число):",
+        "tournament_error_max_players": "❌ Введіть додатне парне число.",
+        "tournament_confirm": (
+            "✅ *Підтвердити турнір*\n\n"
+            "🏆 {name}\n"
+            "📍 {area} — {court}\n"
+            "📅 Початок {start_date}, {start_time}\n"
+            "📅 Дедлайн реєстрації: {deadline}\n"
+            "👥 Макс. гравців: {max_players}\n\n"
+            "Створити турнір?"
+        ),
+        "tournament_created": "✅ *Турнір створено.* Він залишається у чернетці, доки ви не відкриєте реєстрацію.",
+        "tournament_no_permission": "Ця дія вам недоступна.",
+        "tournament_details_admin": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 Початок {start_date}, {start_time}\n"
+            "📅 Дедлайн реєстрації: {deadline}\n"
+            "👥 {registered}/{max_players} зареєстровано\n"
+            "📊 Статус: {status}"
+        ),
+        "tournament_details_player": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 {start_date}, {start_time}\n"
+            "👥 {registered}/{max_players} зареєстровано\n\n"
+            "{registration_note}"
+        ),
+        "tournament_registration_open_note": "Реєстрація відкрита до {deadline}.",
+        "tournament_registration_closed_note": "Реєстрацію закрито.",
+        "tournament_browse_header": "🏆 *Турніри* ({total})",
+        "tournament_browse_empty": "😔 Турнірів поки немає.",
+        "tournament_players_header": "👥 *Зареєстровані гравці* ({count})",
+        "tournament_players_empty": "😔 Ще ніхто не зареєструвався.",
+        "tournament_player_row": "{index}. {name}",
+        "tournament_register_success": "✅ Вас зареєстровано на *{name}*!",
+        "tournament_register_already": "Ви вже зареєстровані на цей турнір.",
+        "tournament_register_closed": "Реєстрація на цей турнір не відкрита.",
+        "tournament_withdraw_success": "Ви скасували участь у *{name}*.",
+        "tournament_withdraw_failed": "Зараз ви не можете скасувати участь у цьому турнірі.",
+        "tournament_registration_closed_notification": (
+            "🎾 Вас офіційно зареєстровано!\n\n"
+            "Турнір:\n{name}\n\n"
+            "📅 {date}\n\n"
+            "🕗 {time}\n\n"
+            "📍 {court}\n\n"
+            "Чекаємо на вас!\n\n"
+            "Удачі та гарної гри! 🎾"
+        ),
+        "tournament_generate_success": "✅ Матчі сформовано. Турнір тепер триває.",
+        "tournament_generate_wrong_status": "❌ Матчі можна сформувати лише після закриття реєстрації.",
+        "tournament_generate_odd_players": "❌ Кількість зареєстрованих гравців має бути парною і більшою за нуль. Додайте або приберіть гравця та спробуйте ще раз.",
+        "tournament_generate_already_done": "❌ Матчі для цього турніру вже сформовано.",
+        "tournament_deleted": "🗑 Турнір видалено.",
+        "tournament_add_player_prompt": "Введіть ім'я, юзернейм або Telegram ID гравця:",
+        "tournament_add_player_success": "✅ {name} додано до турніру.",
+        "tournament_add_player_not_registered": "❌ Не вдалося додати цього гравця (вже зареєстрований, або реєстрація не відкрита).",
+        "tournament_remove_player_success": "✅ {name} прибрано з турніру.",
     },
     "ru": {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
@@ -820,6 +1010,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "btn_find_partner": "🔍 Найти партнёра",
         "btn_available_now": "🔥 Я готов(а) играть",
         "btn_my_matches": "📋 Мои матчи",
+        "btn_tournaments": "🏆 Турниры",
         "btn_my_profile": "👤 Мой профиль",
         "btn_settings": "⚙️ Настройки",
         # My Matches
@@ -1188,12 +1379,106 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "players_yes": "Да",
         "players_no": "Нет",
+        "players_btn_verify_coach": "✅ Подтвердить как тренера",
+        "players_btn_revoke_coach": "❌ Отменить подтверждение тренера",
+        "players_coach_verified": "✅ {name} теперь подтверждённый тренер.",
+        "players_coach_revoked": "❌ Подтверждение тренера отменено для {name}.",
         "admin_pin_prompt": "🔒 Введите Admin PIN:",
         "admin_pin_wrong": "❌ Неверный PIN. Попробуйте ещё раз:",
         "admin_locked_out": "🔒 Слишком много неудачных попыток. Вход в Админ-центр заблокирован ещё на {minutes} мин.",
         "admin_session_started": "✅ Админ-сессия начата.",
         "admin_session_active": "ℹ️ Админ-сессия уже активна.",
         "admin_session_ended": "🚪 Админ-сессия завершена.",
+        # Tournament Platform v1 (Sprint 12, Phase 1)
+        "tournament_center_header": "🏆 *Центр турниров*",
+        "tournament_my_tournaments_header": "🏆 *Мои турниры*",
+        "tournament_status_draft": "📝 Черновик",
+        "tournament_status_registration_open": "✅ Регистрация открыта",
+        "tournament_status_registration_closed": "🔒 Регистрация закрыта",
+        "tournament_status_in_progress": "🎾 Идёт",
+        "tournament_status_completed": "🏁 Завершён",
+        "tournament_status_cancelled": "❌ Отменён",
+        "tournament_btn_create": "➕ Создать турнир",
+        "tournament_btn_browse": "🏆 Турниры",
+        "tournament_btn_edit": "✏️ Редактировать",
+        "tournament_btn_open_registration": "✅ Открыть регистрацию",
+        "tournament_btn_close_registration": "🔒 Закрыть регистрацию",
+        "tournament_btn_view_players": "👥 Зарегистрированные игроки",
+        "tournament_btn_add_player": "➕ Добавить игрока",
+        "tournament_btn_remove_player": "❌ Убрать {name}",
+        "tournament_btn_generate_matches": "🎾 Сформировать матчи",
+        "tournament_btn_mark_completed": "🏁 Отметить завершённым",
+        "tournament_btn_delete": "🗑 Удалить турнир",
+        "tournament_btn_register": "✅ Зарегистрироваться",
+        "tournament_btn_withdraw": "❌ Отменить участие",
+        "tournament_btn_confirm_create": "✅ Создать турнир",
+        "tournament_enter_name": "🏆 Введите название турнира:",
+        "tournament_choose_court": "📍 *Выберите корт*",
+        "tournament_enter_court": "Введите название корта:\n\n_Например: High Park Bubble_",
+        "tournament_enter_date": "📅 Введите дату начала (ДД.ММ.ГГГГ):",
+        "tournament_error_date": "❌ Неверная дата. Используйте формат ДД.ММ.ГГГГ.",
+        "tournament_enter_time": "🕒 Введите время начала (ЧЧ:ММ):",
+        "tournament_error_time": "❌ Неверное время. Используйте формат ЧЧ:ММ.",
+        "tournament_enter_deadline": "📅 Введите дедлайн регистрации (ДД.ММ.ГГГГ):",
+        "tournament_error_deadline": "❌ Неверная дата, или дедлайн позже даты начала.",
+        "tournament_enter_max_players": "👥 Введите максимальное количество игроков (чётное число):",
+        "tournament_error_max_players": "❌ Введите положительное чётное число.",
+        "tournament_confirm": (
+            "✅ *Подтвердить турнир*\n\n"
+            "🏆 {name}\n"
+            "📍 {area} — {court}\n"
+            "📅 Начало {start_date}, {start_time}\n"
+            "📅 Дедлайн регистрации: {deadline}\n"
+            "👥 Макс. игроков: {max_players}\n\n"
+            "Создать турнир?"
+        ),
+        "tournament_created": "✅ *Турнир создан.* Он остаётся в черновике, пока вы не откроете регистрацию.",
+        "tournament_no_permission": "Это действие вам недоступно.",
+        "tournament_details_admin": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 Начало {start_date}, {start_time}\n"
+            "📅 Дедлайн регистрации: {deadline}\n"
+            "👥 {registered}/{max_players} зарегистрировано\n"
+            "📊 Статус: {status}"
+        ),
+        "tournament_details_player": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "📅 {start_date}, {start_time}\n"
+            "👥 {registered}/{max_players} зарегистрировано\n\n"
+            "{registration_note}"
+        ),
+        "tournament_registration_open_note": "Регистрация открыта до {deadline}.",
+        "tournament_registration_closed_note": "Регистрация закрыта.",
+        "tournament_browse_header": "🏆 *Турниры* ({total})",
+        "tournament_browse_empty": "😔 Турниров пока нет.",
+        "tournament_players_header": "👥 *Зарегистрированные игроки* ({count})",
+        "tournament_players_empty": "😔 Пока никто не зарегистрировался.",
+        "tournament_player_row": "{index}. {name}",
+        "tournament_register_success": "✅ Вы зарегистрированы на *{name}*!",
+        "tournament_register_already": "Вы уже зарегистрированы на этот турнир.",
+        "tournament_register_closed": "Регистрация на этот турнир не открыта.",
+        "tournament_withdraw_success": "Вы отменили участие в *{name}*.",
+        "tournament_withdraw_failed": "Сейчас вы не можете отменить участие в этом турнире.",
+        "tournament_registration_closed_notification": (
+            "🎾 Вы официально зарегистрированы!\n\n"
+            "Турнир:\n{name}\n\n"
+            "📅 {date}\n\n"
+            "🕗 {time}\n\n"
+            "📍 {court}\n\n"
+            "Ждём вас!\n\n"
+            "Удачи и хорошей игры! 🎾"
+        ),
+        "tournament_generate_success": "✅ Матчи сформированы. Турнир теперь идёт.",
+        "tournament_generate_wrong_status": "❌ Матчи можно сформировать только после закрытия регистрации.",
+        "tournament_generate_odd_players": "❌ Количество зарегистрированных игроков должно быть чётным и больше нуля. Добавьте или уберите игрока и попробуйте снова.",
+        "tournament_generate_already_done": "❌ Матчи для этого турнира уже сформированы.",
+        "tournament_deleted": "🗑 Турнир удалён.",
+        "tournament_add_player_prompt": "Введите имя, юзернейм или Telegram ID игрока:",
+        "tournament_add_player_success": "✅ {name} добавлен(а) в турнир.",
+        "tournament_add_player_not_registered": "❌ Не удалось добавить этого игрока (уже зарегистрирован, или регистрация не открыта).",
+        "tournament_remove_player_success": "✅ {name} убран(а) из турнира.",
     },
 }
 

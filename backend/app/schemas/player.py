@@ -45,5 +45,6 @@ class PlayerRead(BaseModel):
     rating: float
     matches_played: int
     is_profile_complete: bool
+    is_verified_coach: bool = False
     created_at: datetime
     updated_at: datetime

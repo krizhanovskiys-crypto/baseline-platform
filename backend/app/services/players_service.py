@@ -48,3 +48,8 @@ class PlayersService:
 
         players = await self._repo.search_by_name_or_username(query.lstrip("@"))
         return [_player_to_schema(p) for p in players]
+
+    async def set_verified_coach(self, player_id: int, value: bool) -> PlayerRead | None:
+        """Grant (True) or revoke (False) the Verified Coach badge."""
+        await self._repo.set_verified_coach(player_id, value)
+        return await self.get_by_id(player_id)

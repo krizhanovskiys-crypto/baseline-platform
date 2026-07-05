@@ -15,6 +15,23 @@ scope.
 
 ---
 
+## v0.12.0
+
+Tournament Platform v1
+
+### Highlights
+
+* Tournament entity
+* Registration
+* Verified Coach
+* Tournament Center
+* Registration notifications
+* Generate Matches
+* Ownership model
+* Coach permissions
+
+---
+
 ## Sprint 10.4 — Environment Separation & UX Polish
 
 ### New

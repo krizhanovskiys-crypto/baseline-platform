@@ -94,6 +94,13 @@ class PlayerRepository(BaseRepository[Player]):
         await self._session.execute(stmt)
         await self._session.flush()
 
+    async def set_verified_coach(self, player_id: int, value: bool) -> None:
+        """Grant/revoke the Verified Coach badge (Admin Center Player
+        Details Action, Sprint 12)."""
+        stmt = update(Player).where(Player.id == player_id).values(is_verified_coach=value)
+        await self._session.execute(stmt)
+        await self._session.flush()
+
     async def count_all(self) -> int:
         """Total registered players — used by Admin Center's Players module."""
         result = await self._session.execute(select(func.count()).select_from(Player))
