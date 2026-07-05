@@ -62,6 +62,20 @@ occurs, until that's done.
 ### 1. Verify (read-only, safe to run anytime, changes nothing)
 
 ```bash
+python scripts/schema_recovery.py --verify
+```
+
+`--db-path` is optional — the tool auto-detects the target file from
+`DATABASE_URL` (checked in the real environment first, then the
+project's `.env`/`.env.dev`/`.env.production`, the same way the
+application itself resolves it), so this exact command works unchanged
+on a laptop and on the server. It prints which path it detected and
+where it came from. Only a file-based SQLite URL can be auto-detected;
+if it can't determine one, it says so and asks for `--db-path`
+explicitly rather than guessing — pass it yourself to target a specific
+file:
+
+```bash
 python scripts/schema_recovery.py --db-path /path/to/production.db --verify
 ```
 
@@ -83,10 +97,11 @@ before anything is written.
 ### 2. Repair (writes to the target database)
 
 ```bash
-python scripts/schema_recovery.py --db-path /path/to/production.db --repair
+python scripts/schema_recovery.py --repair
 ```
 
-Refuses immediately if any `TYPE MISMATCH` is present. Otherwise:
+Same auto-detection as `--verify`. Refuses immediately if any
+`TYPE MISMATCH` is present. Otherwise:
 
 1. Copies the target file to `<path>.backup-<UTC timestamp>` —
    mandatory, always, before anything else.

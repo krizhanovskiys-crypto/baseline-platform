@@ -17,6 +17,19 @@ This tool contains no Baseline business logic: it never imports
 `backend.app`. It only introspects SQLite schema (stdlib `sqlite3`)
 and shells out to the real `alembic` CLI to build the shadow database.
 
+`--db-path` is optional. When omitted, the target database is
+auto-detected from `DATABASE_URL` — checked in the real process
+environment first, then in the project's dotenv file (`.env`,
+`.env.dev`, or `.env.production`, selected by the `ENV` variable the
+same way `backend.app.core.config` picks one — that selection logic is
+duplicated here in a few lines, not imported, to keep this tool fully
+independent). Only a file-based SQLite URL can be auto-detected; if
+`DATABASE_URL` points elsewhere, or can't be found at all, the tool
+says so and asks for `--db-path` explicitly rather than guessing. This
+means the same command works unchanged on a laptop and on the server:
+
+    python scripts/schema_recovery.py --verify
+
 Modes (mutually exclusive, exactly one required):
 
     --verify   Read-only. Builds the shadow schema, diffs it against
@@ -38,8 +51,11 @@ different type/nullability, this is reported but never auto-repaired —
 that is not a purely additive change and requires human judgement.
 
 Usage:
+    python scripts/schema_recovery.py --verify
+    python scripts/schema_recovery.py --repair
+
+    # or, to target a specific file explicitly:
     python scripts/schema_recovery.py --db-path ./baseline.db --verify
-    python scripts/schema_recovery.py --db-path ./baseline.db --repair
 """
 import argparse
 import os
@@ -55,6 +71,16 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 _IGNORED_TABLES = {"sqlite_sequence", "alembic_version"}
+
+# Mirrors backend.app.core.config._resolve_env_file()'s own ENV -> file
+# mapping exactly, duplicated here (not imported) to keep this tool
+# fully independent of backend.app.
+_ENV_FILE_BY_ENV = {
+    "development": ".env.dev",
+    "dev": ".env.dev",
+    "production": ".env.production",
+    "prod": ".env.production",
+}
 
 
 @dataclass
@@ -301,24 +327,114 @@ def repair(db_path: Path) -> None:
     )
 
 
+def _resolve_env_file() -> Path:
+    """Which dotenv file to read DATABASE_URL from, if it's not already
+    in the real process environment — same ENV-based selection
+    backend.app.core.config uses, duplicated rather than imported."""
+    env = os.environ.get("ENV", "").strip().lower()
+    candidate = _ENV_FILE_BY_ENV.get(env)
+    if candidate and (REPO_ROOT / candidate).is_file():
+        return REPO_ROOT / candidate
+    return REPO_ROOT / ".env"
+
+
+def _read_database_url_from_dotenv(env_file: Path) -> str | None:
+    if not env_file.is_file():
+        return None
+    for line in env_file.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        if key.strip().upper() == "DATABASE_URL":
+            return value.strip().strip('"').strip("'")
+    return None
+
+
+def _sqlite_path_from_url(database_url: str) -> Path | None:
+    """Extract the file path from a sqlite[+driver]:///<path> URL.
+    Returns None for :memory: or any non-sqlite URL — this tool cannot
+    auto-detect a target in either case."""
+    if "sqlite" not in database_url:
+        return None
+    _, _, path_part = database_url.partition(":///")
+    if not path_part or path_part == ":memory:":
+        return None
+    path = Path(path_part)
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    return path
+
+
+def _resolve_db_path(explicit: Path | None) -> Path:
+    """--db-path always wins if given. Otherwise, auto-detect from
+    DATABASE_URL: the real environment first (matching
+    pydantic-settings' own precedence — real env vars override the
+    dotenv file), then the ENV-selected dotenv file. Only ever used for
+    a file-based SQLite target; anything else asks for --db-path
+    explicitly rather than guessing."""
+    if explicit is not None:
+        return explicit
+
+    database_url = os.environ.get("DATABASE_URL")
+    source = "the DATABASE_URL environment variable"
+    if not database_url:
+        env_file = _resolve_env_file()
+        database_url = _read_database_url_from_dotenv(env_file)
+        source = f"DATABASE_URL in {env_file}"
+
+    if not database_url:
+        print(
+            "FATAL: --db-path was not given, and no DATABASE_URL could be "
+            "found (checked the environment, then .env/.env.dev/"
+            ".env.production per the ENV variable). Pass --db-path explicitly.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
+    db_path = _sqlite_path_from_url(database_url)
+    if db_path is None:
+        print(
+            f"FATAL: found {source} = {database_url!r}, but this is not a "
+            "file-based SQLite URL this tool can locate automatically "
+            "(not sqlite, or :memory:). Pass --db-path explicitly.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
+    print(f"Auto-detected database path from {source}: {db_path}")
+    return db_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--db-path", required=True, type=Path, help="Path to the target SQLite database file.")
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=None,
+        help=(
+            "Path to the target SQLite database file. Optional — if omitted, "
+            "auto-detected from DATABASE_URL (the real environment, then the "
+            "project's .env file), the same way the application resolves it."
+        ),
+    )
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--verify", action="store_true", help="Read-only: print differences, write nothing.")
     mode.add_argument("--repair", action="store_true", help="Back up, then apply additive-only fixes.")
     args = parser.parse_args()
 
-    if not args.db_path.exists():
-        print(f"FATAL: {args.db_path} does not exist.", file=sys.stderr)
+    db_path = _resolve_db_path(args.db_path)
+
+    if not db_path.exists():
+        print(f"FATAL: {db_path} does not exist.", file=sys.stderr)
         sys.exit(2)
 
     if args.verify:
-        verify(args.db_path)
+        verify(db_path)
     else:
-        repair(args.db_path)
+        repair(db_path)
 
 
 if __name__ == "__main__":
