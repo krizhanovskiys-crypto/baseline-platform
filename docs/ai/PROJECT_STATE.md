@@ -29,11 +29,11 @@ Presenter), on top of Sprint 12.2 — Coach UX Refactor (`d1a0372`).
 
 ## Current Production Commit
 
-Sprint 12.3 committed locally, on top of `d1a0372` (Sprint 12.2 Coach
-UX Refactor), `a11f4c1` (Schema Recovery auto-detection), `350b935`
-(Schema Recovery tool), and `4359146` (Tournament Platform v1 + Sprint
-11.1 stabilization). **Not yet pushed** — `origin/master` is still at
-`d1a0372`.
+`4abb8e5` — Sprint 12.3 Player Platform Refactor, on top of `d1a0372`
+(Sprint 12.2 Coach UX Refactor), `a11f4c1` (Schema Recovery
+auto-detection), `350b935` (Schema Recovery tool), and `4359146`
+(Tournament Platform v1 + Sprint 11.1 stabilization). **Pushed** —
+`origin/master` and local `HEAD` match exactly.
 
 ## Latest Test Count
 
