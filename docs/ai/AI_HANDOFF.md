@@ -8,6 +8,56 @@ full standing picture.
 
 ---
 
+## Ops tooling — Schema Recovery (TECH-010 mitigation)
+
+**What changed:**
+- New `scripts/schema_recovery.py` — a permanent, standalone,
+  additive-only schema drift repair tool for TECH-010's symptom
+  (`create_all_tables()` creating new tables in production without
+  ever advancing `alembic_version`, and never altering existing
+  tables). Source of truth is the Alembic migration chain itself,
+  built fresh in a disposable temp database by actually running
+  `alembic upgrade head` there — never the ORM models, and never the
+  real target database until `--repair` is explicitly invoked.
+- Two modes: `--verify` (read-only, prints every difference) and
+  `--repair` (mandatory file backup, additive-only fixes only, refuses
+  to run if any non-additive `TYPE MISMATCH` is found, re-verifies
+  itself afterward, never writes `alembic_version` — that remains a
+  separate, official `alembic stamp head` run by a human).
+- Contains no Baseline business logic — never imports `backend.app`.
+- New `docs/operations/SCHEMA_RECOVERY.md` — the full standing
+  procedure (when to use it / when not to, verify → repair → stamp →
+  validate → rollback).
+- Verified end-to-end against a precise reproduction of the actual
+  reported production incident (exact column types via
+  `create_all_tables()`, one real data row) before being reported as
+  done: `--verify` found exactly the two known gaps and nothing else;
+  `--repair` fixed them, the FK came out correct, the data row survived
+  untouched, a second `--repair` run was a true no-op, and the backup
+  file opened independently with the data intact.
+- New `tests/test_schema_recovery.py` (2 tests) — the one remaining
+  automated case: `--verify`/`--repair` against an already-healthy
+  database both report nothing to do and exit 0, and `--repair` never
+  creates a backup file when there's nothing to repair.
+
+**Architecture changes:** None to Baseline itself. This tool is
+deliberately outside `backend/app/` and has no relationship to the
+application's runtime behavior.
+
+**New decisions:** None beyond what's recorded in this tool's own
+design (three rounds of CTO refinement: migration-chain-as-source-of-
+truth over ORM models; the `--verify`/`--repair` split; the final name).
+
+**Current blockers:** None. TECH-010 itself remains deferred — this
+tool treats its symptom safely and repeatably; it does not fix the
+underlying `create_all_tables()`-in-production mechanism.
+
+**Next priority:** Sprint 12 Tournament Platform v1 Phase 2, or
+Sprint 11's Match Discovery Refactor Phase 2 / Players Actions layer —
+not yet decided.
+
+---
+
 ## Sprint 11.1 — Tournament Stabilization, Phase 1
 
 **What changed:**

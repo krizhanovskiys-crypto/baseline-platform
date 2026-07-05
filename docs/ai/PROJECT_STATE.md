@@ -12,18 +12,19 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-05, end of Sprint 11.1 — Tournament
-Stabilization Phase 1 — pending commit/approval (bundled with the still-
-uncommitted Sprint 12 Tournament Platform v1 Phase 1 working tree).
+**Last updated:** 2026-07-05, end of the Schema Recovery ops-tooling
+addition — implemented and tested locally, not yet committed.
 
 ---
 
 ## Current Sprint
 
-Sprint 11.1 — Tournament Stabilization Phase 1 (bug-fixing pass on top
-of Sprint 12 — Tournament Platform v1, Phase 1, still uncommitted).
-Sprint 11 (Admin Center, Match Discovery Refactor Phase 1) is committed
-and pushed (`b0daea6`).
+No active feature sprint. Most recent committed work: Sprint 11.1 —
+Tournament Stabilization Phase 1, bundled into the same commit as
+Sprint 12 — Tournament Platform v1, Phase 1 (`4359146`). On top of
+that, uncommitted: a permanent Schema Recovery tool for TECH-010's
+symptom (`scripts/schema_recovery.py`, `docs/operations/
+SCHEMA_RECOVERY.md`).
 
 ## Current Branch
 
@@ -31,31 +32,30 @@ and pushed (`b0daea6`).
 
 ## Current Production Commit
 
-`b0daea66495bbc3f1d2a51afc680aaa17f189c88` (pushed to `origin/master`).
-Sprint 12 Phase 1 + Sprint 11.1's stabilization fixes are implemented
-and tested locally but **not yet committed** — awaiting approval.
+`43591467c93ae7c90d111601efcba00fb039e645` (short `4359146`) — Sprint 12
+Phase 1 + Sprint 11.1's stabilization fixes, committed locally.
+**Not yet pushed** to `origin/master` (last pushed commit is still
+`b0daea6`). The Schema Recovery tool is implemented and tested on top
+of this, **not yet committed**.
 
 ## Latest Test Count
 
-424 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-locally, on the uncommitted working tree. 396 passed at the last
-committed state (`b0daea6`).
+426 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+locally, on the uncommitted working tree (424 at the last committed
+state, `4359146`).
 
 ## Current Priority
 
-**Sprint 11.1 — Tournament Stabilization Phase 1** is complete and
-awaiting CTO approval to commit (bundled with Sprint 12 Phase 1, since
-neither has been committed yet). Next priority after that: Sprint 12
-Phase 2 (Round Robin format, Score Entry, Standings — per
+Schema Recovery tool is approved and ready to commit. After that: Sprint
+12 Phase 2 (Round Robin format, Score Entry, Standings — per
 `docs/BACKLOG.md` Epic 2), explicitly out of scope for both Phase 1s.
 
 ## Current Task
 
-None in progress. Two real bugs fixed (Registration Deadline auto-close
-+ its notification never firing on the Admin/Coach side) and one
-reported bug found to be environmental, not a code defect (Verified
-Coach tournament creation — see TECH-010). Implemented, tested, and
-awaiting commit approval.
+None in progress. Schema Recovery tool (`scripts/schema_recovery.py` +
+`docs/operations/SCHEMA_RECOVERY.md`) implemented, tested end-to-end
+against a precise reproduction of the reported production incident, and
+approved for commit.
 
 ## Next Task
 
