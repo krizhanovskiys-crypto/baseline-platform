@@ -28,7 +28,13 @@ class AnnouncementView:
 
 
 def build_announcement_view(lang: str, release: Release) -> AnnouncementView:
-    text = t("announcement_header", lang, version=display_version(release.version), title=release.title)
+    """The release's own title is deliberately never shown on either
+    screen — a sprint/internal release name isn't something a user
+    benefits from; what matters to them is what changed, not what the
+    team called it internally. Kept on the Release model itself for
+    documentation, admin tooling, or future features — just not
+    rendered here or on What's New below."""
+    text = t("announcement_header", lang, version=display_version(release.version))
     builder = InlineKeyboardBuilder()
     builder.button(text=t("announcement_btn_continue", lang), callback_data="announce:continue")
     builder.button(text=t("announcement_btn_whats_new", lang), callback_data="announce:whats_new")
@@ -37,7 +43,7 @@ def build_announcement_view(lang: str, release: Release) -> AnnouncementView:
 
 
 def build_whats_new_view(lang: str, release: Release) -> AnnouncementView:
-    header = t("whats_new_header", lang, version=display_version(release.version), title=release.title)
+    header = t("whats_new_header", lang, version=display_version(release.version))
     change_lines = [f"{c.emoji} {c.label}" for c in release.changes]
     text = "\n\n".join([header, *change_lines])
 

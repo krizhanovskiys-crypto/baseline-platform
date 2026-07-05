@@ -144,7 +144,9 @@ def test_announcement_view_renders_version_and_both_buttons(lang: str) -> None:
     view = build_announcement_view(lang, _TEST_RELEASE)
 
     assert display_version(_TEST_RELEASE.version) in view.text
-    assert _TEST_RELEASE.title in view.text
+    # The release title is deliberately not shown on this first screen
+    # (kept on the Release model, surfaced only on What's New below).
+    assert _TEST_RELEASE.title not in view.text
     callbacks = {btn.callback_data for row in view.keyboard.inline_keyboard for btn in row}
     assert callbacks == {"announce:continue", "announce:whats_new"}
 
@@ -154,7 +156,9 @@ def test_whats_new_view_renders_every_change_and_one_continue_button(lang: str) 
     view = build_whats_new_view(lang, _TEST_RELEASE)
 
     assert display_version(_TEST_RELEASE.version) in view.text
-    assert _TEST_RELEASE.title in view.text
+    # The release title is never shown to the user — not on this
+    # screen either — only what changed, not the internal release name.
+    assert _TEST_RELEASE.title not in view.text
     for change in _TEST_RELEASE.changes:
         assert change.emoji in view.text
         assert change.label in view.text
@@ -267,7 +271,7 @@ async def test_end_to_end_continue_flow_marks_seen_and_shows_main_menu(monkeypat
         # Any normal interaction — not /start — triggers the announcement.
         await _feed_text(dp, bot, _E2E_TG_ID_1, "👤 My Profile")
         texts = [getattr(m, "text", None) for m in captured]
-        assert any(t and "Baseline has been updated" in t for t in texts)
+        assert any(t and "Baseline updated" in t for t in texts)
         assert not any(t and "Your Profile" in t for t in texts)  # My Profile itself never ran
 
         # Press Continue.
