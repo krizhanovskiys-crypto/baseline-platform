@@ -12,16 +12,17 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-05, end of Sprint 12.3 — Player Platform
-Refactor — committed, not yet pushed.
+**Last updated:** 2026-07-05, end of Sprint 13.1 — Release
+Announcements — committed, not yet pushed.
 
 ---
 
 ## Current Sprint
 
-No active feature sprint. Most recent committed work: Sprint 12.3 —
-Player Platform Refactor (Universal Player Picker + Universal Player
-Presenter), on top of Sprint 12.2 — Coach UX Refactor (`d1a0372`).
+No active feature sprint. Most recent committed work: Sprint 13.1 —
+Release Announcements (an in-bot "what's new" screen shown once per
+version bump), on top of Sprint 12.3 — Player Platform Refactor
+(`4abb8e5`).
 
 ## Current Branch
 
@@ -29,37 +30,41 @@ Presenter), on top of Sprint 12.2 — Coach UX Refactor (`d1a0372`).
 
 ## Current Production Commit
 
-`4abb8e5` — Sprint 12.3 Player Platform Refactor, on top of `d1a0372`
-(Sprint 12.2 Coach UX Refactor), `a11f4c1` (Schema Recovery
-auto-detection), `350b935` (Schema Recovery tool), and `4359146`
-(Tournament Platform v1 + Sprint 11.1 stabilization). **Pushed** —
-`origin/master` and local `HEAD` match exactly.
+Sprint 13.1 committed locally, on top of `4abb8e5` (Sprint 12.3 Player
+Platform Refactor), `d1a0372` (Sprint 12.2 Coach UX Refactor),
+`a11f4c1` (Schema Recovery auto-detection), `350b935` (Schema Recovery
+tool), and `4359146` (Tournament Platform v1 + Sprint 11.1
+stabilization). **Not yet pushed** — `origin/master` is still at
+`8e6a490`.
 
 ## Latest Test Count
 
-455 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-at the current committed state.
+472 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+at the current committed state (455 at the last pushed state).
 
 ## Current Priority
 
-Sprint 12.3 — Player Platform Refactor is committed. Next: Sprint 12
+Sprint 13.1 — Release Announcements is committed. Next: Sprint 12
 Phase 2 (Round Robin format, Score Entry, Standings — per
 `docs/BACKLOG.md` Epic 2).
 
 ## Current Task
 
-None in progress. Sprint 12.3 — one Universal Player Picker
-(`bot/handlers/player_picker.py`, `data/player_levels.py`) replacing
-Tournament Add Player's free-text-only flow with Search/All Players/
-level-grouped browsing, and one Universal Player Presenter
-(`bot/presenters/player_card.py`, list-based `Badge` config, not an
-if/else chain) migrated into every screen that used to render its own
-player card (My Profile, Find Partner, Available Now, Find Players for
-a Match, Admin Player Details). Verified live against real accounts
-across three separate rounds (initial build, then three CTO-requested
-runtime re-verifications: full Admin/Coach/Player scenario, every card
-screen's actual output, and Coach badge consistency across screens) —
-not just the 455-test suite. Committed, not yet pushed.
+None in progress. Sprint 13.1 — `Player.last_seen_version` (migration
+`9c75a6368f08`), a centralized `data/release_announcements.py` registry
+(`Release(version, title, changes: list[ReleaseChange(emoji, label)])`
+— structured from the start so a future field, e.g. a release date, is
+one more attribute, not an architecture change),
+`ReleaseAnnouncementService` (the one place `last_seen_version !=
+APP_VERSION` is ever compared), a middleware that intercepts any
+update — not just `/start` — when a player's version is stale, and two
+screens (announcement, What's New) reached via one shared
+`announce:continue` callback. v0.13.0's real content (Coach Tournament
+Management, Improved Player Cards, Faster Player Picker, Verified
+Coach Badges) matches `RELEASE_NOTES.md`'s own v0.13.0 entry exactly —
+both were reconciled to describe only what actually shipped, replacing
+an earlier illustrative draft that had named two features that were
+never built.
 
 ## Next Task
 
@@ -141,6 +146,32 @@ Standings), or returning to Sprint 11's Match Discovery Refactor Phase 2
   on the real development database specifically after TECH-010 recovery
   is actually carried out there — not to be treated as fully closed
   end-to-end until that happens.
+- **Coach UX Refactor** (Sprint 12.2) — Verified Coach fully decoupled
+  from `/dev`; reached instead from the Main Menu's own role-aware 🏆
+  Tournaments button. Tournament Details unified into one screen (no
+  separate Player/Admin variant) via the first Presenter
+  (`bot/presenters/tournament_details.py`); Back returns to whichever
+  list a tournament actually belongs to for the viewer, not a single
+  hardcoded target.
+- **Player Platform Refactor** (Sprint 12.3) — Universal Player Picker
+  (`bot/handlers/player_picker.py`, `data/player_levels.py`) replacing
+  Tournament Add Player's free-text-only search with Search/All
+  Players/level-grouped browsing (SQL-based counts and pagination).
+  Universal Player Presenter (`bot/presenters/player_card.py`,
+  list-based `Badge` config) migrated into every screen that used to
+  render its own player card. Verified live against real accounts
+  across three separate CTO-requested runtime re-verification rounds,
+  not just the test suite.
+- **Release Announcements** (Sprint 13.1) — an in-bot "what's new"
+  screen shown automatically, once per version bump, before the Main
+  Menu, with no `/start` required. `Player.last_seen_version` +
+  `data/release_announcements.py` (`Release(version, title, changes)`,
+  structured for future fields without an architecture change) +
+  `ReleaseAnnouncementService` (the one place the version comparison
+  happens) + a middleware intercepting any update when stale. v0.13.0's
+  content was reconciled between the in-app registry and
+  `RELEASE_NOTES.md` after an initial draft named two features that
+  were never built — both now describe only what actually shipped.
 
 ## Critical Constraints
 

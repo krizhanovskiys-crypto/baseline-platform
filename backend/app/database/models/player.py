@@ -35,6 +35,16 @@ class Player(Base):
     # granted/revoked by an Admin from Player Details in Admin Center.
     is_verified_coach: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # Release Announcements (Sprint 13.1) — the last APP_VERSION this
+    # player has been shown the "what's new" screen for. Nullable: every
+    # player that existed before this column shipped has NULL here,
+    # which is deliberately "always different from APP_VERSION" so they
+    # see the announcement exactly once, the next time they interact.
+    # A brand-new player (PlayerService.get_or_create) is stamped with
+    # the current APP_VERSION immediately — they joined on the newest
+    # version, so there is nothing to announce to them yet.
+    last_seen_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+
     # Stats
     rating: Mapped[float] = mapped_column(Float, default=1000.0, nullable=False)
     matches_played: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

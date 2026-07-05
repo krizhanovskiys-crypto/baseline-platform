@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.core.version import APP_VERSION
 from backend.app.database.models.player import Player
 from backend.app.database.repositories.player_repository import PlayerRepository
 from backend.app.insights.service import AnalyticsService
@@ -77,6 +78,13 @@ class PlayerService:
             telegram_id=data.telegram_id,
             username=data.username,
             first_name=data.first_name,
+            # Release Announcements (Sprint 13.1): a brand-new player
+            # joins on the current version — there is nothing to
+            # announce to them, so they are stamped immediately rather
+            # than seeing a "what's new" screen for the version they
+            # just installed. Existing players keep last_seen_version
+            # NULL until they've actually seen an announcement.
+            last_seen_version=APP_VERSION,
         )
         player = await self._repo.add(player)
         logger.info("Created new player telegram_id=%s", data.telegram_id)

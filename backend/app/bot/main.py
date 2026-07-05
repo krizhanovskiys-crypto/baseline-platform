@@ -11,9 +11,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from backend.app.bot.handlers import available_matches, available_now, confirm_match, find_partner, find_players_for_match, invitation, my_matches, organize_match, player_picker, profile, start, tournament
+from backend.app.bot.handlers import available_matches, available_now, confirm_match, find_partner, find_players_for_match, invitation, my_matches, organize_match, player_picker, profile, release_announcement, start, tournament
 from backend.app.bot.handlers import admin
 from backend.app.bot.middlewares.database import DatabaseMiddleware
+from backend.app.bot.middlewares.release_announcement import ReleaseAnnouncementMiddleware
 from backend.app.core.config import get_settings
 from backend.app.core.logging import setup_logging
 from backend.app.database.session import create_all_tables, get_session
@@ -26,10 +27,17 @@ def build_dispatcher() -> Dispatcher:
     """Construct and configure the Aiogram Dispatcher."""
     dp = Dispatcher(storage=MemoryStorage())
 
-    # Register middleware on all updates
+    # Register middleware on all updates. Order matters:
+    # ReleaseAnnouncementMiddleware needs data["session"], which
+    # DatabaseMiddleware provides, so it must be registered second.
     dp.update.middleware(DatabaseMiddleware())
+    dp.update.middleware(ReleaseAnnouncementMiddleware())
 
-    # Register all routers
+    # Register all routers. release_announcement.router is registered
+    # first so its two callbacks are matched before any other router
+    # that might otherwise claim "announce:*" (none does today, but
+    # this keeps intent explicit).
+    dp.include_router(release_announcement.router)
     dp.include_router(admin.router)
     dp.include_router(start.router)
     dp.include_router(profile.router)

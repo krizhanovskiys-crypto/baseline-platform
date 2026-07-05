@@ -101,6 +101,13 @@ class PlayerRepository(BaseRepository[Player]):
         await self._session.execute(stmt)
         await self._session.flush()
 
+    async def set_last_seen_version(self, telegram_id: int, version: str) -> None:
+        """Release Announcements (Sprint 13.1) — the only place that
+        writes last_seen_version."""
+        stmt = update(Player).where(Player.telegram_id == telegram_id).values(last_seen_version=version)
+        await self._session.execute(stmt)
+        await self._session.flush()
+
     async def count_all(self) -> int:
         """Total registered players — used by Admin Center's Players module."""
         result = await self._session.execute(select(func.count()).select_from(Player))

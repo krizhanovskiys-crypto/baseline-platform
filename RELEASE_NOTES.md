@@ -17,14 +17,19 @@ scope.
 
 ## v0.13.0
 
-Coach UX
+Player Platform
 
 ### Highlights
 
-* Verified Coaches now manage tournaments directly from the main
-  Tournament section — Create Tournament, My Tournaments, and Browse
-  are all one tap from the Main Menu.
-* The `/dev` command is now reserved for platform administrators.
+* **🏆 Coach Tournament Management** — Verified Coaches can now create
+  and manage their own tournaments directly from the main menu. The
+  `/dev` command is now reserved for platform administrators.
+* **👥 Improved Player Cards** — Unified player presentation across the
+  platform, with coach badges and match statistics.
+* **🎾 Faster Player Picker** — Browse players by skill groups instead
+  of typing usernames.
+* **🏅 Verified Coach Badges** — Verified Coach status is now displayed
+  consistently throughout the platform.
 
 ---
 
