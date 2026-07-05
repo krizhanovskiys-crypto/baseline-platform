@@ -115,6 +115,16 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_organizer": "⚠️ You can't join your own match.",
         "join_match_already_joined": "⚠️ You already joined this match.",
         "match_already_full": "😔 This match just became full.",
+        # Universal Player Card (Sprint 12.3) — bot/presenters/player_card.py
+        # is the only place these are assembled; every card-shaped screen
+        # uses it, never its own formatting.
+        "player_card_name": "👤 *{name}*",
+        "player_card_badge_verified_coach": "🏅 Verified Coach",
+        "player_card_level": "⭐ Level {level}",
+        "player_card_languages": "🗣️ Languages: {languages}",
+        "player_card_courts": "🎾 Favourite Courts: {courts}",
+        "player_card_matches": "📊 Matches: {matches}",
+        "player_card_area_suffix": "📍 Area: {area}",
         # Find partner
         "fp_search_mode_header": "🔍 *Find Partner*\nHow would you like to search?",
         "fp_btn_all_players": "👥 All Players",
@@ -122,7 +132,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "smart_filter_header": "🎯 *Smart Filter*",
         "smart_filter_btn_find": "✅ Find Players",
         "finding_partners": "🔍 Searching for partners in *{area}* at level *{level}* ±0.5...",
-        "partner_card": "👤 *{name}*\nLevel: {level}\nArea: {area}",
         "btn_invite": "📨 Invite",
         "btn_view_profile": "👀 View Profile",
         "invite_sent": "✉️ Invitation sent to {name}!",
@@ -133,25 +142,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 You are now marked as available for the next 2 hours!",
         "available_now_list_header": "🔥 *Players available right now:*",
         "available_now_empty": "😔 No players available right now.",
-        # Profile
-        "profile_header": (
-            "👤 *Your Profile*\n\n"
-            "👤 Name: {name}\n"
-            "⭐ Level {level}\n"
-            "🗣️ Languages: {languages}\n"
-            "🎾 Favourite Courts: {courts}\n"
-            "📊 Matches: {matches}"
-        ),
-        # Verified Coach badge on Profile (Sprint 12.2)
-        "profile_header_coach": (
-            "👤 *Your Profile*\n\n"
-            "👤 Name: {name}\n"
-            "🏅 Verified Coach\n"
-            "⭐ Level {level}\n"
-            "🗣️ Languages: {languages}\n"
-            "🎾 Favourite Courts: {courts}\n"
-            "📊 Matches: {matches}"
-        ),
+        # Profile — the card itself is the Universal Player Card
+        # (bot/presenters/player_card.py, Sprint 12.3); this is only the
+        # screen-specific header wrapping it.
+        "profile_card_header": "👤 *Your Profile*\n\n",
         "level_source_self_rated": "Self Rated",
         "level_source_coach_verified": "Coach Verified",
         "btn_edit_profile": "✏️ Edit Profile",
@@ -176,14 +170,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Cancelled.",
         "error_generic": "⚠️ Something went wrong. Please try again.",
         "profile_not_complete_action": "⚠️ Please complete your profile first.",
-        # Find Partner
-        "partner_card_v2": (
-            "👤 *{name}*\n\n"
-            "⭐ Level {level}\n"
-            "🗣️ Languages: {languages}\n"
-            "🎾 Favourite Courts: {courts}\n"
-            "📊 Matches: {matches}"
-        ),
+        # Find Partner — card itself is the Universal Player Card
         "level_source_card_self_rated": "✅ Self Rated",
         "level_source_card_coach_verified": "🏆 Coach Verified",
         "player_discovery_no_results": (
@@ -248,7 +235,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Your Matches:*",
         # Find Players for Match
         "fpm_found": "👥 We found *{total}* suitable players",
-        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_btn_select": "📨 Invite",
         "fpm_btn_prev": "⬅️ Previous",
         "fpm_btn_next": "➡️ Next",
@@ -402,13 +388,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
         "players_details_header": (
             "👤 *Player Details*\n\n"
+            "{card}\n\n"
             "🆔 Telegram ID: `{telegram_id}`\n"
-            "👤 Name: {name}\n"
             "📎 Username: {username}\n"
-            "🗣️ Languages: {languages}\n"
-            "⭐ Level: {level}\n"
             "📍 Home Area: {home_area}\n"
-            "🎾 Preferred Courts: {courts}\n"
             "🔥 Available Now: {available_now}\n"
             "{profile_complete_emoji} Profile Complete: {profile_complete}\n"
             "📅 Registration Date: {registration_date}"
@@ -512,6 +495,15 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} added to the tournament.",
         "tournament_add_player_not_registered": "❌ Could not add this player (already registered, or registration isn't open).",
         "tournament_remove_player_success": "✅ {name} removed from the tournament.",
+        # Universal Player Picker (Sprint 12.3) — reusable, not Tournament-specific
+        "picker_menu_header": "➕ *Add Player*",
+        "picker_btn_search": "🔍 Search",
+        "picker_btn_all_players": "👥 All Players",
+        "picker_levels_header": "👥 *All Players*",
+        "picker_level_group_label_range": "🎾 Level {min}–{max}",
+        "picker_level_group_label_plus": "🎾 Level {min}+",
+        "picker_players_header": "👥 *{label}* (Page {page}/{total_pages})",
+        "picker_players_empty": "😔 No players at this level yet.",
     },
     "uk": {
         "welcome_new": "👋 Ласкаво просимо до *Baseline* — платформи пошуку партнерів для тенісу!\n\nДавайте налаштуємо ваш профіль.",
@@ -622,13 +614,19 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_organizer": "⚠️ Ви не можете приєднатися до власного матчу.",
         "join_match_already_joined": "⚠️ Ви вже приєдналися до цього матчу.",
         "match_already_full": "😔 Цей матч щойно заповнився.",
+        "player_card_name": "👤 *{name}*",
+        "player_card_badge_verified_coach": "🏅 Верифікований тренер",
+        "player_card_level": "⭐ Рівень {level}",
+        "player_card_languages": "🗣️ Мови: {languages}",
+        "player_card_courts": "🎾 Улюблені корти: {courts}",
+        "player_card_matches": "📊 Матчів: {matches}",
+        "player_card_area_suffix": "📍 Район: {area}",
         "fp_search_mode_header": "🔍 *Знайти партнера*\nЯк ви хочете шукати?",
         "fp_btn_all_players": "👥 Усі гравці",
         "fp_btn_smart_filter": "🎯 Розумний фільтр",
         "smart_filter_header": "🎯 *Розумний фільтр*",
         "smart_filter_btn_find": "✅ Знайти гравців",
         "finding_partners": "🔍 Шукаємо партнерів у *{area}* рівня *{level}* ±0.5...",
-        "partner_card": "👤 *{name}*\nРівень: {level}\nРайон: {area}",
         "btn_invite": "📨 Запросити",
         "btn_view_profile": "👀 Профіль",
         "invite_sent": "✉️ Запрошення надіслано {name}!",
@@ -638,8 +636,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Ви позначені як доступні на наступні 2 години!",
         "available_now_list_header": "🔥 *Гравці доступні зараз:*",
         "available_now_empty": "😔 Наразі немає доступних гравців.",
-        "profile_header": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n⭐ Рівень {level}\n🗣️ Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
-        "profile_header_coach": "👤 *Ваш профіль*\n\n👤 Ім'я: {name}\n🏅 Верифікований тренер\n⭐ Рівень {level}\n🗣️ Мови: {languages}\n🎾 Улюблені корти: {courts}\n📊 Матчів: {matches}",
+        "profile_card_header": "👤 *Ваш профіль*\n\n",
         "level_source_self_rated": "Самооцінка",
         "level_source_coach_verified": "Підтверджено тренером",
         "btn_edit_profile": "✏️ Редагувати профіль",
@@ -661,14 +658,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Скасовано.",
         "error_generic": "⚠️ Щось пішло не так. Спробуйте ще раз.",
         "profile_not_complete_action": "⚠️ Будь ласка, спочатку заповніть профіль.",
-        # Find Partner
-        "partner_card_v2": (
-            "👤 *{name}*\n\n"
-            "⭐ Рівень {level}\n"
-            "🗣️ Мови: {languages}\n"
-            "🎾 Улюблені корти: {courts}\n"
-            "📊 Матчів: {matches}"
-        ),
+        # Find Partner — card itself is the Universal Player Card
         "level_source_card_self_rated": "✅ Самооцінка",
         "level_source_card_coach_verified": "🏆 Підтверджено тренером",
         "player_discovery_no_results": (
@@ -733,7 +723,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Ваші матчі:*",
         # Find Players for Match
         "fpm_found": "👥 Ми знайшли *{total}* гравців для вашого матчу",
-        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_btn_select": "📨 Запросити",
         "fpm_btn_prev": "⬅️ Попередній",
         "fpm_btn_next": "➡️ Наступний",
@@ -887,13 +876,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
         "players_details_header": (
             "👤 *Профіль гравця*\n\n"
+            "{card}\n\n"
             "🆔 Telegram ID: `{telegram_id}`\n"
-            "👤 Ім'я: {name}\n"
             "📎 Юзернейм: {username}\n"
-            "🗣️ Мови: {languages}\n"
-            "⭐ Рівень: {level}\n"
             "📍 Район: {home_area}\n"
-            "🎾 Улюблені корти: {courts}\n"
             "🔥 Доступний зараз: {available_now}\n"
             "{profile_complete_emoji} Профіль заповнено: {profile_complete}\n"
             "📅 Дата реєстрації: {registration_date}"
@@ -994,6 +980,14 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} додано до турніру.",
         "tournament_add_player_not_registered": "❌ Не вдалося додати цього гравця (вже зареєстрований, або реєстрація не відкрита).",
         "tournament_remove_player_success": "✅ {name} прибрано з турніру.",
+        "picker_menu_header": "➕ *Додати гравця*",
+        "picker_btn_search": "🔍 Пошук",
+        "picker_btn_all_players": "👥 Усі гравці",
+        "picker_levels_header": "👥 *Усі гравці*",
+        "picker_level_group_label_range": "🎾 Рівень {min}–{max}",
+        "picker_level_group_label_plus": "🎾 Рівень {min}+",
+        "picker_players_header": "👥 *{label}* (Сторінка {page}/{total_pages})",
+        "picker_players_empty": "😔 Гравців цього рівня поки немає.",
     },
     "ru": {
         "welcome_new": "👋 Добро пожаловать в *Baseline* — платформу поиска партнёров для тенниса!\n\nДавайте настроим ваш профиль.",
@@ -1104,13 +1098,19 @@ _TEXTS: dict[str, dict[str, str]] = {
         "join_match_organizer": "⚠️ Вы не можете присоединиться к собственному матчу.",
         "join_match_already_joined": "⚠️ Вы уже присоединились к этому матчу.",
         "match_already_full": "😔 Этот матч только что заполнился.",
+        "player_card_name": "👤 *{name}*",
+        "player_card_badge_verified_coach": "🏅 Верифицированный тренер",
+        "player_card_level": "⭐ Уровень {level}",
+        "player_card_languages": "🗣️ Языки: {languages}",
+        "player_card_courts": "🎾 Любимые корты: {courts}",
+        "player_card_matches": "📊 Матчей: {matches}",
+        "player_card_area_suffix": "📍 Район: {area}",
         "fp_search_mode_header": "🔍 *Найти партнёра*\nКак вы хотите искать?",
         "fp_btn_all_players": "👥 Все игроки",
         "fp_btn_smart_filter": "🎯 Умный фильтр",
         "smart_filter_header": "🎯 *Умный фильтр*",
         "smart_filter_btn_find": "✅ Найти игроков",
         "finding_partners": "🔍 Ищем партнёров в *{area}* уровня *{level}* ±0.5...",
-        "partner_card": "👤 *{name}*\nУровень: {level}\nРайон: {area}",
         "btn_invite": "📨 Пригласить",
         "btn_view_profile": "👀 Профиль",
         "invite_sent": "✉️ Приглашение отправлено {name}!",
@@ -1120,8 +1120,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "available_now_set": "🔥 Вы отмечены как доступный на следующие 2 часа!",
         "available_now_list_header": "🔥 *Игроки доступны сейчас:*",
         "available_now_empty": "😔 Сейчас нет доступных игроков.",
-        "profile_header": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n⭐ Уровень {level}\n🗣️ Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
-        "profile_header_coach": "👤 *Ваш профиль*\n\n👤 Имя: {name}\n🏅 Верифицированный тренер\n⭐ Уровень {level}\n🗣️ Языки: {languages}\n🎾 Любимые корты: {courts}\n📊 Матчей: {matches}",
+        "profile_card_header": "👤 *Ваш профиль*\n\n",
         "level_source_self_rated": "Самооценка",
         "level_source_coach_verified": "Подтверждено тренером",
         "btn_edit_profile": "✏️ Редактировать профиль",
@@ -1143,14 +1142,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         "cancelled": "❌ Отменено.",
         "error_generic": "⚠️ Что-то пошло не так. Попробуйте ещё раз.",
         "profile_not_complete_action": "⚠️ Пожалуйста, сначала заполните профиль.",
-        # Find Partner
-        "partner_card_v2": (
-            "👤 *{name}*\n\n"
-            "⭐ Уровень {level}\n"
-            "🗣️ Языки: {languages}\n"
-            "🎾 Любимые корты: {courts}\n"
-            "📊 Матчей: {matches}"
-        ),
+        # Find Partner — card itself is the Universal Player Card
         "level_source_card_self_rated": "✅ Самооценка",
         "level_source_card_coach_verified": "🏆 Подтверждено тренером",
         "player_discovery_no_results": (
@@ -1215,7 +1207,6 @@ _TEXTS: dict[str, dict[str, str]] = {
         "om_my_matches_header": "📋 *Ваши матчи:*",
         # Find Players for Match
         "fpm_found": "👥 Мы нашли *{total}* игроков для вашего матча",
-        "fpm_browse_card": "{name}\n📊 {level}\n📍 {area}",
         "fpm_btn_select": "📨 Пригласить",
         "fpm_btn_prev": "⬅️ Предыдущий",
         "fpm_btn_next": "➡️ Следующий",
@@ -1369,13 +1360,10 @@ _TEXTS: dict[str, dict[str, str]] = {
         "players_browse_row": "{index}. {name} — `{telegram_id}`\n📍 {area} · ⭐ {level}",
         "players_details_header": (
             "👤 *Профиль игрока*\n\n"
+            "{card}\n\n"
             "🆔 Telegram ID: `{telegram_id}`\n"
-            "👤 Имя: {name}\n"
             "📎 Юзернейм: {username}\n"
-            "🗣️ Языки: {languages}\n"
-            "⭐ Уровень: {level}\n"
             "📍 Район: {home_area}\n"
-            "🎾 Любимые корты: {courts}\n"
             "🔥 Доступен сейчас: {available_now}\n"
             "{profile_complete_emoji} Профиль заполнен: {profile_complete}\n"
             "📅 Дата регистрации: {registration_date}"
@@ -1476,6 +1464,14 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} добавлен(а) в турнир.",
         "tournament_add_player_not_registered": "❌ Не удалось добавить этого игрока (уже зарегистрирован, или регистрация не открыта).",
         "tournament_remove_player_success": "✅ {name} убран(а) из турнира.",
+        "picker_menu_header": "➕ *Добавить игрока*",
+        "picker_btn_search": "🔍 Поиск",
+        "picker_btn_all_players": "👥 Все игроки",
+        "picker_levels_header": "👥 *Все игроки*",
+        "picker_level_group_label_range": "🎾 Уровень {min}–{max}",
+        "picker_level_group_label_plus": "🎾 Уровень {min}+",
+        "picker_players_header": "👥 *{label}* (Страница {page}/{total_pages})",
+        "picker_players_empty": "😔 Игроков этого уровня пока нет.",
     },
 }
 

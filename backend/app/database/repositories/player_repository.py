@@ -112,6 +112,46 @@ class PlayerRepository(BaseRepository[Player]):
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
+    def _level_range_conditions(self, min_level: float, max_level: float | None, exclude_ids: set[int]):
+        conditions = [Player.skill_level >= min_level]
+        if max_level is not None:
+            conditions.append(Player.skill_level <= max_level)
+        if exclude_ids:
+            conditions.append(Player.id.not_in(list(exclude_ids)))
+        return conditions
+
+    async def count_by_level_range(
+        self, min_level: float, max_level: float | None, exclude_ids: set[int] | None = None
+    ) -> int:
+        """SQL COUNT for one level group (Universal Player Picker,
+        Sprint 12.3) — never loads a single player row just to count."""
+        conditions = self._level_range_conditions(min_level, max_level, exclude_ids or set())
+        stmt = select(func.count()).select_from(Player).where(and_(*conditions))
+        result = await self._session.execute(stmt)
+        return result.scalar() or 0
+
+    async def get_paginated_by_level_range(
+        self,
+        min_level: float,
+        max_level: float | None,
+        offset: int,
+        limit: int,
+        exclude_ids: set[int] | None = None,
+    ) -> list[Player]:
+        """Alphabetical page of players within a level range, excluding
+        the given ids (already-registered players in the caller's
+        context) — SQL-paginated, never the full list."""
+        conditions = self._level_range_conditions(min_level, max_level, exclude_ids or set())
+        stmt = (
+            select(Player)
+            .where(and_(*conditions))
+            .order_by(Player.first_name)
+            .offset(offset)
+            .limit(limit)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
     async def search_by_name_or_username(self, query: str) -> list[Player]:
         """Case-insensitive substring match against first_name or username
         (Admin Center Search Player). `.ilike()` rather than `.like()` so

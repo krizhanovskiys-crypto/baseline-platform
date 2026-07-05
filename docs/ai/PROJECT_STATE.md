@@ -12,17 +12,16 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-05, end of the Schema Recovery ops-tooling
-work — committed.
+**Last updated:** 2026-07-05, end of Sprint 12.3 — Player Platform
+Refactor — committed, not yet pushed.
 
 ---
 
 ## Current Sprint
 
-No active feature sprint. Most recent committed work: the Schema
-Recovery tool (`a11f4c1`), on top of Sprint 11.1 — Tournament
-Stabilization Phase 1 bundled with Sprint 12 — Tournament Platform v1,
-Phase 1 (`4359146`).
+No active feature sprint. Most recent committed work: Sprint 12.3 —
+Player Platform Refactor (Universal Player Picker + Universal Player
+Presenter), on top of Sprint 12.2 — Coach UX Refactor (`d1a0372`).
 
 ## Current Branch
 
@@ -30,29 +29,37 @@ Phase 1 (`4359146`).
 
 ## Current Production Commit
 
-`a11f4c1` — schema_recovery.py auto-detection UX refinement, on top of
-`350b935` (Schema Recovery tool) and `4359146` (Tournament Platform v1
-+ Sprint 11.1 stabilization). **Not yet pushed** to `origin/master`
-(last pushed commit is still `b0daea6`).
+Sprint 12.3 committed locally, on top of `d1a0372` (Sprint 12.2 Coach
+UX Refactor), `a11f4c1` (Schema Recovery auto-detection), `350b935`
+(Schema Recovery tool), and `4359146` (Tournament Platform v1 + Sprint
+11.1 stabilization). **Not yet pushed** — `origin/master` is still at
+`d1a0372`.
 
 ## Latest Test Count
 
-444 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-locally, on the uncommitted working tree (426 at the last committed
-state, `a11f4c1`).
+455 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
+at the current committed state.
 
 ## Current Priority
 
-Sprint 12.2 — Coach UX Refactor is complete and awaiting CTO approval
-to commit. After that: Sprint 12 Phase 2 (Round Robin format, Score
-Entry, Standings — per `docs/BACKLOG.md` Epic 2).
+Sprint 12.3 — Player Platform Refactor is committed. Next: Sprint 12
+Phase 2 (Round Robin format, Score Entry, Standings — per
+`docs/BACKLOG.md` Epic 2).
 
 ## Current Task
 
-None in progress. Sprint 12.2 (decoupling Verified Coach from `/dev`,
-unifying Tournament Details into one screen) implemented, tested
-end-to-end against the two real accounts from the earlier diagnostic
-session, and approved for commit pending final review.
+None in progress. Sprint 12.3 — one Universal Player Picker
+(`bot/handlers/player_picker.py`, `data/player_levels.py`) replacing
+Tournament Add Player's free-text-only flow with Search/All Players/
+level-grouped browsing, and one Universal Player Presenter
+(`bot/presenters/player_card.py`, list-based `Badge` config, not an
+if/else chain) migrated into every screen that used to render its own
+player card (My Profile, Find Partner, Available Now, Find Players for
+a Match, Admin Player Details). Verified live against real accounts
+across three separate rounds (initial build, then three CTO-requested
+runtime re-verifications: full Admin/Coach/Player scenario, every card
+screen's actual output, and Coach badge consistency across screens) —
+not just the 455-test suite. Committed, not yet pushed.
 
 ## Next Task
 

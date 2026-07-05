@@ -1,5 +1,6 @@
 """Find Players for Match handler — browse and select candidate players."""
 import logging
+from types import SimpleNamespace
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
@@ -15,6 +16,7 @@ from backend.app.bot.keyboards.keyboards import (
     invitation_keyboard,
     player_discovery_empty_keyboard,
 )
+from backend.app.bot.presenters.player_card import build_player_card_text
 from backend.app.bot.states.states import FindPlayersForMatchStates
 from backend.app.bot.texts import t
 from backend.app.database.models.game import MatchType
@@ -29,10 +31,23 @@ router = Router(name="find_players_for_match")
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _make_card_text(candidates: list[dict], idx: int, lang: str) -> str:
+    """The Universal Player Card (Sprint 12.3) plus this screen's own
+    Area context line — candidates are stored as plain dicts (FSM data
+    must be JSON-serializable), so a lightweight namespace stands in
+    for the PlayerRead the presenter expects."""
     c = candidates[idx]
     header = t("fpm_found", lang, total=len(candidates))
-    card = t("fpm_browse_card", lang, name=c["first_name"], level=c["skill_level"], area=c["home_area"])
-    return f"{header}\n\n{card}"
+    player = SimpleNamespace(
+        first_name=c["first_name"],
+        skill_level=c["skill_level"],
+        spoken_languages=c.get("spoken_languages"),
+        preferred_courts=c.get("preferred_courts"),
+        matches_played=c.get("matches_played", 0),
+        is_verified_coach=c.get("is_verified_coach", False),
+    )
+    card = build_player_card_text(lang, player)
+    area_line = t("player_card_area_suffix", lang, area=c["home_area"])
+    return f"{header}\n\n{card}\n{area_line}"
 
 
 def _make_card_keyboard(candidates: list[dict], idx: int, lang: str) -> object:
@@ -81,6 +96,10 @@ async def fpm_start(callback: CallbackQuery, state: FSMContext, session: AsyncSe
             "first_name": c.first_name,
             "skill_level": float(c.skill_level or 0),
             "home_area": c.home_area or "—",
+            "spoken_languages": c.spoken_languages,
+            "preferred_courts": c.preferred_courts,
+            "matches_played": c.matches_played,
+            "is_verified_coach": c.is_verified_coach,
         }
         for c in candidate_schemas
     ]

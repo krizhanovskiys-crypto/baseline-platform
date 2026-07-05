@@ -52,6 +52,7 @@ from backend.app.bot.handlers.helpers import (
 )
 from backend.app.bot.keyboards.keyboards import (
     area_keyboard,
+    player_picker_menu_keyboard,
     tournament_add_player_results_keyboard,
     tournament_browse_keyboard,
     tournament_center_keyboard,
@@ -59,7 +60,7 @@ from backend.app.bot.keyboards.keyboards import (
     tournament_court_keyboard,
     tournament_registered_players_keyboard,
 )
-from backend.app.bot.states.states import AdminTournamentsStates, CreateTournamentStates
+from backend.app.bot.states.states import AdminTournamentsStates, CreateTournamentStates, PlayerPickerStates
 from backend.app.bot.texts import t
 from backend.app.data.courts import get_courts_for_zone
 from backend.app.schemas.tournament import TournamentCreate, TournamentUpdate
@@ -573,6 +574,11 @@ async def tourn_remove_player(callback: CallbackQuery, session: AsyncSession) ->
 
 @router.callback_query(F.data.regexp(r"^tourn:add_player:\d+$"))
 async def tourn_add_player_prompt(callback: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
+    """Add Player now opens the Universal Player Picker's menu (Sprint
+    12.3) — Search or All Players — instead of jumping straight to a
+    text prompt. This handler's only job is to set the Picker's context
+    (which tournament, where "back" returns to); the menu itself and
+    everything past it lives in bot/handlers/player_picker.py."""
     if not callback.from_user:
         return
     tournament_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
@@ -581,9 +587,31 @@ async def tourn_add_player_prompt(callback: CallbackQuery, session: AsyncSession
         await callback.answer()
         return
     lang = await lang_for(session, callback.from_user.id)
-    await state.set_state(AdminTournamentsStates.enter_add_player_search)
-    await state.update_data(lang=lang, add_player_tournament_id=tournament_id)
-    await callback.message.answer(t("tournament_add_player_prompt", lang), parse_mode="Markdown")  # type: ignore[union-attr]
+    await state.update_data(
+        lang=lang,
+        picker_context_type="tournament_add_player",
+        picker_tournament_id=tournament_id,
+        picker_menu_callback=f"tourn:open:{tournament_id}",
+    )
+    await callback.message.answer(  # type: ignore[union-attr]
+        t("picker_menu_header", lang),
+        reply_markup=player_picker_menu_keyboard(lang, back_callback=f"tourn:open:{tournament_id}"),
+        parse_mode="Markdown",
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "pp:search")
+async def tourn_add_player_search_start(callback: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
+    """The Picker's "🔍 Search" option — same prompt and same
+    PlayersService.search() flow (tourn_add_player_submit below) that
+    already existed before Sprint 12.3, just reached from the menu."""
+    if not callback.from_user or not callback.message:
+        await callback.answer()
+        return
+    lang = await lang_for(session, callback.from_user.id)
+    await state.set_state(PlayerPickerStates.enter_search)
+    await callback.message.answer(t("tournament_add_player_prompt", lang), parse_mode="Markdown")
     await callback.answer()
 
 
@@ -596,18 +624,19 @@ async def _add_player_to_tournament(
     await show_tournament_details(message, session, bot, lang, acting_telegram_id, tournament_id)
 
 
-@router.message(AdminTournamentsStates.enter_add_player_search)
+@router.message(PlayerPickerStates.enter_search)
 async def tourn_add_player_submit(message: Message, session: AsyncSession, state: FSMContext, bot: Bot) -> None:
     """Reuses PlayersService.search() (the existing Admin Center Player
     Search — not a new one-off flow) and the same three-way branch every
     Admin Center search already follows: one match adds directly,
-    several show a selectable list, none shows not-found."""
+    several show a selectable list, none shows not-found. Reached from
+    the Universal Player Picker's "🔍 Search" option (Sprint 12.3)."""
     user = message.from_user
     if not user:
         return
     data = await state.get_data()
     lang = data.get("lang", "en")
-    tournament_id = data.get("add_player_tournament_id")
+    tournament_id = data.get("picker_tournament_id")
     query = (message.text or "").strip()
     if not query or not tournament_id:
         return

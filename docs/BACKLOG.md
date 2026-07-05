@@ -72,7 +72,14 @@ Moderator, Admin, Owner).
 - **Future:** Club Events, League Seasons, a dedicated Tournament
   Organizer permission (today this capability is covered by Admin/Coach;
   a first-class permission of its own is deferred until a real need for
-  organizers who are neither shows up).
+  organizers who are neither shows up). **Player Details from Tournament**
+  — tapping a registered player in Registered Players (or Add Player's
+  search results) opens their full Player Card (the Universal Player
+  Card, Sprint 12.3), not just a name-only row. *Not from the original
+  Gap Review* — surfaced during Sprint 12.3's own audit, which found
+  Tournament's rosters render names only, with nowhere to tap through to
+  a full card; recorded here rather than silently blended in as if it
+  always traced back to the 2026-07-02 review.
 
 ---
 

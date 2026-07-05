@@ -19,6 +19,7 @@ from backend.app.bot.keyboards.keyboards import (
     skill_level_keyboard,
     spoken_languages_keyboard,
 )
+from backend.app.bot.presenters.player_card import build_player_card_text
 from backend.app.bot.states.states import SettingsStates
 from backend.app.bot.texts import t
 from backend.app.schemas.player import PlayerRead, PlayerUpdate
@@ -45,19 +46,9 @@ async def show_profile(message: Message, session: AsyncSession) -> None:
         await message.answer(t("profile_not_complete_action", lang), parse_mode="Markdown")
         return
 
-    courts = " • ".join(player.preferred_courts or []) or "—"
-    languages = " • ".join(player.spoken_languages or []) or "—"
-    header_key = "profile_header_coach" if player.is_verified_coach else "profile_header"
+    card = build_player_card_text(lang, player)
     await message.answer(
-        t(
-            header_key,
-            lang,
-            name=player.first_name,
-            level=player.skill_level,
-            courts=courts,
-            languages=languages,
-            matches=player.matches_played,
-        ),
+        t("profile_card_header", lang) + card,
         reply_markup=profile_keyboard(lang),
         parse_mode="Markdown",
     )

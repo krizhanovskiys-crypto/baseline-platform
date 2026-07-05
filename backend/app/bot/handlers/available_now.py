@@ -6,6 +6,7 @@ from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.helpers import get_player_lang
+from backend.app.bot.presenters.player_card import build_player_card_text
 from backend.app.bot.texts import t
 from backend.app.services.player_service import PlayerService
 
@@ -45,13 +46,6 @@ async def available_now_menu(message: Message, session: AsyncSession) -> None:
 
     await message.answer(t("available_now_list_header", lang), parse_mode="Markdown")
     for p in others:
-        await message.answer(
-            t(
-                "partner_card",
-                lang,
-                name=p.first_name,
-                level=p.skill_level,
-                area=p.home_area or "—",
-            ),
-            parse_mode="Markdown",
-        )
+        card = build_player_card_text(lang, p)
+        area_line = t("player_card_area_suffix", lang, area=p.home_area or "—")
+        await message.answer(f"{card}\n{area_line}", parse_mode="Markdown")

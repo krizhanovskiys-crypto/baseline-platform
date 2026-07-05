@@ -360,6 +360,65 @@ def players_search_results_keyboard(lang: str, players: list[PlayerRead]) -> Inl
     return builder.as_markup()
 
 
+# ---------------------------------------------------------------------------
+# Universal Player Picker (Sprint 12.3) — reusable across any consumer,
+# not Tournament-specific. back_callback is always caller-supplied, same
+# convention as tournament_browse_keyboard.
+# ---------------------------------------------------------------------------
+
+def player_picker_menu_keyboard(lang: str, back_callback: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text=t("picker_btn_search", lang), callback_data="pp:search")
+    builder.button(text=t("picker_btn_all_players", lang), callback_data="pp:levels")
+    builder.button(text=t("players_btn_back", lang), callback_data=back_callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def player_picker_levels_keyboard(
+    lang: str, groups: list[tuple[int, str, int]], back_callback: str
+) -> InlineKeyboardMarkup:
+    """All Players — one row per configured level group in view, each
+    already labeled with its own SQL-computed count by the caller.
+    groups is a list of (group_index, label, count) tuples; this
+    builder doesn't know about data/player_levels.py's config at all,
+    it only renders what it's handed — pagination across groups (for
+    when far more than today's 4 are configured) is the caller's own
+    concern, same as any other paginated list in this file."""
+    builder = InlineKeyboardBuilder()
+    for group_index, label, count in groups:
+        builder.button(text=f"{label} ({count})", callback_data=f"pp:level:{group_index}:1")
+    builder.button(text=t("players_btn_back", lang), callback_data=back_callback)
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def player_picker_players_keyboard(
+    lang: str, players: list[PlayerRead], page: int, has_prev: bool, has_next: bool, group_index: int, back_callback: str
+) -> InlineKeyboardMarkup:
+    """Alphabetical, paginated player list within one level group —
+    tapping a name selects (registers) immediately, no confirmation
+    step, per the approved Picker flow."""
+    builder = InlineKeyboardBuilder()
+    for player in players:
+        builder.button(text=player.first_name, callback_data=f"pp:select:{player.id}")
+    open_rows = len(players)
+
+    nav_row = 0
+    if has_prev:
+        builder.button(text=t("players_btn_prev", lang), callback_data=f"pp:level:{group_index}:{page - 1}")
+        nav_row += 1
+    if has_next:
+        builder.button(text=t("players_btn_next", lang), callback_data=f"pp:level:{group_index}:{page + 1}")
+        nav_row += 1
+
+    builder.button(text=t("players_btn_back", lang), callback_data=back_callback)
+
+    sizes = [1] * open_rows + ([nav_row] if nav_row else []) + [1]
+    builder.adjust(*sizes)
+    return builder.as_markup()
+
+
 def player_details_keyboard(lang: str, player_id: int, is_verified_coach: bool) -> InlineKeyboardMarkup:
     """Player Details' Actions layer — its first real action (Sprint 12):
     grant/revoke the Verified Coach badge. ARCHITECTURE.md §12 reserved

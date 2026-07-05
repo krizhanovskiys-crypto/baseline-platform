@@ -101,11 +101,12 @@ class TournamentBrowseStates(StatesGroup):
 
 
 class AdminTournamentsStates(StatesGroup):
-    """Admin Center / Tournament Center — Browse Tournaments pagination
-    and the Add Player search prompt."""
+    """Admin Center / Tournament Center — Browse Tournaments
+    pagination. Add Player's own search prompt is now
+    PlayerPickerStates.enter_search (Sprint 12.3 — Universal Player
+    Picker), not a Tournament-specific state."""
 
     browsing = State()
-    enter_add_player_search = State()
 
 
 class MyTournamentsStates(StatesGroup):
@@ -116,6 +117,19 @@ class MyTournamentsStates(StatesGroup):
     without collision."""
 
     browsing = State()
+
+
+class PlayerPickerStates(StatesGroup):
+    """Universal Player Picker (Sprint 12.3) — a reusable component,
+    not owned by Tournament. FSM data carries which consumer is active
+    (picker_context_type, e.g. "tournament_add_player", plus whatever
+    id that consumer needs) and, once a level group is opened, which
+    group/page, so selecting a player can return to the same list
+    afterward rather than the beginning."""
+
+    enter_search = State()
+    browsing_levels = State()
+    browsing_players = State()
 
 
 class SettingsStates(StatesGroup):

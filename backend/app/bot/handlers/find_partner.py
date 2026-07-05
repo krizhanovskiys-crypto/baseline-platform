@@ -17,6 +17,7 @@ from backend.app.bot.keyboards.keyboards import (
     search_mode_keyboard,
     smart_filter_keyboard,
 )
+from backend.app.bot.presenters.player_card import build_player_card_text
 from backend.app.bot.states.states import FindPartnerStates
 from backend.app.bot.texts import t
 from backend.app.insights.service import AnalyticsService
@@ -37,19 +38,9 @@ _DEFAULT_SMART_FILTERS = {"area": "home", "courts": None, "level": "default"}
 
 
 def _build_card(partner: PlayerRead, lang: str, total: int) -> tuple[str, object]:
-    """Return (text, keyboard) for a partner card."""
-    languages = " • ".join(partner.spoken_languages or []) or "—"
-    courts = " • ".join((partner.preferred_courts or [])[:2]) or "—"
-
-    text = t(
-        "partner_card_v2",
-        lang,
-        name=partner.first_name,
-        level=partner.skill_level,
-        languages=languages,
-        courts=courts,
-        matches=partner.matches_played,
-    )
+    """Return (text, keyboard) for a partner card — the Universal
+    Player Card (Sprint 12.3), not a screen-specific format."""
+    text = build_player_card_text(lang, partner)
     keyboard = partner_card_keyboard(lang, partner.username, show_next=total > 1)
     return text, keyboard
 

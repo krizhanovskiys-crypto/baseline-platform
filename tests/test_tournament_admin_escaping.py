@@ -18,7 +18,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.handlers.admin.tournaments import tourn_add_player_submit, tourn_remove_player
-from backend.app.bot.states.states import AdminTournamentsStates
+from backend.app.bot.states.states import PlayerPickerStates
 from backend.app.database.models.operator_permission import OperatorRole
 from backend.app.database.models.tournament import TournamentStatus
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
@@ -117,8 +117,8 @@ async def test_add_player_success_message_escapes_first_name(session: AsyncSessi
     await session.commit()
 
     state = _make_state(admin_id)
-    await state.set_state(AdminTournamentsStates.enter_add_player_search)
-    await state.update_data(lang="en", add_player_tournament_id=tournament_id)
+    await state.set_state(PlayerPickerStates.enter_search)
+    await state.update_data(lang="en", picker_tournament_id=tournament_id)
 
     message = _FakeMessage()
     message.text = _UNESCAPED_NAME

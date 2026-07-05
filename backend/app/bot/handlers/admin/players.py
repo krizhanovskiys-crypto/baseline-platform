@@ -22,6 +22,7 @@ from backend.app.bot.keyboards.keyboards import (
     players_root_keyboard,
     players_search_results_keyboard,
 )
+from backend.app.bot.presenters.player_card import build_player_card_text
 from backend.app.bot.states.states import AdminPlayersStates
 from backend.app.bot.texts import t
 from backend.app.schemas.player import PlayerRead
@@ -55,16 +56,18 @@ def _md(value: str) -> str:
 
 
 def _format_details(player: PlayerRead, lang: str) -> str:
+    """The Universal Player Card (Sprint 12.3) plus this screen's own
+    admin-only extras — telegram_id, username, home area, availability,
+    profile completeness, and registration date are operational fields
+    an Admin needs that no other screen shows; they're appended after
+    the shared card, never mixed into its own formatting."""
     return t(
         "players_details_header",
         lang,
+        card=build_player_card_text(lang, player),
         telegram_id=player.telegram_id,
-        name=_md(player.first_name),
         username=f"@{_md(player.username)}" if player.username else _EMPTY,
-        languages=" • ".join(player.spoken_languages) if player.spoken_languages else _EMPTY,
-        level=_format_level(player.skill_level),
         home_area=player.home_area or _EMPTY,
-        courts=_md(", ".join(player.preferred_courts)) if player.preferred_courts else _EMPTY,
         available_now=_format_bool(player.available_now, lang),
         profile_complete_emoji="✅" if player.is_profile_complete else "⚠️",
         profile_complete=_format_bool(player.is_profile_complete, lang),
