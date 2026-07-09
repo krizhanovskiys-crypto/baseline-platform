@@ -464,3 +464,31 @@ including the follow-up that unified Tournament Details into one screen
 (no separate Player/Admin variant) and fixed the Details screen's Back
 button to return to whichever list a tournament actually belongs to for
 the viewer, rather than a single hardcoded target.
+
+---
+
+## Single-day tournaments use organizer-controlled result entry
+
+**Decision:** Official match results are entered only by the Tournament
+Organizer (Coach/Admin). Player score submission is intentionally
+postponed for future league and multi-day tournament formats.
+
+**Reason:** A single-day bracket needs exactly one trusted result per
+match to advance the winner automatically — a second, player-submitted
+source of truth for the same match would need a dispute/conflict
+resolution path before it could be trusted, and nothing in a single-day
+event's short lifetime justifies building that now. The Tournament
+Organizer already owns match creation and tournament lifecycle
+(`can_manage_tournament()`); result entry is the same kind of
+organizer-owned action, not a new trust boundary. Player-submitted
+scores stay a real future need — leagues and multi-day formats run long
+enough that requiring the organizer to enter every result stops
+scaling — but that need doesn't exist yet for single-day tournaments,
+so the simpler design ships first.
+
+**Status:** Accepted.
+
+**Where it shows up in the code:** scopes Sprint 13.2 — Tournament
+Engine (Phase 1), see `docs/ai/ACTIVE_SPRINT.md` and `docs/BACKLOG.md`
+Epic 2's Phase 1 entry. Not yet implemented as of this decision being
+recorded.

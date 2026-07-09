@@ -1,10 +1,18 @@
 # Project State
 
-**Purpose:** live project state only — the first file read in Context
-Rebuild. Maximum two pages by design; if it's growing past that, move
-detail to the file that already owns it (`docs/BACKLOG.md` for future
-work, `docs/TECH_DEBT.md` for debt, `RELEASE_NOTES.md` for history) and
-keep only a pointer here.
+**Purpose:** a concise current-state snapshot — the first file read in
+Context Rebuild. Answers only: current version, current git HEAD,
+completed Sprint, implemented platform modules, architecture status,
+known technical debt, next planned Sprint. Nothing else belongs here.
+
+**Where history went:** detailed sprint-by-sprint narrative (what was
+built, why, and how it was verified) now lives in
+`docs/ai/history/Sprint-N.md`, one file per major sprint number
+(`Sprint-10.md` through `Sprint-13.md` today). This file only indexes
+which module shipped in which sprint; the "why" and "how" are there,
+not repeated here. `docs/BACKLOG.md` still owns future work,
+`docs/TECH_DEBT.md` still owns debt detail, `RELEASE_NOTES.md` still
+owns the product-facing shipped-feature log.
 
 **Not hand-maintained.** Claude updates this file at the end of every
 sprint as a standing part of Definition of Done — never wait to be
@@ -12,198 +20,87 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-05, end of Sprint 13.1 — Release
-Announcements — committed, not yet pushed.
+**Last updated:** 2026-07-09, end of Sprint 13.1 — Release
+Announcements, plus this documentation refresh (Sprint 13.1
+close-out).
 
 ---
 
-## Current Sprint
+## Current Version
 
-No active feature sprint. Most recent committed work: Sprint 13.1 —
-Release Announcements (an in-bot "what's new" screen shown once per
-version bump), on top of Sprint 12.3 — Player Platform Refactor
-(`4abb8e5`).
+`APP_VERSION = "v0.13.0"` (`backend/app/core/version.py`).
 
-## Current Branch
+## Current Git HEAD
 
-`master`
+`7e6139b` on `master`, pushed — `origin/master` and local `HEAD` match
+exactly.
 
-## Current Production Commit
+## Completed Sprint
 
-Sprint 13.1 committed locally, on top of `4abb8e5` (Sprint 12.3 Player
-Platform Refactor), `d1a0372` (Sprint 12.2 Coach UX Refactor),
-`a11f4c1` (Schema Recovery auto-detection), `350b935` (Schema Recovery
-tool), and `4359146` (Tournament Platform v1 + Sprint 11.1
-stabilization). **Not yet pushed** — `origin/master` is still at
-`8e6a490`.
+Sprint 13.1 — Release Announcements (detail:
+`docs/ai/history/Sprint-13.md`).
 
-## Latest Test Count
+## Implemented Platform Modules
 
-472 passed, 0 failed (`pytest`, in-memory SQLite, no mocked DB layer) —
-at the current committed state (455 at the last pushed state).
-
-## Current Priority
-
-Sprint 13.1 — Release Announcements is committed. Next: Sprint 12
-Phase 2 (Round Robin format, Score Entry, Standings — per
-`docs/BACKLOG.md` Epic 2).
-
-## Current Task
-
-None in progress. Sprint 13.1 — `Player.last_seen_version` (migration
-`9c75a6368f08`), a centralized `data/release_announcements.py` registry
-(`Release(version, title, changes: list[ReleaseChange(emoji, label)])`
-— structured from the start so a future field, e.g. a release date, is
-one more attribute, not an architecture change),
-`ReleaseAnnouncementService` (the one place `last_seen_version !=
-APP_VERSION` is ever compared), a middleware that intercepts any
-update — not just `/start` — when a player's version is stale, and two
-screens (announcement, What's New) reached via one shared
-`announce:continue` callback. v0.13.0's real content (Coach Tournament
-Management, Improved Player Cards, Faster Player Picker, Verified
-Coach Badges) matches `RELEASE_NOTES.md`'s own v0.13.0 entry exactly —
-both were reconciled to describe only what actually shipped, replacing
-an earlier illustrative draft that had named two features that were
-never built.
-
-## Next Task
-
-Sprint 12 — Tournament Platform v1 Phase 2 (Round Robin, Score Entry,
-Standings), or returning to Sprint 11's Match Discovery Refactor Phase 2
-/ Players Actions layer — not yet decided.
-
-## Completed Major Features
+One line per shipped module; full detail in the linked history file.
 
 - Onboarding, Profile, Settings, Find Partner, Organize Match,
-  Invitations, Accept/Decline (v0.3.0)
-- Match Lifecycle state machine (Sprint 5.1–5.3)
-- My Matches, Match Details, Leave/Cancel Match, lazy expiration
-  (Sprint 6.1–6.5)
-- Available Matches — browse/filter/join open matches (Sprint 7.0)
-- Profile UX redesign, Find Partner Smart Filter (Sprint 7.1–7.2)
-- Analytics events foundation (Sprint 10.1)
-- Court Registry v1.0 — Tennis Zones, custom courts (Sprint 10.3)
-- Dev/production environment separation (Sprint 10.4)
-- **Admin Center** auth foundation — `OperatorPermission`,
-  `PermissionService`, `AdminSessionService` (PIN, session, lockout,
-  audit log) (Sprint 11 Phase 2.1)
-- **Admin Center Dashboard** — live Environment/Version/Uptime/stats,
-  the permanent root screen (Sprint 11 Phase 2.2)
-- **Admin Center Players module** — Search/Browse/Details, the
-  reference implementation for all future record modules
-  (Sprint 11 Phase 3.0)
-- **AI Context Rebuild workflow** — `docs/ai/*`, `PROMPT_START.md`,
-  Repository Reality Check, CTO Review (Sprint 11)
-- **Empty State → Invite a Friend** (Sprint 11 Phase 3.1A) — every
-  player-discovery empty state (Find Partner, Find Players for a Match)
-  offers a working Telegram share/deep-link "➕ Invite a Friend" button
-  instead of a dead end; consolidated three near-duplicate empty-state
-  text keys into one shared `player_discovery_no_results`. Deep-link
-  payload carries the inviting player's telegram_id
-  (`?start=invite_{telegram_id}`) — not parsed or acted on yet, format
-  only, ahead of future referral tracking.
-- **Match Discovery Refactor Phase 1** (Sprint 11) — Organize Match
-  gained a mandatory Area step (`OrganizeMatchStates.choose_area`):
-  defaults to the organizer's home area via "✅ Use my area", but
-  "✏️ Change area" opens the full Tennis Zone list — the organizer's
-  home_area is no longer silently forced onto `game.area`. The Court
-  step now shows one merged list scoped to the chosen Area — favourite
-  courts within that zone starred and ordered first, followed by the
-  rest of that zone's Court Registry, no separate/duplicated list.
-  `find_players_for_match()`, `find_partners()`, and every other
-  discovery query were untouched — analysis found the query layer was
-  already Match Context–correct; only match *creation* needed fixing.
-- **Tournament Platform v1, Phase 1** (Sprint 12) — new `Tournament`/
-  `TournamentPlayer` entities; tournament matches are ordinary `Game`
-  rows (`Game.tournament_id`, nullable FK), not a new match system.
-  Registration auto-closes on deadline OR max_players OR manual Admin
-  action, whichever comes first, always firing the Registration Closed
-  Notification. Generate Matches shuffles registered players, requires
-  an even count, is idempotent, and auto-transitions the tournament to
-  IN_PROGRESS. Coach is `Player.is_verified_coach` — a boolean badge,
-  not a separate entity — granted/revoked from the existing Player
-  Details screen. Tournament creation/management lives only under
-  `/dev` (never the Main Menu): Admin gets full Admin Center via PIN
-  ("🏆 Tournaments"); Verified Coach gets a narrower Tournament Center
-  with no PIN ("🏆 My Tournaments") and no access to Players/Testing/
-  System. Two deliberately separate, centralized permission methods —
-  `can_create_tournament()` (blanket: Center access/Create/Browse) and
-  `can_manage_tournament(telegram_id, organizer_player_id)`
-  (ownership-aware: Admin manages any tournament, Verified Coach only
-  ones they organized). Every generated match's Game.creator_id is the
-  Tournament Organizer, never a pair player (GameService.create_game()
-  gained `auto_join_creator: bool = True` for this).
-- **Tournament Stabilization Phase 1** (Sprint 11.1) — Admin/Coach's own
-  Tournament Details screen now runs the same lazy
-  `check_and_auto_close()` + Registration Closed Notification the
-  player-facing Details screen already did; previously it never did,
-  so a tournament whose deadline had passed stayed REGISTRATION_OPEN
-  indefinitely unless a *player* happened to open it. Verified Coach
-  tournament creation was confirmed architecturally correct against a
-  correctly-migrated schema — the reported failure was TECH-010's
-  schema drift (a dev database missing `players.is_verified_coach`), not
-  a code defect. **Verified** on a clean schema; **pending** validation
-  on the real development database specifically after TECH-010 recovery
-  is actually carried out there — not to be treated as fully closed
-  end-to-end until that happens.
-- **Coach UX Refactor** (Sprint 12.2) — Verified Coach fully decoupled
-  from `/dev`; reached instead from the Main Menu's own role-aware 🏆
-  Tournaments button. Tournament Details unified into one screen (no
-  separate Player/Admin variant) via the first Presenter
-  (`bot/presenters/tournament_details.py`); Back returns to whichever
-  list a tournament actually belongs to for the viewer, not a single
-  hardcoded target.
-- **Player Platform Refactor** (Sprint 12.3) — Universal Player Picker
-  (`bot/handlers/player_picker.py`, `data/player_levels.py`) replacing
-  Tournament Add Player's free-text-only search with Search/All
-  Players/level-grouped browsing (SQL-based counts and pagination).
-  Universal Player Presenter (`bot/presenters/player_card.py`,
-  list-based `Badge` config) migrated into every screen that used to
-  render its own player card. Verified live against real accounts
-  across three separate CTO-requested runtime re-verification rounds,
-  not just the test suite.
-- **Release Announcements** (Sprint 13.1) — an in-bot "what's new"
-  screen shown automatically, once per version bump, before the Main
-  Menu, with no `/start` required. `Player.last_seen_version` +
-  `data/release_announcements.py` (`Release(version, title, changes)`,
-  structured for future fields without an architecture change) +
-  `ReleaseAnnouncementService` (the one place the version comparison
-  happens) + a middleware intercepting any update when stale. v0.13.0's
-  content was reconciled between the in-app registry and
-  `RELEASE_NOTES.md` after an initial draft named two features that
-  were never built — both now describe only what actually shipped.
+  Invitations, Accept/Decline, Match Lifecycle, My Matches, Available
+  Matches, Analytics events, Court Registry, Dev/prod environment
+  separation — `docs/ai/history/Sprint-10.md`
+- Admin Center (auth foundation, Dashboard, Players module), AI
+  Context Rebuild workflow, Invite a Friend, Match Discovery Refactor
+  Phase 1, Tournament Stabilization Phase 1 — `docs/ai/history/Sprint-11.md`
+- Tournament Platform v1 Phase 1, Schema Recovery ops tooling (TECH-010
+  mitigation), Coach UX Refactor, Player Platform Refactor (Universal
+  Player Picker + Presenter) — `docs/ai/history/Sprint-12.md`
+- Release Announcements — `docs/ai/history/Sprint-13.md`
 
-## Critical Constraints
+## Architecture Status
 
-- Handlers never contain business logic and never touch a repository
-  directly — Handlers → Services → Repositories, always.
-- `OperatorPermission` is fully independent of `Player` — no `is_admin`
-  or `role` column on `Player`, ever.
-- `PermissionService` authorizes; `AdminSessionService` authenticates —
-  never merge these responsibilities into one service.
+- Handlers → Services → Repositories, strictly. Handlers never contain
+  business logic and never touch a repository directly.
+- Presenter layer established (`bot/presenters/`) for screens whose
+  view-assembly is shared across entry points and branchy enough to
+  warrant separating from handler orchestration — see
+  `docs/ARCHITECTURE.md` §3a for when to use one. Three exist today:
+  Tournament Details, Player Card, Release Announcement.
+- `OperatorPermission` fully independent of `Player` — no `is_admin` or
+  `role` column on `Player`, ever. `PermissionService` authorizes;
+  `AdminSessionService` authenticates — never merged.
 - Every Admin Center record module = Search → Browse → Details →
   Actions (`docs/ARCHITECTURE.md` §12). Back always returns to that
   module's own Root, never the exact prior screen.
-- All user-entered text (`first_name`, `username`, custom court names,
-  and future tournament name / coach bio / club name) must be escaped
-  for its `parse_mode` before display.
+- All user-entered free text (`first_name`, `username`, custom court
+  names, tournament name) must be escaped for its `parse_mode` before
+  display.
 - Rating/reputation/ranking is a permanent product non-goal.
-- Player-discovery empty states share one text key
-  (`player_discovery_no_results`) and one keyboard builder
-  (`player_discovery_empty_keyboard`) — a new discovery flow reuses
-  these rather than adding a near-duplicate.
-- The invite deep link's payload is `?start=invite_{telegram_id}` —
-  identifies the inviter, but is not parsed or acted on anywhere yet
-  (no referral tracking). Adding it later means parsing this same
-  payload in `/start`; the share mechanism and button never change.
-- `game.area`/`game.court` come from Organize Match's own Area/Court
-  steps, never implicitly from `player.home_area`/`preferred_courts` —
-  the organizer's profile is only ever a *default*, always overridable,
-  never the source of truth for a specific match.
 - `TournamentService.can_create_tournament()` (blanket) and
-  `can_manage_tournament()` (ownership-aware) must stay two separate
-  methods — never merged, per explicit CTO instruction, since a future
-  Tournament Organizer permission will answer these two questions
-  differently.
-- Never commit without explicit approval. Never push without explicit
-  approval.
+  `can_manage_tournament()` (ownership-aware) stay two separate
+  methods — never merged; a future Tournament Organizer permission
+  will answer these two questions differently.
+- `game.area`/`game.court` come from Organize Match's own Area/Court
+  steps, never implicitly from `player.home_area`/`preferred_courts`.
+- Never commit or push without explicit approval.
+
+## Known Technical Debt
+
+Full detail in `docs/TECH_DEBT.md`. Summary, by ID:
+
+| ID | Title | Status |
+|---|---|---|
+| TECH-001 | Duplicated button trigger strings in handler modules | Open |
+| TECH-002 | `create_invitation()` returns `None` for multiple distinct failure reasons | Open |
+| TECH-003 | No tracking of users who have blocked the bot | Open |
+| TECH-004 | Emoji usage not fully centralised | Open |
+| TECH-005 | Callback data strings generated inline at every call site | Open |
+| TECH-006 | Race condition in game status transitions on PostgreSQL | Open |
+| TECH-007 | Intermittent Cancel Match issue on newly created OPEN doubles matches | Investigate — not reproducible |
+| TECH-008 | Optimize lazy expiration for large datasets | Open |
+| TECH-009 | Duplicate lifecycle advancement after player joins | Accepted technical debt |
+| TECH-010 | `create_all_tables()` startup safety net causes schema drift with Alembic | Deferred — symptom repair tool shipped (`scripts/schema_recovery.py`), root mechanism itself not yet fixed |
+
+## Next Planned Sprint
+
+Sprint 13.2 — Tournament Engine (Phase 1). Scope recorded in
+`docs/ai/ACTIVE_SPRINT.md`.

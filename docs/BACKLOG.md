@@ -41,14 +41,21 @@ plan (→ `docs/IDEAS.md`), or an accepted, shipped decision (→
 beyond direct database access (`MANIFESTO.md`'s Permissions: User,
 Moderator, Admin, Owner).
 
-- **MVP:** Permission levels — today `/dev` is a single flat allowlist
-  with no distinction between Moderator, Admin, and Owner.
-- **Phase 1:** Real user management (view/edit/suspend a real player),
-  match moderation (force-cancel, inspect any match).
-- **Phase 2:** Report Abuse admin review queue (see Epic 7 for the
-  player-facing half), analytics visibility in `/dev` (the analytics
-  pipeline already collects events — nothing surfaces them yet),
-  environment visibility in `/dev` (confirm which `ENV`/config is active).
+- **MVP — shipped (Sprint 11 Phase 2.1):** Permission levels —
+  `OperatorRole` (Moderator/Admin/Owner), `PermissionService` +
+  `AdminSessionService` as two deliberately separate authorization/
+  authentication responsibilities.
+- **Phase 1 — partially shipped:** Admin Center Players module (Sprint
+  11 Phase 3.0) covers view (Search/Browse/Details) and one Action
+  (grant/revoke the Verified Coach badge). Generic edit and suspend a
+  real player, and match moderation (force-cancel, inspect any match),
+  are not built.
+- **Phase 2 — partially shipped:** environment visibility in `/dev` —
+  the Admin Dashboard (Sprint 11 Phase 2.2) already shows live
+  Environment/Version/Uptime/stats. Report Abuse admin review queue
+  (see Epic 7 for the player-facing half) and analytics visibility in
+  `/dev` (the analytics pipeline already collects events — nothing
+  surfaces them yet) are not built.
 - **Future:** —
 
 ---
@@ -58,17 +65,25 @@ Moderator, Admin, Owner).
 **Goal:** support structured competition, not just one-off matches
 (`docs/ROADMAP.md` Phase 3, `docs/VISION.md` Pillar 6).
 
-- **MVP:** Tournament model + registration flow — a player commits to a
-  tournament, not a single game; this is the prerequisite everything else
-  in this Epic depends on. Tournament creation/management permission
-  today: Admin only (Coach doesn't exist as a checkable badge yet). One
-  extensible permission gate, not hardcoded per-role, so Coach (once its
-  Player Badge ships, Epic 3) and later a dedicated Tournament Organizer
-  permission (below) plug into the same check without touching call
-  sites.
-- **Phase 1:** Round Robin format, Score Entry, Standings (Round Robin is
-  the simpler bracket type — the natural first format to support).
-- **Phase 2:** Knockout format.
+- **MVP — shipped (Sprint 12, 12.2):** Tournament model + registration
+  flow. Tournament creation/management permission is Admin **or**
+  Verified Coach, via one extensible gate
+  (`TournamentService.can_create_tournament()`/`can_manage_tournament()`)
+  — not hardcoded per-role, exactly as planned, so a future dedicated
+  Tournament Organizer permission (below) still only means editing this
+  gate's own body. Reached from the Main Menu's role-aware 🏆
+  Tournaments button (Sprint 12.2), not `/dev`.
+- **Phase 1 — planned (Sprint 13.2 "Tournament Engine"):** single-day
+  bracket progression — Coach/Admin (the Tournament Organizer) enters
+  match results, the bracket automatically advances the winner, the
+  tournament completes with a determined champion and final standings.
+  Organizer-controlled result entry, not player-submitted scores — see
+  `docs/PRODUCT_DECISIONS.md`'s "Single-day tournaments use
+  organizer-controlled result entry." This supersedes the original
+  Round-Robin-first ordering below: bracket/knockout mechanics are now
+  the agreed next phase, ahead of Round Robin.
+- **Phase 2:** Round Robin format, Score Entry, Standings — deferred
+  behind Phase 1's bracket engine, not dropped.
 - **Future:** Club Events, League Seasons, a dedicated Tournament
   Organizer permission (today this capability is covered by Admin/Coach;
   a first-class permission of its own is deferred until a real need for
@@ -88,13 +103,18 @@ Moderator, Admin, Owner).
 **Goal:** support Coach as a first-class user type (`MANIFESTO.md`), not
 a self-reported profile label.
 
-- **MVP:** Coach as a Player Badge — not a separate entity/model/service
-  (Sprint 12 decision, superseding this Epic's earlier "distinct from
-  Player" framing). A badge is enough to make Coach a checkable
-  permission source (e.g. for Epic 2's Tournament creation) without the
-  overhead of a parallel identity.
+- **MVP — shipped (Sprint 12, 12.2, 12.3):** Coach as a Player Badge
+  (`Player.is_verified_coach`) — not a separate entity/model/service,
+  superseding this Epic's earlier "distinct from Player" framing. The
+  badge is a checkable permission source for Epic 2's Tournament
+  creation, reached without any dependency on `/dev` (Sprint 12.2), and
+  displayed consistently everywhere a player card appears — My
+  Profile, Find Partner, Available Now, Admin Player Details — via the
+  Universal Player Card presenter (Sprint 12.3), not a one-off flag
+  shown on a single screen.
 - **Phase 1:** Coach verification workflow — replaces today's self-set
-  `level_source="coach_verified"` flag, which nothing actually verifies.
+  `level_source="coach_verified"` flag, which nothing actually
+  verifies. Not started.
 - **Phase 2:** Coach discovery, coach-specific profile fields.
 - **Future:** Lesson organization & scheduling, player recommendation
   from a coach. If Coach ever needs its own lifecycle/credentials beyond
