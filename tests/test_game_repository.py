@@ -75,3 +75,54 @@ async def test_game_player_participation(session: AsyncSession) -> None:
     fetched = await gp_repo.get_participation(game.id, player.id)
     assert fetched is not None
     assert fetched.player_id == player.id
+
+
+@pytest.mark.asyncio
+async def test_game_round_and_winner_player_id_default_to_none(session: AsyncSession) -> None:
+    player = await _create_player(session, 400, "Dave")
+    repo = GameRepository(session)
+
+    game = Game(
+        creator_id=player.id,
+        court="Y",
+        area="Downtown",
+        date=date(2025, 9, 5),
+        time=time(11, 0),
+        match_type=MatchType.SINGLES,
+    )
+    await repo.add(game)
+    await session.commit()
+
+    fetched = await repo.get_by_id(game.id)
+    assert fetched is not None
+    assert fetched.round is None
+    assert fetched.winner_player_id is None
+
+
+@pytest.mark.asyncio
+async def test_game_round_and_winner_player_id_persist(session: AsyncSession) -> None:
+    organizer = await _create_player(session, 401, "Eve")
+    winner = await _create_player(session, 402, "Frank")
+    repo = GameRepository(session)
+
+    game = Game(
+        creator_id=organizer.id,
+        court="Z",
+        area="Downtown",
+        date=date(2025, 9, 6),
+        time=time(12, 0),
+        match_type=MatchType.SINGLES,
+        round=1,
+    )
+    await repo.add(game)
+    await session.commit()
+
+    game.winner_player_id = winner.id
+    game.status = GameStatus.COMPLETED
+    await session.commit()
+
+    fetched = await repo.get_by_id(game.id)
+    assert fetched is not None
+    assert fetched.round == 1
+    assert fetched.winner_player_id == winner.id
+    assert fetched.status == GameStatus.COMPLETED
