@@ -212,7 +212,7 @@ async def test_dashboard_shows_round_grouped_match_cards_with_start_button(sessi
     assert "vs" in callback.message.sent[2]
     assert "Scheduled" in callback.message.sent[2]
     start_buttons = {btn.callback_data for row in callback.message.markups[2].inline_keyboard for btn in row}
-    assert any(cb.startswith("tourn_dash:start:") for cb in start_buttons)
+    assert any(cb.startswith("tourn:start_match:") for cb in start_buttons)
 
 
 @pytest.mark.asyncio
@@ -239,7 +239,7 @@ async def test_dashboard_match_card_shows_in_progress_and_result_button(session:
     card_text = callback.message.sent[2]
     assert "In Progress" in card_text
     buttons = {btn.callback_data for row in callback.message.markups[2].inline_keyboard for btn in row}
-    assert any(cb.startswith("tourn_dash:result:") for cb in buttons)
+    assert any(cb.startswith("tourn:enter_result:") for cb in buttons)
 
 
 @pytest.mark.asyncio

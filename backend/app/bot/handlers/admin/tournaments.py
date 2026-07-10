@@ -39,6 +39,7 @@ import logging
 from datetime import date, datetime, time
 
 from aiogram import Bot, F, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from aiogram.utils.markdown import markdown_decoration
@@ -60,10 +61,12 @@ from backend.app.bot.keyboards.keyboards import (
     tournament_court_keyboard,
     tournament_registered_players_keyboard,
 )
+from backend.app.bot.presenters.tournament_dashboard import build_match_card_view
 from backend.app.bot.states.states import AdminTournamentsStates, CreateTournamentStates, PlayerPickerStates
 from backend.app.bot.texts import t
 from backend.app.data.courts import get_courts_for_zone
 from backend.app.schemas.tournament import TournamentCreate, TournamentUpdate
+from backend.app.services.game_service import GameService
 from backend.app.services.permission_service import PermissionService
 from backend.app.services.players_service import PlayersService
 from backend.app.services.tournament_service import PAGE_SIZE, TournamentService, is_power_of_two
@@ -473,6 +476,48 @@ async def tourn_generate_matches(callback: CallbackQuery, session: AsyncSession,
     else:
         await callback.message.answer(t(error_key, lang), parse_mode="Markdown")  # type: ignore[union-attr]
     await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, tournament_id)  # type: ignore[arg-type]
+    await callback.answer()
+
+
+@router.callback_query(F.data.regexp(r"^tourn:start_match:\d+$"))
+async def tourn_dash_start_match(callback: CallbackQuery, session: AsyncSession) -> None:
+    """Tournament Dashboard's ▶️ Start Match button (Sprint 16, Step 2).
+
+    No permission pre-check here, unlike the tournament-level actions
+    above (tourn_generate_matches, tourn_mark_completed, ...): those
+    call _can_manage_specific() themselves because the TournamentService
+    methods they call (generate_matches(), mark_completed()) don't
+    self-authorize. TournamentService.start_match() already re-checks
+    can_manage_tournament() internally and returns
+    tournament_match_forbidden on failure — adding a second check here
+    would duplicate that authorization, which the project has
+    consistently avoided (one place answers "can this person do this,"
+    never two).
+
+    Refreshes only the one match card this button belongs to, in
+    place — the rest of the dashboard (header, other rounds/cards)
+    already reflects reality and doesn't need re-sending."""
+    if not callback.from_user:
+        return
+    game_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
+    lang = await lang_for(session, callback.from_user.id)
+
+    service = TournamentService(session)
+    _, error_key = await service.start_match(game_id, callback.from_user.id)
+    if error_key:
+        await callback.answer(t(error_key, lang), show_alert=True)
+        return
+
+    details = await GameService(session).get_match_details(game_id)
+    if details is not None:
+        card = build_match_card_view(lang, details)
+        try:
+            await callback.message.edit_text(  # type: ignore[union-attr]
+                card.text, reply_markup=card.keyboard, parse_mode="Markdown"
+            )
+        except TelegramBadRequest as exc:
+            if "message is not modified" not in str(exc):
+                raise
     await callback.answer()
 
 

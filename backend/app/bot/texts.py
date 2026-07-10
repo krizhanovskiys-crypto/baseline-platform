@@ -526,6 +526,12 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_match_status_open": "🟢 Scheduled",
         "tournament_match_status_in_progress": "🎾 In Progress",
         "tournament_match_status_completed": "🏁 Completed",
+        # Match Lifecycle error keys (Sprint 16, Step 2) — returned by
+        # TournamentService.start_match()/complete_match(), same keys
+        # already used as the REST API's error `detail` (Sprint 15).
+        "tournament_match_not_found": "❌ This match could not be found.",
+        "tournament_match_forbidden": "❌ Only the Tournament Organizer can do this.",
+        "tournament_match_invalid_transition": "❌ This match can't be started right now.",
         # Universal Player Picker (Sprint 12.3) — reusable, not Tournament-specific
         "picker_menu_header": "➕ *Add Player*",
         "picker_btn_search": "🔍 Search",
@@ -1038,6 +1044,9 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_match_status_open": "🟢 Заплановано",
         "tournament_match_status_in_progress": "🎾 Триває",
         "tournament_match_status_completed": "🏁 Завершено",
+        "tournament_match_not_found": "❌ Цей матч не знайдено.",
+        "tournament_match_forbidden": "❌ Це може зробити лише організатор турніру.",
+        "tournament_match_invalid_transition": "❌ Зараз цей матч не можна почати.",
         "picker_menu_header": "➕ *Додати гравця*",
         "picker_btn_search": "🔍 Пошук",
         "picker_btn_all_players": "👥 Усі гравці",
@@ -1549,6 +1558,9 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_match_status_open": "🟢 Запланирован",
         "tournament_match_status_in_progress": "🎾 Идёт",
         "tournament_match_status_completed": "🏁 Завершён",
+        "tournament_match_not_found": "❌ Этот матч не найден.",
+        "tournament_match_forbidden": "❌ Это может сделать только организатор турнира.",
+        "tournament_match_invalid_transition": "❌ Сейчас этот матч нельзя начать.",
         "picker_menu_header": "➕ *Добавить игрока*",
         "picker_btn_search": "🔍 Поиск",
         "picker_btn_all_players": "👥 Все игроки",

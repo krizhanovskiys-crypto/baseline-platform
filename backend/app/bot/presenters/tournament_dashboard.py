@@ -117,12 +117,13 @@ def build_empty_state_text(lang: str, status: TournamentStatus) -> str:
 
 
 def build_match_card_view(lang: str, match: MatchDetails) -> DashboardMessageView:
-    """One compact card per match — court, both players, status, and a
-    placeholder action button appropriate to the match's current
-    status. The button is rendered only; no handler is registered for
-    its callback_data yet (Sprint 16, Step 1 is presentation-only), so
-    tapping it does nothing today, same as any other not-yet-wired
-    callback in this codebase.
+    """One compact card per match — court, both players, status, and an
+    action button appropriate to the match's current status. The Start
+    Match button (OPEN) is wired (Sprint 16, Step 2 —
+    bot/handlers/admin/tournaments.py). The Enter Result button
+    (IN_PROGRESS) is still a placeholder: rendered only, no handler
+    registered for its callback_data yet, so tapping it does nothing
+    today, same as any other not-yet-wired callback in this codebase.
 
     Always exactly two participants for a generated tournament match
     (auto_join_creator=False; the organizer is never one of the two
@@ -151,12 +152,15 @@ def build_match_card_view(lang: str, match: MatchDetails) -> DashboardMessageVie
     keyboard = None
     if game.status == GameStatus.OPEN:
         builder = InlineKeyboardBuilder()
-        builder.button(text=t("tournament_dashboard_btn_start", lang), callback_data=f"tourn_dash:start:{game.id}")
+        builder.button(text=t("tournament_dashboard_btn_start", lang), callback_data=f"tourn:start_match:{game.id}")
         keyboard = builder.as_markup()
     elif game.status == GameStatus.IN_PROGRESS:
+        # Not wired yet (Sprint 16, Step 3) — kept under the same
+        # tourn: prefix as every other tournament callback for
+        # consistency, even though no handler exists for it today.
         builder = InlineKeyboardBuilder()
         builder.button(
-            text=t("tournament_dashboard_btn_result", lang), callback_data=f"tourn_dash:result:{game.id}"
+            text=t("tournament_dashboard_btn_result", lang), callback_data=f"tourn:enter_result:{game.id}"
         )
         keyboard = builder.as_markup()
 
