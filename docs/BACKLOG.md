@@ -73,13 +73,17 @@ Moderator, Admin, Owner).
   Tournament Organizer permission (below) still only means editing this
   gate's own body. Reached from the Main Menu's role-aware 🏆
   Tournaments button (Sprint 12.2), not `/dev`.
-- **Phase 1 — planned (Sprint 13.2 "Tournament Engine"):** single-day
-  bracket progression — Coach/Admin (the Tournament Organizer) enters
-  match results, the bracket automatically advances the winner, the
-  tournament completes with a determined champion and final standings.
-  Organizer-controlled result entry, not player-submitted scores — see
-  `docs/PRODUCT_DECISIONS.md`'s "Single-day tournaments use
-  organizer-controlled result entry." This supersedes the original
+- **Phase 1 — in progress (Sprint 14 "Tournament Engine"):**
+  Domain/Persistence/Service Layer shipped — single-day bracket
+  progression, Coach/Admin (the Tournament Organizer) enters match
+  results, the bracket automatically advances the winner, the
+  tournament completes with a determined champion and final standings
+  (`docs/ai/history/Sprint-14.md`). Organizer-controlled result entry,
+  not player-submitted scores — see `docs/PRODUCT_DECISIONS.md`'s
+  "Single-day tournaments use organizer-controlled result entry" and
+  `docs/PD-001-Tournament-Result-Reporting.md`. Not yet reachable from
+  any client — API Layer and Telegram integration are next
+  (`docs/ai/ACTIVE_SPRINT.md`). This supersedes the original
   Round-Robin-first ordering below: bracket/knockout mechanics are now
   the agreed next phase, ahead of Round Robin.
 - **Phase 2:** Round Robin format, Score Entry, Standings — deferred

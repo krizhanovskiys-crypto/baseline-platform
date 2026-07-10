@@ -486,9 +486,20 @@ enough that requiring the organizer to enter every result stops
 scaling — but that need doesn't exist yet for single-day tournaments,
 so the simpler design ships first.
 
-**Status:** Accepted.
+**Status:** Accepted. Implemented — Sprint 14's Domain/Persistence/
+Service Layer slice (`docs/ai/history/Sprint-14.md`).
 
-**Where it shows up in the code:** scopes Sprint 13.2 — Tournament
-Engine (Phase 1), see `docs/ai/ACTIVE_SPRINT.md` and `docs/BACKLOG.md`
-Epic 2's Phase 1 entry. Not yet implemented as of this decision being
-recorded.
+**Where it shows up in the code:** `TournamentService.complete_match()`
+(`backend/app/services/tournament_service.py`) — re-checks
+`can_manage_tournament()` itself rather than trusting a caller-side
+check, records only `Game.winner_player_id` (no score field), and
+validates the winner is one of the match's two participants before
+accepting the result. See `docs/PD-001-Tournament-Result-Reporting.md`
+for the full, more detailed version of this same decision (Winner-only
+scope through at least Sprint 18, the result → standings → next-round
+pipeline) — that document is now the authoritative detail; this entry
+stays as the original record and cross-reference. Scopes Sprint 14 —
+Tournament Engine (Phase 1), see `docs/ai/ACTIVE_SPRINT.md` and
+`docs/BACKLOG.md` Epic 2's Phase 1 entry. Not yet reachable from any
+client — the API Layer and Telegram integration that would call it are
+still ahead (`docs/ai/ACTIVE_SPRINT.md`'s "Next").

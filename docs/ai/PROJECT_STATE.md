@@ -20,25 +20,29 @@ asked. If this file's "Last updated" line is stale relative to
 `RELEASE_NOTES.md` or the git log, that itself is a process violation to
 flag during the next Context Rebuild.
 
-**Last updated:** 2026-07-09, end of Sprint 13.1 — Release
-Announcements, plus this documentation refresh (Sprint 13.1
-close-out).
+**Last updated:** 2026-07-09, end of Sprint 14's Domain/Persistence/
+Service Layer slice (Tournament Engine, Phase 1), plus this
+documentation refresh.
 
 ---
 
 ## Current Version
 
-`APP_VERSION = "v0.13.0"` (`backend/app/core/version.py`).
+`APP_VERSION = "v0.13.0"` (`backend/app/core/version.py`) — unchanged
+since Sprint 12.2; Sprint 14's work so far is service-layer only, not
+yet reachable from any client, so no version bump yet.
 
 ## Current Git HEAD
 
-`7e6139b` on `master`, pushed — `origin/master` and local `HEAD` match
+`8c15af3` on `master`, pushed — `origin/master` and local `HEAD` match
 exactly.
 
 ## Completed Sprint
 
-Sprint 13.1 — Release Announcements (detail:
-`docs/ai/history/Sprint-13.md`).
+Sprint 14 — Tournament Engine (Phase 1), **Domain/Persistence/Service
+Layer only** (detail: `docs/ai/history/Sprint-14.md`). API Layer and
+Telegram UI are separate, not-yet-started steps of this same sprint —
+see "Next Planned Sprint" below.
 
 ## Implemented Platform Modules
 
@@ -55,6 +59,9 @@ One line per shipped module; full detail in the linked history file.
   mitigation), Coach UX Refactor, Player Platform Refactor (Universal
   Player Picker + Presenter) — `docs/ai/history/Sprint-12.md`
 - Release Announcements — `docs/ai/history/Sprint-13.md`
+- Tournament Engine Phase 1 — Game.round/winner_player_id, Match
+  Lifecycle result flow, TournamentService.start_match/complete_match/
+  get_standings, power-of-two bracket rule — `docs/ai/history/Sprint-14.md`
 
 ## Architecture Status
 
@@ -81,6 +88,11 @@ One line per shipped module; full detail in the linked history file.
   will answer these two questions differently.
 - `game.area`/`game.court` come from Organize Match's own Area/Court
   steps, never implicitly from `player.home_area`/`preferred_courts`.
+- `docs/Baseline_Domain_Model.md` and `docs/Baseline_API_v2_Architecture.md`
+  are locked foundation documents (per `docs/DECISION_PROCESS.md`'s
+  ADR/PD split) — check new architecture-level questions against them
+  before deciding; a product-level question gets its own PD file
+  instead, not a change to either of these two.
 - Never commit or push without explicit approval.
 
 ## Known Technical Debt
@@ -102,5 +114,8 @@ Full detail in `docs/TECH_DEBT.md`. Summary, by ID:
 
 ## Next Planned Sprint
 
-Sprint 13.2 — Tournament Engine (Phase 1). Scope recorded in
-`docs/ai/ACTIVE_SPRINT.md`.
+Sprint 14 continues — Tournament API Layer + Telegram integration
+(`docs/Sprint14_Tournament_Engine_Plan.md` Steps 2 and 4: REST
+endpoints under `/api/v1/tournaments`/`/games/{id}/result`, then bot
+handlers wiring `start_match()`/`complete_match()`/`get_standings()`
+into real UI). Scope recorded in `docs/ai/ACTIVE_SPRINT.md`.
