@@ -501,6 +501,31 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} added to the tournament.",
         "tournament_add_player_not_registered": "❌ Could not add this player (already registered, or registration isn't open).",
         "tournament_remove_player_success": "✅ {name} removed from the tournament.",
+        # Tournament Dashboard (Sprint 16, Step 1) — organizer/admin-only
+        # view rendered below the existing Tournament Details header;
+        # a Player never sees these.
+        "tournament_dashboard_header": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "👥 {registered}/{max_players} registered\n"
+            "📊 Status: {status}{round_line}"
+        ),
+        "tournament_dashboard_current_round": "\n🎾 Current Round: {round}",
+        "tournament_dashboard_no_round": "",
+        "tournament_dashboard_champion": "🏆 *Champion: {name}*",
+        "tournament_dashboard_round_label": "🎾 *Round {round}*",
+        "tournament_dashboard_empty_draft": "📝 Still in Draft — open registration to get started.",
+        "tournament_dashboard_empty_registration_open": "✅ Registration is open. The bracket appears once registration closes and matches are generated.",
+        "tournament_dashboard_empty_awaiting_bracket": "🔒 Registration is closed. Ready to generate the bracket — use *Generate Matches* below.",
+        "tournament_dashboard_empty_cancelled": "❌ This tournament was cancelled.",
+        "tournament_dashboard_empty_no_matches": "😔 No matches yet.",
+        "tournament_dashboard_match_card": "🎾 {court}\n👤 {player_a}  vs  👤 {player_b}\n{status}{winner_line}",
+        "tournament_dashboard_winner_line": "\n🏆 Winner: {name}",
+        "tournament_dashboard_btn_start": "▶️ Start Match",
+        "tournament_dashboard_btn_result": "🏆 Enter Result",
+        "tournament_match_status_open": "🟢 Scheduled",
+        "tournament_match_status_in_progress": "🎾 In Progress",
+        "tournament_match_status_completed": "🏁 Completed",
         # Universal Player Picker (Sprint 12.3) — reusable, not Tournament-specific
         "picker_menu_header": "➕ *Add Player*",
         "picker_btn_search": "🔍 Search",
@@ -991,6 +1016,28 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} додано до турніру.",
         "tournament_add_player_not_registered": "❌ Не вдалося додати цього гравця (вже зареєстрований, або реєстрація не відкрита).",
         "tournament_remove_player_success": "✅ {name} прибрано з турніру.",
+        "tournament_dashboard_header": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "👥 {registered}/{max_players} зареєстровано\n"
+            "📊 Статус: {status}{round_line}"
+        ),
+        "tournament_dashboard_current_round": "\n🎾 Поточний раунд: {round}",
+        "tournament_dashboard_no_round": "",
+        "tournament_dashboard_champion": "🏆 *Чемпіон: {name}*",
+        "tournament_dashboard_round_label": "🎾 *Раунд {round}*",
+        "tournament_dashboard_empty_draft": "📝 Ще в чернетці — відкрийте реєстрацію, щоб почати.",
+        "tournament_dashboard_empty_registration_open": "✅ Реєстрація відкрита. Сітка з'явиться після закриття реєстрації та формування матчів.",
+        "tournament_dashboard_empty_awaiting_bracket": "🔒 Реєстрація закрита. Готово до формування сітки — натисніть *Сформувати матчі* нижче.",
+        "tournament_dashboard_empty_cancelled": "❌ Цей турнір скасовано.",
+        "tournament_dashboard_empty_no_matches": "😔 Матчів поки немає.",
+        "tournament_dashboard_match_card": "🎾 {court}\n👤 {player_a}  проти  👤 {player_b}\n{status}{winner_line}",
+        "tournament_dashboard_winner_line": "\n🏆 Переможець: {name}",
+        "tournament_dashboard_btn_start": "▶️ Почати матч",
+        "tournament_dashboard_btn_result": "🏆 Внести результат",
+        "tournament_match_status_open": "🟢 Заплановано",
+        "tournament_match_status_in_progress": "🎾 Триває",
+        "tournament_match_status_completed": "🏁 Завершено",
         "picker_menu_header": "➕ *Додати гравця*",
         "picker_btn_search": "🔍 Пошук",
         "picker_btn_all_players": "👥 Усі гравці",
@@ -1480,6 +1527,28 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_add_player_success": "✅ {name} добавлен(а) в турнир.",
         "tournament_add_player_not_registered": "❌ Не удалось добавить этого игрока (уже зарегистрирован, или регистрация не открыта).",
         "tournament_remove_player_success": "✅ {name} убран(а) из турнира.",
+        "tournament_dashboard_header": (
+            "🏆 *{name}*\n\n"
+            "📍 {area} — {court}\n"
+            "👥 {registered}/{max_players} зарегистрировано\n"
+            "📊 Статус: {status}{round_line}"
+        ),
+        "tournament_dashboard_current_round": "\n🎾 Текущий раунд: {round}",
+        "tournament_dashboard_no_round": "",
+        "tournament_dashboard_champion": "🏆 *Чемпион: {name}*",
+        "tournament_dashboard_round_label": "🎾 *Раунд {round}*",
+        "tournament_dashboard_empty_draft": "📝 Ещё в черновике — откройте регистрацию, чтобы начать.",
+        "tournament_dashboard_empty_registration_open": "✅ Регистрация открыта. Сетка появится после закрытия регистрации и формирования матчей.",
+        "tournament_dashboard_empty_awaiting_bracket": "🔒 Регистрация закрыта. Готово к формированию сетки — нажмите *Сформировать матчи* ниже.",
+        "tournament_dashboard_empty_cancelled": "❌ Этот турнир отменён.",
+        "tournament_dashboard_empty_no_matches": "😔 Матчей пока нет.",
+        "tournament_dashboard_match_card": "🎾 {court}\n👤 {player_a}  против  👤 {player_b}\n{status}{winner_line}",
+        "tournament_dashboard_winner_line": "\n🏆 Победитель: {name}",
+        "tournament_dashboard_btn_start": "▶️ Начать матч",
+        "tournament_dashboard_btn_result": "🏆 Внести результат",
+        "tournament_match_status_open": "🟢 Запланирован",
+        "tournament_match_status_in_progress": "🎾 Идёт",
+        "tournament_match_status_completed": "🏁 Завершён",
         "picker_menu_header": "➕ *Добавить игрока*",
         "picker_btn_search": "🔍 Поиск",
         "picker_btn_all_players": "👥 Все игроки",

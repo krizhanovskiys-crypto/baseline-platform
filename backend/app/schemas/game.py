@@ -42,6 +42,7 @@ class GameRead(BaseModel):
 class PlayerSummary(BaseModel):
     """Minimal player identity needed for match display and future extensions."""
 
+    player_id: int
     name: str
     telegram_id: int
     is_organizer: bool

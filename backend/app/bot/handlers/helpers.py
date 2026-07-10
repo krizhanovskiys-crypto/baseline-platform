@@ -4,13 +4,14 @@ from urllib.parse import quote
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
-from aiogram.types import Message
+from aiogram.types import InlineKeyboardMarkup, Message
 from aiogram.utils.markdown import markdown_decoration
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.bot.keyboards.keyboards import main_menu_keyboard
 from backend.app.bot.texts import t
 from backend.app.schemas.player import PlayerRead
+from backend.app.schemas.tournament import TournamentRead
 from backend.app.services.player_service import PlayerService
 
 logger = logging.getLogger(__name__)
@@ -69,13 +70,21 @@ async def show_tournament_menu(message: Message, session: AsyncSession, lang: st
 async def show_tournament_details(
     message: Message, session: AsyncSession, bot: Bot, lang: str, telegram_id: int, tournament_id: int
 ) -> None:
-    """The one Tournament Details screen (Sprint 12.2) — reached from
-    Browse, My Tournaments, or Admin's Tournament Administration alike.
-    This function only orchestrates: fetch the tournament, run the
-    lazy auto-close side effect, decide which list Back should return
-    to. The actual (text, keyboard) pair is built by the pure presenter
-    in bot/presenters/tournament_details.py — no separate Player/Admin
-    variant, and no view-assembly logic duplicated here."""
+    """The one Tournament Details entry point (Sprint 12.2) — reached
+    from Browse, My Tournaments, or Admin's Tournament Administration
+    alike. This function only orchestrates: fetch the tournament, run
+    the lazy auto-close side effect, decide which list Back should
+    return to, and decide which viewer sees which screen. The actual
+    (text, keyboard) pairs are built by pure presenters — no
+    view-assembly logic duplicated here.
+
+    A Player always sees the same simplified view (unchanged since
+    Sprint 12.2 — bot/presenters/tournament_details.py). An organizer/
+    admin (can_manage) additionally sees the Tournament Dashboard
+    (Sprint 16, Step 1 — bot/presenters/tournament_dashboard.py): the
+    same header and management keyboard, plus round-by-round match
+    cards. Telegram only renders what TournamentService/GameService
+    already compute — no business logic lives here."""
     from backend.app.bot.presenters.tournament_details import build_tournament_details_view
     from backend.app.services.permission_service import PermissionService
     from backend.app.services.player_service import PlayerService
@@ -112,7 +121,47 @@ async def show_tournament_details(
     view = build_tournament_details_view(
         lang, tournament, len(registrations), can_manage, is_registered, back_callback
     )
-    await message.answer(view.text, reply_markup=view.keyboard, parse_mode="Markdown")
+
+    if can_manage:
+        await _show_tournament_dashboard(message, session, lang, tournament, len(registrations), view.keyboard)
+    else:
+        await message.answer(view.text, reply_markup=view.keyboard, parse_mode="Markdown")
+
+
+async def _show_tournament_dashboard(
+    message: Message,
+    session: AsyncSession,
+    lang: str,
+    tournament: TournamentRead,
+    registered_count: int,
+    management_keyboard: InlineKeyboardMarkup,
+) -> None:
+    """Fetch the data the Tournament Dashboard presenter needs — every
+    Game generated for this tournament, each one's assembled match
+    details, and standings once the tournament is COMPLETED — entirely
+    through existing GameService/TournamentService methods, then hand
+    it to the pure presenter and send whatever it returns, in order.
+    No business logic here: this function is fetch-then-render only."""
+    from backend.app.bot.presenters.tournament_dashboard import build_dashboard_views
+    from backend.app.database.models.tournament import TournamentStatus
+    from backend.app.services.game_service import GameService
+    from backend.app.services.tournament_service import TournamentService
+
+    game_service = GameService(session)
+    games = await game_service.get_games_by_tournament(tournament.id)
+    matches = []
+    for game in games:
+        details = await game_service.get_match_details(game.id)
+        if details is not None:
+            matches.append(details)
+
+    standings = []
+    if tournament.status == TournamentStatus.COMPLETED:
+        standings = await TournamentService(session).get_standings(tournament.id)
+
+    views = build_dashboard_views(lang, tournament, registered_count, matches, standings, management_keyboard)
+    for view in views:
+        await message.answer(view.text, reply_markup=view.keyboard, parse_mode="Markdown")
 
 
 async def notify_tournament_registration_closed(bot: Bot, session: AsyncSession, tournament_id: int) -> None:

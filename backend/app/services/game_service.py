@@ -212,6 +212,16 @@ class GameService:
         games = await self._game_repo.get_games_by_creator(player.id)
         return [_game_to_schema(g) for g in games]
 
+    async def get_games_by_tournament(self, tournament_id: int) -> list[GameRead]:
+        """Return every Game generated for this tournament. Read-only
+        pass-through — TournamentService already owns tournament
+        orchestration; this exposes the existing repository query
+        through GameService for callers (the Telegram Tournament
+        Dashboard, Sprint 16) that only need Game data, not tournament
+        business logic."""
+        games = await self._game_repo.get_games_by_tournament(tournament_id)
+        return [_game_to_schema(g) for g in games]
+
     async def _expire_stale(self, game_id: int | None = None) -> None:
         """Lazily expire pre-start matches whose scheduled datetime has passed.
 
@@ -265,6 +275,7 @@ class GameService:
         committed = await self._gp_repo.get_committed_players(game.id)
         players = [
             PlayerSummary(
+                player_id=p.id,
                 name=p.first_name,
                 telegram_id=p.telegram_id,
                 is_organizer=(p.id == game.creator_id),
