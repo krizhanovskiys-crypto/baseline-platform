@@ -66,7 +66,7 @@ from backend.app.data.courts import get_courts_for_zone
 from backend.app.schemas.tournament import TournamentCreate, TournamentUpdate
 from backend.app.services.permission_service import PermissionService
 from backend.app.services.players_service import PlayersService
-from backend.app.services.tournament_service import PAGE_SIZE, TournamentService
+from backend.app.services.tournament_service import PAGE_SIZE, TournamentService, is_power_of_two
 
 logger = logging.getLogger(__name__)
 router = Router(name="admin_tournaments")
@@ -309,7 +309,7 @@ async def tourn_enter_max_players(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     lang = data.get("lang", "en")
     text = (message.text or "").strip()
-    if not text.isdigit() or int(text) <= 0:
+    if not text.isdigit() or not is_power_of_two(int(text)):
         await message.answer(t("tournament_error_max_players", lang), parse_mode="Markdown")
         return
     await state.update_data(max_players=int(text))

@@ -449,8 +449,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_error_time": "❌ Invalid time. Use HH:MM format.",
         "tournament_enter_deadline": "📅 Enter the registration deadline (DD.MM.YYYY):",
         "tournament_error_deadline": "❌ Invalid date, or the deadline is after the start date.",
-        "tournament_enter_max_players": "👥 Enter the maximum number of players (an even number):",
-        "tournament_error_max_players": "❌ Enter a positive even number.",
+        "tournament_enter_max_players": "👥 Enter the maximum number of players (4, 8, 16, 32...):",
+        "tournament_error_max_players": "❌ Enter a number that is a power of two (4, 8, 16, 32...).",
         "tournament_confirm": (
             "✅ *Confirm Tournament*\n\n"
             "🏆 {name}\n"
@@ -494,7 +494,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_generate_success": "✅ Matches generated. Tournament is now In Progress.",
         "tournament_generate_wrong_status": "❌ Matches can only be generated once registration is closed.",
-        "tournament_generate_odd_players": "❌ The number of registered players must be even and greater than zero. Add or remove a player and try again.",
+        "tournament_generate_invalid_player_count": "❌ Single elimination tournaments need a number of players that is a power of two (2, 4, 8, 16...). Add or remove a player and try again.",
         "tournament_generate_already_done": "❌ Matches have already been generated for this tournament.",
         "tournament_deleted": "🗑 Tournament deleted.",
         "tournament_add_player_prompt": "Enter the player's name, username, or Telegram ID:",
@@ -942,8 +942,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_error_time": "❌ Невірний час. Використайте формат ГГ:ХХ.",
         "tournament_enter_deadline": "📅 Введіть дедлайн реєстрації (ДД.ММ.РРРР):",
         "tournament_error_deadline": "❌ Невірна дата, або дедлайн пізніше дати початку.",
-        "tournament_enter_max_players": "👥 Введіть максимальну кількість гравців (парне число):",
-        "tournament_error_max_players": "❌ Введіть додатне парне число.",
+        "tournament_enter_max_players": "👥 Введіть максимальну кількість гравців (4, 8, 16, 32...):",
+        "tournament_error_max_players": "❌ Введіть число, яке є степенем двійки (4, 8, 16, 32...).",
         "tournament_confirm": (
             "✅ *Підтвердити турнір*\n\n"
             "🏆 {name}\n"
@@ -984,7 +984,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_generate_success": "✅ Матчі сформовано. Турнір тепер триває.",
         "tournament_generate_wrong_status": "❌ Матчі можна сформувати лише після закриття реєстрації.",
-        "tournament_generate_odd_players": "❌ Кількість зареєстрованих гравців має бути парною і більшою за нуль. Додайте або приберіть гравця та спробуйте ще раз.",
+        "tournament_generate_invalid_player_count": "❌ Турнір на вибування потребує кількості гравців, яка є степенем двійки (2, 4, 8, 16...). Додайте або приберіть гравця та спробуйте ще раз.",
         "tournament_generate_already_done": "❌ Матчі для цього турніру вже сформовано.",
         "tournament_deleted": "🗑 Турнір видалено.",
         "tournament_add_player_prompt": "Введіть ім'я, юзернейм або Telegram ID гравця:",
@@ -1431,8 +1431,8 @@ _TEXTS: dict[str, dict[str, str]] = {
         "tournament_error_time": "❌ Неверное время. Используйте формат ЧЧ:ММ.",
         "tournament_enter_deadline": "📅 Введите дедлайн регистрации (ДД.ММ.ГГГГ):",
         "tournament_error_deadline": "❌ Неверная дата, или дедлайн позже даты начала.",
-        "tournament_enter_max_players": "👥 Введите максимальное количество игроков (чётное число):",
-        "tournament_error_max_players": "❌ Введите положительное чётное число.",
+        "tournament_enter_max_players": "👥 Введите максимальное количество игроков (4, 8, 16, 32...):",
+        "tournament_error_max_players": "❌ Введите число, являющееся степенью двойки (4, 8, 16, 32...).",
         "tournament_confirm": (
             "✅ *Подтвердить турнир*\n\n"
             "🏆 {name}\n"
@@ -1473,7 +1473,7 @@ _TEXTS: dict[str, dict[str, str]] = {
         ),
         "tournament_generate_success": "✅ Матчи сформированы. Турнир теперь идёт.",
         "tournament_generate_wrong_status": "❌ Матчи можно сформировать только после закрытия регистрации.",
-        "tournament_generate_odd_players": "❌ Количество зарегистрированных игроков должно быть чётным и больше нуля. Добавьте или уберите игрока и попробуйте снова.",
+        "tournament_generate_invalid_player_count": "❌ Турнир на выбывание требует количества игроков, являющегося степенью двойки (2, 4, 8, 16...). Добавьте или уберите игрока и попробуйте снова.",
         "tournament_generate_already_done": "❌ Матчи для этого турнира уже сформированы.",
         "tournament_deleted": "🗑 Турнир удалён.",
         "tournament_add_player_prompt": "Введите имя, юзернейм или Telegram ID игрока:",

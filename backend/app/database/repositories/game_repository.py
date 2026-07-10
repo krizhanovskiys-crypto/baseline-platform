@@ -31,9 +31,33 @@ class GameRepository(BaseRepository[Game]):
         Generate Matches to stay idempotent (Sprint 12)."""
         return await self._all(Game.tournament_id == tournament_id)
 
+    async def get_games_by_tournament_round(self, tournament_id: int, round: int) -> list[Game]:
+        """Return every Game in one bracket round — used by
+        TournamentService.complete_match() to detect when a round has
+        fully finished and the next round (or the champion) can be
+        determined (Sprint 14, Step 2)."""
+        return await self._all(Game.tournament_id == tournament_id, Game.round == round)
+
     async def update_status(self, game_id: int, status: GameStatus) -> Game | None:
         """Persist a new status for the given game. Returns the updated Game or None."""
         stmt = update(Game).where(Game.id == game_id).values(status=status)
+        await self._session.execute(stmt)
+        await self._session.flush()
+        return await self.get_by_id(game_id)
+
+    async def set_round(self, game_id: int, round: int) -> Game | None:
+        """Persist which bracket round this Game belongs to (Sprint 14,
+        Step 2). Set once, at generation time — never reassigned."""
+        stmt = update(Game).where(Game.id == game_id).values(round=round)
+        await self._session.execute(stmt)
+        await self._session.flush()
+        return await self.get_by_id(game_id)
+
+    async def set_winner(self, game_id: int, winner_player_id: int) -> Game | None:
+        """Persist the winning player for a completed tournament match
+        (Sprint 14, Step 2; PD-001 — organizer-entered Winner only, no
+        score)."""
+        stmt = update(Game).where(Game.id == game_id).values(winner_player_id=winner_player_id)
         await self._session.execute(stmt)
         await self._session.flush()
         return await self.get_by_id(game_id)

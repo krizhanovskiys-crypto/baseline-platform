@@ -62,3 +62,19 @@ class TournamentPlayerRead(BaseModel):
     language: str | None = None
     status: TournamentPlayerStatus
     registered_at: datetime
+
+
+class TournamentStandingEntry(BaseModel):
+    """One player's current standing in a bracket (Sprint 14, Step 2).
+
+    Always computed from Game rows (round + winner_player_id), never
+    stored — there is no standings table. "in_progress" means still
+    alive in the bracket (including not-yet-started); "eliminated" means
+    lost a completed match at eliminated_round; "champion" means won the
+    tournament's final match.
+    """
+
+    player_id: int
+    first_name: str
+    status: str  # "in_progress" | "eliminated" | "champion"
+    eliminated_round: int | None = None

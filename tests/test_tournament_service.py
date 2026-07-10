@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.exceptions import InvalidTournamentTransitionError
 from backend.app.database.models.operator_permission import OperatorRole
 from backend.app.database.models.tournament import TournamentStatus
-from backend.app.database.repositories.game_repository import GameRepository
+from backend.app.database.repositories.game_repository import GamePlayerRepository, GameRepository
 from backend.app.schemas.player import PlayerCreate, PlayerUpdate
 from backend.app.schemas.tournament import TournamentCreate, TournamentUpdate
 from backend.app.services import admin_session_service as svc_module
@@ -233,7 +233,28 @@ async def test_generate_matches_rejects_odd_player_count(session: AsyncSession) 
     service = TournamentService(session)
     success, error_key = await service.generate_matches(tournament_id)
     assert success is False
-    assert error_key == "tournament_generate_odd_players"
+    assert error_key == "tournament_generate_invalid_player_count"
+
+    games = await GameRepository(session).get_games_by_tournament(tournament_id)
+    assert games == []
+
+
+@pytest.mark.asyncio
+async def test_generate_matches_rejects_even_but_non_power_of_two_player_count(session: AsyncSession) -> None:
+    """Single Elimination only supports player counts that are a power
+    of two — 6 is even but not a valid bracket size (Sprint 14, Step 2:
+    byes are out of scope)."""
+    await _make_player(session, 3151)
+    tournament_id = await _make_tournament(session, 3151, max_players=10)
+    lifecycle = TournamentLifecycleService(session)
+    await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_OPEN)
+    await _register_n_players(session, tournament_id, 6, start_id=3250)
+    await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_CLOSED)
+
+    service = TournamentService(session)
+    success, error_key = await service.generate_matches(tournament_id)
+    assert success is False
+    assert error_key == "tournament_generate_invalid_player_count"
 
     games = await GameRepository(session).get_games_by_tournament(tournament_id)
     assert games == []
@@ -245,7 +266,7 @@ async def test_generate_matches_pairs_every_registered_player_exactly_once(sessi
     tournament_id = await _make_tournament(session, 3301, max_players=10)
     lifecycle = TournamentLifecycleService(session)
     await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_OPEN)
-    telegram_ids = await _register_n_players(session, tournament_id, 6, start_id=3400)
+    telegram_ids = await _register_n_players(session, tournament_id, 8, start_id=3400)
     await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_CLOSED)
 
     service = TournamentService(session)
@@ -254,7 +275,7 @@ async def test_generate_matches_pairs_every_registered_player_exactly_once(sessi
     assert error_key == ""
 
     games = await GameRepository(session).get_games_by_tournament(tournament_id)
-    assert len(games) == 3  # 6 players -> 3 matches
+    assert len(games) == 4  # 8 players -> 4 matches
 
     from backend.app.database.repositories.game_repository import GamePlayerRepository
     from backend.app.database.repositories.player_repository import PlayerRepository
@@ -266,16 +287,17 @@ async def test_generate_matches_pairs_every_registered_player_exactly_once(sessi
     for game in games:
         # Every generated Game must belong to the Tournament Organizer —
         # never to either pair player, and the organizer here (3301) is
-        # not one of the 6 registered players (3400-3405), so this also
+        # not one of the 8 registered players (3400-3407), so this also
         # confirms the organizer isn't wrongly added as a participant.
         assert game.creator_id == organizer.id
+        assert game.round == 1
         participant_ids = await gp_repo.get_participant_player_ids(game.id)
         assert len(participant_ids) == 2  # each generated match pairs exactly two players
         assert organizer.id not in participant_ids
         all_participant_ids.extend(participant_ids)
 
     player_repo_ids = set(all_participant_ids)
-    assert len(all_participant_ids) == len(player_repo_ids) == 6  # every player appears exactly once
+    assert len(all_participant_ids) == len(player_repo_ids) == 8  # every player appears exactly once
 
 
 @pytest.mark.asyncio
@@ -480,3 +502,255 @@ async def test_list_tournaments_orders_by_date_within_same_status(session: Async
 
     tournaments, _ = await service.list_tournaments(page=1)
     assert [t.name for t in tournaments] == ["Soon", "Mid", "Late"]
+
+
+# ---------------------------------------------------------------------------
+# Match Lifecycle & Result Flow (Sprint 14, Step 2)
+# ---------------------------------------------------------------------------
+
+async def _setup_generated_tournament(
+    session: AsyncSession, organizer_telegram_id: int, n_players: int, start_id: int
+) -> int:
+    """Register n_players (must be a power of two), close registration,
+    and generate matches. Returns tournament_id; round 1 Games can then
+    be fetched via GameRepository.get_games_by_tournament_round()."""
+    from backend.app.services.players_service import PlayersService
+
+    organizer_id = await _make_player(session, organizer_telegram_id, "Organizer")
+    await PlayersService(session).set_verified_coach(organizer_id, True)
+    await session.commit()
+
+    # max_players is set above n_players so registering exactly n_players
+    # doesn't auto-close registration before the explicit transition below.
+    tournament_id = await _make_tournament(session, organizer_telegram_id, max_players=n_players + 10)
+    lifecycle = TournamentLifecycleService(session)
+    await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_OPEN)
+    await _register_n_players(session, tournament_id, n_players, start_id=start_id)
+    await lifecycle.transition(tournament_id, TournamentStatus.REGISTRATION_CLOSED)
+
+    service = TournamentService(session)
+    success, error_key = await service.generate_matches(tournament_id)
+    assert success is True, error_key
+    return tournament_id
+
+
+@pytest.mark.asyncio
+async def test_start_match_transitions_open_to_in_progress(session: AsyncSession) -> None:
+    organizer_telegram_id = 6001
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=6100)
+
+    game_repo = GameRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    assert len(round_1) == 2
+
+    service = TournamentService(session)
+    updated, error_key = await service.start_match(round_1[0].id, organizer_telegram_id)
+    assert error_key == ""
+    assert updated is not None
+
+    from backend.app.database.models.game import GameStatus
+
+    refreshed = await game_repo.get_by_id(round_1[0].id)
+    assert refreshed.status == GameStatus.IN_PROGRESS
+
+
+@pytest.mark.asyncio
+async def test_start_match_rejected_for_non_organizer(session: AsyncSession) -> None:
+    """PD-001 — only the Tournament Organizer may drive match state."""
+    organizer_telegram_id = 6201
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=6300)
+
+    game_repo = GameRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+
+    intruder_telegram_id = 6300  # one of the registered players, not the organizer
+    service = TournamentService(session)
+    updated, error_key = await service.start_match(round_1[0].id, intruder_telegram_id)
+    assert updated is None
+    assert error_key == "tournament_match_forbidden"
+
+    from backend.app.database.models.game import GameStatus
+
+    refreshed = await game_repo.get_by_id(round_1[0].id)
+    assert refreshed.status == GameStatus.OPEN  # unchanged
+
+
+@pytest.mark.asyncio
+async def test_complete_match_records_winner_and_transitions_completed(session: AsyncSession) -> None:
+    organizer_telegram_id = 6401
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=6500)
+
+    game_repo = GameRepository(session)
+    gp_repo = GamePlayerRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    game = round_1[0]
+    participants = await gp_repo.get_participant_player_ids(game.id)
+    winner_id = participants[0]
+
+    service = TournamentService(session)
+    await service.start_match(game.id, organizer_telegram_id)
+    updated, error_key = await service.complete_match(game.id, winner_id, organizer_telegram_id)
+    assert error_key == ""
+    assert updated is not None
+    assert updated.winner_player_id == winner_id
+
+    from backend.app.database.models.game import GameStatus
+
+    refreshed = await game_repo.get_by_id(game.id)
+    assert refreshed.status == GameStatus.COMPLETED
+    assert refreshed.winner_player_id == winner_id
+
+
+@pytest.mark.asyncio
+async def test_complete_match_rejects_winner_not_in_match(session: AsyncSession) -> None:
+    organizer_telegram_id = 6601
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=6700)
+
+    game_repo = GameRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    game = round_1[0]
+
+    service = TournamentService(session)
+    await service.start_match(game.id, organizer_telegram_id)
+
+    from backend.app.database.repositories.player_repository import PlayerRepository
+
+    organizer = await PlayerRepository(session).get_by_telegram_id(organizer_telegram_id)
+    updated, error_key = await service.complete_match(game.id, organizer.id, organizer_telegram_id)
+    assert updated is None
+    assert error_key == "tournament_match_winner_not_participant"
+
+    from backend.app.database.models.game import GameStatus
+
+    refreshed = await game_repo.get_by_id(game.id)
+    assert refreshed.status == GameStatus.IN_PROGRESS  # unchanged
+    assert refreshed.winner_player_id is None
+
+
+@pytest.mark.asyncio
+async def test_complete_match_rejected_for_non_organizer(session: AsyncSession) -> None:
+    """PD-001 — result entry is Organizer-controlled only."""
+    organizer_telegram_id = 6801
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=6900)
+
+    game_repo = GameRepository(session)
+    gp_repo = GamePlayerRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    game = round_1[0]
+    participants = await gp_repo.get_participant_player_ids(game.id)
+
+    service = TournamentService(session)
+    await service.start_match(game.id, organizer_telegram_id)
+
+    intruder_telegram_id = 6900  # a registered player, not the organizer
+    updated, error_key = await service.complete_match(game.id, participants[0], intruder_telegram_id)
+    assert updated is None
+    assert error_key == "tournament_match_forbidden"
+
+
+@pytest.mark.asyncio
+async def test_complete_match_generates_next_round_once_round_finishes(session: AsyncSession) -> None:
+    organizer_telegram_id = 7001
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=7100)
+
+    game_repo = GameRepository(session)
+    gp_repo = GamePlayerRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    assert len(round_1) == 2
+
+    service = TournamentService(session)
+
+    # Complete only the first game — round 1 isn't fully finished yet.
+    game_a = round_1[0]
+    participants_a = await gp_repo.get_participant_player_ids(game_a.id)
+    await service.start_match(game_a.id, organizer_telegram_id)
+    await service.complete_match(game_a.id, participants_a[0], organizer_telegram_id)
+
+    round_2_partial = await game_repo.get_games_by_tournament_round(tournament_id, 2)
+    assert round_2_partial == []  # not created yet — round 1 still has an unfinished game
+
+    # Complete the second game — round 1 is now fully finished.
+    game_b = round_1[1]
+    participants_b = await gp_repo.get_participant_player_ids(game_b.id)
+    await service.start_match(game_b.id, organizer_telegram_id)
+    await service.complete_match(game_b.id, participants_b[0], organizer_telegram_id)
+
+    round_2 = await game_repo.get_games_by_tournament_round(tournament_id, 2)
+    assert len(round_2) == 1  # 2 round-1 winners -> 1 final match
+
+    final_participants = set(await gp_repo.get_participant_player_ids(round_2[0].id))
+    assert final_participants == {participants_a[0], participants_b[0]}
+
+    tournament = await service.get_tournament(tournament_id)
+    assert tournament.status == TournamentStatus.IN_PROGRESS  # final not played yet
+
+
+@pytest.mark.asyncio
+async def test_complete_final_match_marks_tournament_completed(session: AsyncSession) -> None:
+    organizer_telegram_id = 7201
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=7300)
+
+    game_repo = GameRepository(session)
+    gp_repo = GamePlayerRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    service = TournamentService(session)
+
+    winners = []
+    for game in round_1:
+        participants = await gp_repo.get_participant_player_ids(game.id)
+        await service.start_match(game.id, organizer_telegram_id)
+        await service.complete_match(game.id, participants[0], organizer_telegram_id)
+        winners.append(participants[0])
+
+    round_2 = await game_repo.get_games_by_tournament_round(tournament_id, 2)
+    assert len(round_2) == 1
+    final_game = round_2[0]
+
+    await service.start_match(final_game.id, organizer_telegram_id)
+    updated, error_key = await service.complete_match(final_game.id, winners[0], organizer_telegram_id)
+    assert error_key == ""
+
+    tournament = await service.get_tournament(tournament_id)
+    assert tournament.status == TournamentStatus.COMPLETED
+
+    round_3 = await game_repo.get_games_by_tournament_round(tournament_id, 3)
+    assert round_3 == []  # champion determined — no further round generated
+
+
+@pytest.mark.asyncio
+async def test_get_standings_reflects_eliminated_and_champion(session: AsyncSession) -> None:
+    organizer_telegram_id = 7401
+    tournament_id = await _setup_generated_tournament(session, organizer_telegram_id, 4, start_id=7500)
+
+    game_repo = GameRepository(session)
+    gp_repo = GamePlayerRepository(session)
+    round_1 = await game_repo.get_games_by_tournament_round(tournament_id, 1)
+    service = TournamentService(session)
+
+    winners, losers = [], []
+    for game in round_1:
+        participants = await gp_repo.get_participant_player_ids(game.id)
+        winner_id, loser_id = participants[0], participants[1]
+        await service.start_match(game.id, organizer_telegram_id)
+        await service.complete_match(game.id, winner_id, organizer_telegram_id)
+        winners.append(winner_id)
+        losers.append(loser_id)
+
+    round_2 = await game_repo.get_games_by_tournament_round(tournament_id, 2)
+    final_game = round_2[0]
+    final_participants = await gp_repo.get_participant_player_ids(final_game.id)
+    champion_id, runner_up_id = final_participants[0], final_participants[1]
+    await service.start_match(final_game.id, organizer_telegram_id)
+    await service.complete_match(final_game.id, champion_id, organizer_telegram_id)
+
+    standings = await service.get_standings(tournament_id)
+    by_player = {s.player_id: s for s in standings}
+
+    for loser_id in losers:
+        assert by_player[loser_id].status == "eliminated"
+        assert by_player[loser_id].eliminated_round == 1
+
+    assert by_player[runner_up_id].status == "eliminated"
+    assert by_player[runner_up_id].eliminated_round == 2
+    assert by_player[champion_id].status == "champion"
+    assert by_player[champion_id].eliminated_round is None

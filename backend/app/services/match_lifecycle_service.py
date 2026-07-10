@@ -56,7 +56,8 @@ class MatchLifecycleService:
 
         Raises:
             ValueError: if the game does not exist.
-            InvalidTransitionError: if the transition is not permitted by _VALID_TRANSITIONS.
+            InvalidTransitionError: if the transition is not permitted by _VALID_TRANSITIONS
+                (with one narrow, context-aware exception — see below).
 
         TOCTOU note — this method uses a read → check → write pattern, not an atomic
         compare-and-swap. Two concurrent callers can both read the same current status,
@@ -79,7 +80,21 @@ class MatchLifecycleService:
         current = game.status
         allowed = _VALID_TRANSITIONS.get(current, frozenset())
 
-        if new_status not in allowed:
+        # A tournament match never goes through the invitation-driven
+        # PARTIALLY_FILLED → FULL → CONFIRMED pipeline — generate_matches()
+        # (Sprint 12) adds both players as CONFIRMED participants directly
+        # and leaves the Game at OPEN, so OPEN is already its "ready to
+        # start" state. An ordinary match still must not skip that
+        # pipeline (test_open_skips_to_in_progress guards exactly this),
+        # so this exception is scoped to tournament_id is not None, not
+        # added to _VALID_TRANSITIONS itself (Sprint 14, Step 2).
+        is_tournament_start = (
+            current == GameStatus.OPEN
+            and new_status == GameStatus.IN_PROGRESS
+            and game.tournament_id is not None
+        )
+
+        if new_status not in allowed and not is_tournament_start:
             raise InvalidTransitionError(current, new_status)
 
         updated = await self._repo.update_status(game_id, new_status)

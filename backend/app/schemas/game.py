@@ -33,6 +33,8 @@ class GameRead(BaseModel):
     match_type: MatchType
     required_level: float | None
     status: GameStatus
+    round: int | None
+    winner_player_id: int | None
     created_at: datetime
     required_players: int
 
