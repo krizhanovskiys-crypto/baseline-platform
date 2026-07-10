@@ -111,6 +111,7 @@ Full detail in `docs/TECH_DEBT.md`. Summary, by ID:
 | TECH-008 | Optimize lazy expiration for large datasets | Open |
 | TECH-009 | Duplicate lifecycle advancement after player joins | Accepted technical debt |
 | TECH-010 | `create_all_tables()` startup safety net causes schema drift with Alembic | Deferred — symptom repair tool shipped (`scripts/schema_recovery.py`), root mechanism itself not yet fixed |
+| TECH-011 | API consistency pass — request bodies, error messages, pagination, metadata, response envelopes | Open — deliberately deferred behind Telegram integration with the Tournament API |
 
 ## Next Planned Sprint
 

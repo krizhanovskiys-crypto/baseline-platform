@@ -222,6 +222,33 @@ Production and development databases must evolve exclusively through Alembic mig
 
 ---
 
+## TECH-011
+
+**Title:** API consistency pass — request bodies, error messages, pagination, metadata, response envelopes
+
+**Problem:**
+`/api/v1` grew across three routers (`players.py`, `games.py`, `tournaments.py`) without a single written convention to check new endpoints against. Two review passes (Sprint 15, Steps 1 and 2) found real, growing divergence:
+
+- **Request bodies:** `create_player`/`update_player`/`create_game` take a Pydantic body schema (`PlayerCreate`/`PlayerUpdate`/`GameCreate`) for their payload. `POST /games/{id}/start` and `/complete` (Sprint 15, Step 2) take everything — including `winner_player_id`, genuine submitted data, not just caller identity — as bare, unvalidated query parameters. No request body schema at all.
+- **Error messages:** every existing 4xx `detail` is a human-readable sentence fragment ("Player not found", "Creator player not found"). The two new match-lifecycle endpoints return the raw internal service `error_key` directly (`"tournament_match_winner_not_participant"`) — an implementation detail leaking into the public API contract.
+- **Pagination:** `GET /tournaments/` accepts `page` and silently drops the `total` count `TournamentService.list_tournaments()` already computes — no way for a client to know if another page exists. `GET /players/` and `GET /games/` don't paginate at all, so there's no single established pagination shape to be consistent with in the first place.
+- **Metadata:** no endpoint returns pagination metadata, request IDs, or any envelope-level information — raw arrays/objects only. Not wrong on its own, but undecided as a convention.
+- **Response envelopes:** every endpoint returns either a bare object or a bare array — no wrapper (`{"data": ..., "meta": ...}` or similar) has been adopted or rejected. This should be decided once, not per-endpoint.
+
+Two smaller, endpoint-scoped divergences noted in the same reviews, folded in here rather than given their own items: the error-handling style itself now has two shapes side by side (inline `if not X: raise HTTPException(...)` in the older endpoints vs. a `_ERROR_STATUS` dict + `_raise_for_error()` helper in the new ones), and `games.py` now depends on two different services (`GameService` and `TournamentService`) via two separate `_get_*_service()` helpers in one router file — worth resolving in the same pass, not necessarily the same way.
+
+**Impact:**
+Medium. Nothing is broken today — every endpoint works and is tested. The cost is compounding: each new endpoint has had no convention to match, so each one has quietly picked its own shape. Left alone, a real API client (iOS) ends up handling multiple different error-detail styles and pagination shapes from the same API.
+
+**Priority:** Medium — deliberately not blocking Telegram integration (per product decision below), but should land before the API surface grows much further (Telegram result-entry flow, then iOS) or the number of shapes to reconcile only grows.
+
+**Suggested solution:**
+One dedicated pass across all of `/api/v1` — not patched per-endpoint as new routes are added — deciding and then applying, in order: (1) a standard request-body schema convention for all POST/PATCH endpoints, including `winner_player_id`-style action payloads; (2) a standard error-response shape (human-readable `detail`, internal `error_key` only as a secondary machine-readable field if kept at all); (3) whether list endpoints paginate, and if so, one shared pagination response shape with `total`/`page`/`has_next`; (4) whether a response envelope is adopted platform-wide. Existing endpoints (`players.py`, `games.py`, `tournaments.py`) get migrated to whatever is decided in the same pass, not left as legacy exceptions.
+
+**Status:** Open — explicitly deferred behind Telegram integration with the new Tournament API (`docs/Sprint14_Tournament_Engine_Plan.md` Step 4), per product decision: shipping the integration now matters more than a fully polished REST contract, and this register entry is what keeps that deferral visible instead of silently forgotten.
+
+---
+
 *Items without a source `TODO`/`FIXME` annotation are tracked here only. Items with a source annotation are listed under both the code comment and this register.*
 
 ---
