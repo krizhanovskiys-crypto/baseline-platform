@@ -61,7 +61,11 @@ from backend.app.bot.keyboards.keyboards import (
     tournament_court_keyboard,
     tournament_registered_players_keyboard,
 )
-from backend.app.bot.presenters.tournament_dashboard import build_match_card_view
+from backend.app.bot.presenters.tournament_dashboard import (
+    build_match_card_view,
+    build_who_won_view,
+    build_winner_confirmed_text,
+)
 from backend.app.bot.states.states import AdminTournamentsStates, CreateTournamentStates, PlayerPickerStates
 from backend.app.bot.texts import t
 from backend.app.data.courts import get_courts_for_zone
@@ -518,6 +522,82 @@ async def tourn_dash_start_match(callback: CallbackQuery, session: AsyncSession)
         except TelegramBadRequest as exc:
             if "message is not modified" not in str(exc):
                 raise
+    await callback.answer()
+
+
+@router.callback_query(F.data.regexp(r"^tourn:enter_result:\d+$"))
+async def tourn_dash_enter_result_prompt(callback: CallbackQuery, session: AsyncSession) -> None:
+    """Tournament Dashboard's 🏆 Enter Result button (Sprint 16, Step 3).
+
+    Read-only: no service mutation happens here, just a targeted
+    edit-in-place of this one match card into the "Who won?" prompt.
+    No permission check — a Player never reaches this button (the
+    dashboard itself is organizer/admin-only, per Sprint 16, Step 1),
+    and the actual winner-selection callback below re-checks
+    authorization via TournamentService.complete_match() regardless."""
+    if not callback.from_user:
+        return
+    game_id = int(callback.data.split(":")[2])  # type: ignore[union-attr]
+    lang = await lang_for(session, callback.from_user.id)
+
+    details = await GameService(session).get_match_details(game_id)
+    if details is None:
+        await callback.answer(t("tournament_match_not_found", lang), show_alert=True)
+        return
+
+    prompt = build_who_won_view(lang, details)
+    try:
+        await callback.message.edit_text(  # type: ignore[union-attr]
+            prompt.text, reply_markup=prompt.keyboard, parse_mode="Markdown"
+        )
+    except TelegramBadRequest as exc:
+        if "message is not modified" not in str(exc):
+            raise
+    await callback.answer()
+
+
+@router.callback_query(F.data.regexp(r"^tourn:winner:\d+:\d+$"))
+async def tourn_dash_select_winner(callback: CallbackQuery, session: AsyncSession, bot: Bot) -> None:
+    """Winner selection (Sprint 16, Step 3) — tourn:winner:{game_id}:{player_id}.
+
+    Delegates entirely to TournamentService.complete_match(): no
+    duplicated validation, authorization, or bracket-advancement logic.
+    That one call already records the Winner (PD-001), transitions the
+    match to COMPLETED, and — internally — either generates the next
+    round or marks the tournament COMPLETED once every match in the
+    current round is done. This handler never decides which of those
+    happened; it only re-fetches and re-renders current state
+    afterward, via the same show_tournament_details() orchestration
+    every other tournament screen already uses."""
+    if not callback.from_user:
+        return
+    parts = callback.data.split(":")  # type: ignore[union-attr]
+    game_id, winner_player_id = int(parts[2]), int(parts[3])
+    lang = await lang_for(session, callback.from_user.id)
+
+    service = TournamentService(session)
+    updated, error_key = await service.complete_match(game_id, winner_player_id, callback.from_user.id)
+    if error_key:
+        await callback.answer(t(error_key, lang), show_alert=True)
+        return
+
+    winner_details = await GameService(session).get_match_details(game_id)
+    winner_name = next(
+        (p.name for p in winner_details.players if p.player_id == winner_player_id), "—"
+    ) if winner_details else "—"
+    try:
+        await callback.message.edit_text(  # type: ignore[union-attr]
+            build_winner_confirmed_text(lang, winner_name), parse_mode="Markdown"
+        )
+    except TelegramBadRequest as exc:
+        if "message is not modified" not in str(exc):
+            raise
+
+    # Full dashboard re-render — Telegram only re-renders current state
+    # here; whether a new round appeared or the tournament completed
+    # (champion banner) was already decided by complete_match() above,
+    # not by this handler.
+    await show_tournament_details(callback.message, session, bot, lang, callback.from_user.id, updated.tournament_id)  # type: ignore[arg-type,union-attr]
     await callback.answer()
 
 

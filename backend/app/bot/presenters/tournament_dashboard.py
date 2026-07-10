@@ -155,9 +155,6 @@ def build_match_card_view(lang: str, match: MatchDetails) -> DashboardMessageVie
         builder.button(text=t("tournament_dashboard_btn_start", lang), callback_data=f"tourn:start_match:{game.id}")
         keyboard = builder.as_markup()
     elif game.status == GameStatus.IN_PROGRESS:
-        # Not wired yet (Sprint 16, Step 3) — kept under the same
-        # tourn: prefix as every other tournament callback for
-        # consistency, even though no handler exists for it today.
         builder = InlineKeyboardBuilder()
         builder.button(
             text=t("tournament_dashboard_btn_result", lang), callback_data=f"tourn:enter_result:{game.id}"
@@ -165,6 +162,28 @@ def build_match_card_view(lang: str, match: MatchDetails) -> DashboardMessageVie
         keyboard = builder.as_markup()
 
     return DashboardMessageView(text=text, keyboard=keyboard)
+
+
+def build_who_won_view(lang: str, match: MatchDetails) -> DashboardMessageView:
+    """The 🏆 Enter Result prompt (Sprint 16, Step 3) — replaces one
+    match card in place (same message, edited) with exactly two
+    buttons, one per participant. Callback format is fixed:
+    tourn:winner:{game_id}:{player_id} — player_id is the Player.id
+    TournamentService.complete_match() expects as winner_player_id,
+    already carried on PlayerSummary since Sprint 16, Step 1."""
+    game = match.game
+    builder = InlineKeyboardBuilder()
+    for player in match.players:
+        builder.button(
+            text=t("tournament_dashboard_winner_option", lang, name=player.name),
+            callback_data=f"tourn:winner:{game.id}:{player.player_id}",
+        )
+    builder.adjust(1)
+    return DashboardMessageView(text=t("tournament_dashboard_who_won", lang), keyboard=builder.as_markup())
+
+
+def build_winner_confirmed_text(lang: str, winner_name: str) -> str:
+    return t("tournament_dashboard_winner_confirmed", lang, name=markdown_decoration.quote(winner_name))
 
 
 def build_dashboard_views(
